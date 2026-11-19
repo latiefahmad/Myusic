@@ -154,6 +154,10 @@ final class LoopbackHTTPServer: @unchecked Sendable {
 
     /// Starts listening and stops again when the test ends.
     func start(for test: XCTestCase) async throws {
+        // Declared before the continuation on purpose: inside its closure the name
+        // would otherwise resolve to a local declared below, and Swift reports
+        // "closure captures 'listener' before it is declared".
+        let listener = self.listener
         try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
             let once = OnceFlag()
             listener.stateUpdateHandler = { [weak self] state in
@@ -173,7 +177,6 @@ final class LoopbackHTTPServer: @unchecked Sendable {
             }
             listener.start(queue: queue)
         }
-        let listener = self.listener
         test.addTeardownBlock { listener.cancel() }
     }
 
