@@ -576,50 +576,61 @@ final class SyncedLyricsPanelTests: XCTestCase {
         let after = "Back again now"
         let below = [after, "And on we go"]
         var jumps: [String] = []
-        // A sample read across Core Animation's own commit can catch one frame with the row
-        // somewhere the next frame does not: the layer tree is read a layer at a time, and at the
-        // end of the page's move the presentation and model layers disagree for one commit. A
-        // real jump moves the row's trajectory - the next sample carries on from where it put the
-        // row - while such a read is undone by the next sample, which steps the row back. So a
-        // step over the limit is held for one sample: it is a jump once the row is seen past
-        // where it started, and a bad read when it is back there (whose return step is then not
-        // a jump of its own).
-        var pending: [String: (from: CGFloat, to: CGFloat, at: Int)] = [:]
+        // A sample read across the commit where the break closes can catch the rows below it a
+        // couple of row heights further up: the ScrollView applies the shrinking row and the
+        // offset that compensates it on different commits, so for a frame or two the page has
+        // moved and the row has not. Such a read is undone by a later sample, while a row that
+        // really jumped keeps the place it moved to. Each row is therefore held against the last
+        // place it held for real, and a step over the limit only becomes a jump when the row is
+        // still away from that place once a bad read would have been undone.
+        struct Held {
+            var from: CGFloat
+            var to: CGFloat
+            var at: Int
+            var since: Date
+        }
+        var held: [String: Held] = [:]
+        var settled: [String: (top: CGFloat, at: Date)] = [:]
+        // The limit is per elapsed time, not per runner frame, so a loaded runner does not turn
+        // one sparse sample into a false jump.
+        func tolerance(_ from: Date, _ now: Date) -> CGFloat {
+            CGFloat(1_400 * now.timeIntervalSince(from) + 8)
+        }
         // Plays from `from` to `to`, noting a row below the break that moves faster than the
-        // page's glide. The limit is per elapsed time, not per runner frame, so a loaded runner
-        // does not turn one sparse sample into a false jump.
+        // page's glide.
         func play(from: Int, to: Int) {
             clock.reset(positionMs: from, isPlaying: true)
-            var last: (tops: [CGFloat], at: Date)?
-            pending = [:]
+            held = [:]
+            settled = [:]
             while clock.positionMs < to {
                 RunLoop.main.run(until: Date().addingTimeInterval(0.008))
                 // A row's layer seen before its first commit reads as the window's origin: skipped.
                 let tops = below.compactMap { host.lyricsVoice($0)?.drawnTopInWindow }.filter { abs($0) > 0.5 }
                 let now = Date()
-                guard tops.count == below.count else { last = nil; pending = [:]; continue }
-                var suppress: Set<String> = []
-                for (text, step) in pending {
-                    guard let row = below.firstIndex(of: text) else { continue }
-                    let top = tops[row]
-                    if abs(top - step.from) <= abs(top - step.to) {
-                        // Back where it started: this step was a read across a commit.
-                        suppress.insert(text)
+                guard tops.count == below.count else { held = [:]; settled = [:]; continue }
+                for (text, top) in zip(below, tops) {
+                    let base = settled[text]
+                    if let step = held[text] {
+                        let away = base.map { abs(top - $0.top) > tolerance($0.at, now) } ?? true
+                        if !away {
+                            held[text] = nil    // back where it held: the read was undone
+                        } else if now.timeIntervalSince(step.since) >= 0.08 {
+                            jumps.append("\(text) \(Int(step.from - 120)) to \(Int(step.to - 120)) at \(step.at) ms")
+                            held[text] = nil
+                            settled[text] = (top, now)
+                        }
+                    } else if let base {
+                        if abs(top - base.top) > tolerance(base.at, now) {
+                            held[text] = Held(from: base.top, to: top, at: clock.positionMs, since: now)
+                        } else {
+                            settled[text] = (top, now)
+                        }
                     } else {
-                        jumps.append("\(text) \(Int(step.from - 120)) to \(Int(step.to - 120)) at \(step.at) ms")
+                        settled[text] = (top, now)
                     }
                 }
-                pending = [:]
-                if let last {
-                    let maximumTravel = CGFloat(1_400 * now.timeIntervalSince(last.at) + 8)
-                    for ((text, was), top) in zip(zip(below, last.tops), tops)
-                        where abs(top - was) > maximumTravel && !suppress.contains(text) {
-                        pending[text] = (was, top, clock.positionMs)
-                    }
-                }
-                last = (tops, now)
             }
-            pending = [:]
+            held = [:]
         }
         play(from: 2_900, to: 4_200)    // the page moves onto the break and the dots open
         uiSnapshot(host, "lyrics-break-open")
