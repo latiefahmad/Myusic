@@ -87,15 +87,17 @@ final class RangeServer: @unchecked Sendable {
     }
 
     private func respond(to request: URLRequest) throws -> URLProtocolStub.Response {
+        // Qualified with `self.` on purpose: the destructuring below declares locals
+        // called `refused` and `hosted`, and an unqualified reference here makes the
+        // compiler see `state` depending on itself ("circular reference").
         let state = lock.withLock {
-            () -> (Bool, [String: Int], [String: Hosted], Int?, Bool, Bool) in
-            (_offline, refused, hosted, _maxBytesPerResponse, _emptyBodies, _ignoreRanges)
+            (self._offline, self.refused, self.hosted, self._maxBytesPerResponse, self._emptyBodies, self._ignoreRanges)
         }
-        let (offline, refused, hosted, maxBytes, empty, ignoreRanges) = state
+        let (offline, refusedURLs, hostedFiles, maxBytes, empty, ignoreRanges) = state
         if offline { throw URLError(.notConnectedToInternet) }
         guard let url = request.url else { throw URLError(.badURL) }
-        if let status = refused[url.absoluteString] { return .status(status) }
-        guard let file = hosted[url.absoluteString] else { return .status(404) }
+        if let status = refusedURLs[url.absoluteString] { return .status(status) }
+        guard let file = hostedFiles[url.absoluteString] else { return .status(404) }
         var headers: [String: String] = ["Accept-Ranges": "bytes"]
         if let mime = file.mimeType { headers["Content-Type"] = mime }
         let total = Int64(file.data.count)
