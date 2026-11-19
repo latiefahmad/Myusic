@@ -115,13 +115,33 @@ jobs:
           Expand-Archive wix.zip -DestinationPath "$env:RUNNER_TEMP\wix"
           "$env:RUNNER_TEMP\wix" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
 
-      # windows-latest carries MSYS2 at C:\msys64, but not on PATH. The
-      # analyser and the WinRT media bridge both need it.
+      # The analyser and the WinRT media bridge both need a MinGW C++ compiler.
+      # The image ships MSYS2 at C:\msys64, but no mingw64 toolchain and nothing on
+      # PATH, so install g++ into it when it is not already there. Ninja and CMake
+      # are preinstalled.
       - name: MinGW on PATH
         shell: pwsh
         run: |
-          "C:\msys64\mingw64\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
-          Get-ChildItem "C:\msys64\mingw64\bin\g++.exe"
+          $gpp = (Get-Command g++.exe -ErrorAction SilentlyContinue).Source
+          if (-not $gpp) {
+            $dir = @(
+              "C:\msys64\mingw64\bin",
+              "C:\msys64\ucrt64\bin",
+              "C:\ProgramData\mingw64\mingw64\bin",
+              "C:\tools\mingw64\bin"
+            ) | Where-Object { Test-Path (Join-Path $_ "g++.exe") } | Select-Object -First 1
+            if ($dir) { $gpp = Join-Path $dir "g++.exe" }
+          }
+          if (-not $gpp -and (Test-Path "C:\msys64\usr\bin\bash.exe")) {
+            Write-Host "installing the mingw64 toolchain into MSYS2"
+            & "C:\msys64\usr\bin\bash.exe" -lc "pacman -Sy --noconfirm --needed mingw-w64-x86_64-gcc"
+            if (Test-Path "C:\msys64\mingw64\bin\g++.exe") { $gpp = "C:\msys64\mingw64\bin\g++.exe" }
+          }
+          if (-not $gpp) { throw "g++.exe not found: the build would ship without the Automix analyser" }
+          Split-Path $gpp | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+          & $gpp --version | Select-Object -First 1
+          (Get-Command ninja.exe).Source
+          (Get-Command cmake.exe).Source
 
       - name: Work out the version
         id: version
