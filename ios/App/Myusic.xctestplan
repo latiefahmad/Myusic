@@ -1,0 +1,152 @@
+{
+  "configurations": [
+    {
+      "id": "6F1C2B3A-0000-4000-8000-000000000001",
+      "name": "Default",
+      "options": {}
+    }
+  ],
+  "defaultOptions": {
+    "targetForVariableExpansion": {
+      "containerPath": "container:Myusic.xcodeproj",
+      "identifier": "BC0000000000000000000011",
+      "name": "Myusic"
+    }
+  },
+  "testTargets": [
+    {
+      "target": {
+        "containerPath": "container:Myusic.xcodeproj",
+        "identifier": "BC0000000000000000000012",
+        "name": "MyusicTests"
+      }
+    },
+    {
+      "target": {
+        "containerPath": "container:../MyusicKit",
+        "identifier": "MyusicCoreTests",
+        "name": "MyusicCoreTests"
+      }
+    },
+    {
+      "target": {
+        "containerPath": "container:../MyusicKit",
+        "identifier": "InnerTubeTests",
+        "name": "InnerTubeTests"
+      }
+    },
+    {
+      "target": {
+        "containerPath": "container:../MyusicKit",
+        "identifier": "StreamResolutionTests",
+        "name": "StreamResolutionTests"
+      }
+    },
+    {
+      "target": {
+        "containerPath": "container:../MyusicKit",
+        "identifier": "PlaybackQueueTests",
+        "name": "PlaybackQueueTests"
+      }
+    },
+    {
+      "target": {
+        "containerPath": "container:../MyusicKit",
+        "identifier": "AudioDSPTests",
+        "name": "AudioDSPTests"
+      }
+    },
+    {
+      "target": {
+        "containerPath": "container:../MyusicKit",
+        "identifier": "PlaybackTests",
+        "name": "PlaybackTests"
+      }
+    },
+    {
+      "target": {
+        "containerPath": "container:../MyusicKit",
+        "identifier": "AutomixTests",
+        "name": "AutomixTests"
+      }
+    },
+    {
+      "target": {
+        "containerPath": "container:../MyusicKit",
+        "identifier": "LyricsTests",
+        "name": "LyricsTests"
+      }
+    },
+    {
+      "target": {
+        "containerPath": "container:../MyusicKit",
+        "identifier": "DownloadsTests",
+        "name": "DownloadsTests"
+      }
+    },
+    {
+      "target": {
+        "containerPath": "container:../MyusicKit",
+        "identifier": "SourcesTests",
+        "name": "SourcesTests"
+      }
+    },
+    {
+      "target": {
+        "containerPath": "container:../MyusicKit",
+        "identifier": "NetworkLibraryTests",
+        "name": "NetworkLibraryTests"
+      }
+    },
+    {
+      "target": {
+        "containerPath": "container:../MyusicKit",
+        "identifier": "ListenTogetherTests",
+        "name": "ListenTogetherTests"
+      }
+    },
+    {
+      "target": {
+        "containerPath": "container:../MyusicKit",
+        "identifier": "IntegrationsTests",
+        "name": "IntegrationsTests"
+      }
+    },
+    {
+      "target": {
+        "containerPath": "container:../MyusicKit",
+        "identifier": "ReplayTests",
+        "name": "ReplayTests"
+      }
+    },
+    {
+      "target": {
+        "containerPath": "container:../MyusicKit",
+        "identifier": "CanvasTests",
+        "name": "CanvasTests"
+      }
+    },
+    {
+      "target": {
+        "containerPath": "container:../MyusicKit",
+        "identifier": "ThemingTests",
+        "name": "ThemingTests"
+      }
+    },
+    {
+      "target": {
+        "containerPath": "container:../MyusicKit",
+        "identifier": "AudioCacheTests",
+        "name": "AudioCacheTests"
+      }
+    },
+    {
+      "target": {
+        "containerPath": "container:../MyusicKit",
+        "identifier": "PlaybackPolicyTests",
+        "name": "PlaybackPolicyTests"
+      }
+    }
+  ],
+  "version": 1
+}
