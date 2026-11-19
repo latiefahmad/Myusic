@@ -267,11 +267,21 @@ jobs:
       - name: Build the DMG
         run: |
           v=${{ steps.version.outputs.value }}
+          # The stage has to hold the signed bundle itself: pointing hdiutil at a
+          # directory that only had the /Applications link made a 5 KB disk image
+          # with no app in it, and the job still went green.
+          stage="$RUNNER_TEMP/dmg"
+          rm -rf "$stage"
+          mkdir -p "$stage"
+          cp -R desktopApp/build/compose/binaries/main/app/Myusic.app "$stage/"
+          ln -sfn /Applications "$stage/Applications"
+          dmg="Myusic-$v-macos-${{ matrix.arch }}.dmg"
+          hdiutil create -volname "Myusic" -srcfolder "$stage" -ov -format UDZO "$dmg"
+          # A DMG that missed the app is a few kilobytes: fail instead of publishing it.
+          test "$(stat -f%z "$dmg")" -gt 1000000
           mkdir -p dist
-          ln -sfn /Applications dist/Applications
-          hdiutil create -volname "Myusic" -srcfolder dist -ov -format UDZO \
-            "Myusic-$v-macos-${{ matrix.arch }}.dmg"
-          mv "Myusic-$v-macos-${{ matrix.arch }}.dmg" dist/
+          mv "$dmg" dist/
+          ls -lh dist
 
       - uses: actions/upload-artifact@v4
         with:
