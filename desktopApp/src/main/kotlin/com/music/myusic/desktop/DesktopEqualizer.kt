@@ -3,6 +3,7 @@ package com.music.myusic.desktop
 import com.music.myusic.playback.EqCurve
 import com.music.myusic.playback.EqLayout
 import com.music.myusic.playback.FilterKind
+import com.music.myusic.playback.PeakLimiter
 import kotlin.math.PI
 import kotlin.math.abs
 import kotlin.math.exp
@@ -21,8 +22,14 @@ import kotlin.math.tan
  *
  * Floats rather than 16-bit PCM: the desktop engine mixes in float all the way to the sink, so
  * there is no quantisation on the way through and no clamp on the way out. Everything else is the
- * same — the topology-preserving state-variable filter with Cytomic's output mixes, chosen because
+ * same - the topology-preserving state-variable filter with Cytomic's output mixes, chosen because
  * the trapezoidal form stays well behaved at a 60 Hz cutoff where a naive biquad loses precision.
+ *
+ * The curve only takes back half its own boost (see [EqCurve.preampDb]), so a peak that lands
+ * where the boost is can still run past full scale. Android's float path has `LoudnessProcessor`'s
+ * limiter behind it and its 16-bit path runs a [PeakLimiter] of its own; the desktop chain has
+ * neither, so this carries the same catch. Bypassed entirely while the equaliser is flat, like
+ * every other part of it.
  *
  * Every number here is a target. Dragging the tone puck re-aims them continuously, and stepping
  * coefficients per block is zipper noise, so gains, Qs, the make-up attenuation and the balance all
@@ -63,6 +70,9 @@ internal class DesktopEqualizer {
     /** Output trim per channel: make-up attenuation, and balance where stereo. */
     private var channelGain = FloatArray(0)
 
+    /** The catch under the partial make-up: see the class comment. */
+    private val limiter = PeakLimiter()
+
     /**
      * Aims the equaliser. Called from whoever owns the settings, never from the audio thread.
      *
@@ -80,6 +90,7 @@ internal class DesktopEqualizer {
         this.sampleRate = sampleRate
         state = FloatArray(this.channels * EqLayout.SLOTS * 2)
         channelGain = FloatArray(this.channels) { 1f }
+        limiter.configure(sampleRate)
         running.fill(false)
         snapToTarget()
     }
@@ -87,6 +98,7 @@ internal class DesktopEqualizer {
     /** Forgets what the filters were ringing with, for a seek or a fresh source. */
     fun reset() {
         state.fill(0f)
+        limiter.reset()
         running.fill(false)
         snapToTarget()
     }
@@ -110,14 +122,24 @@ internal class DesktopEqualizer {
             var at = index
             val end = index + block_
             while (at < end) {
+                val frameStart = at
+                var peak = 0f
                 for (channel in 0 until channels) {
                     if (at >= end) break
                     var sample = block[at]
                     for (slot in 0 until active) {
                         sample = section(activeSlots[slot], channel, sample)
                     }
-                    block[at] = sample * channelGain[channel]
+                    val value = sample * channelGain[channel]
+                    block[at] = value
+                    if (abs(value) > peak) peak = abs(value)
                     at++
+                }
+                // Linked across the frame, so a peak on one side never pulls the image
+                // over, and only once the whole frame is known.
+                val gain = limiter.gainFor(peak)
+                if (gain < 1f) {
+                    for (frameAt in frameStart until at) block[frameAt] *= gain
                 }
             }
             flushDenormals(active)
