@@ -52,6 +52,24 @@ jobs:
           key: spm-${{ runner.os }}-${{ hashFiles('ios/MyusicKit/Package.resolved', 'ios/Myusic.xcworkspace/xcshareddata/swiftpm/Package.resolved') }}
           restore-keys: spm-${{ runner.os }}-
 
+      # Compiling the package's tests on their own is minutes instead of the dozen the
+      # whole workspace takes, so a Swift error in MyusicKit or its test targets shows
+      # up sooner. Reuses .derived-ci, so the workspace build after it is mostly cached.
+      # The scheme only exists while the workspace sees the local package; skip if not.
+      - name: Type-check the package first
+        run: |
+          set -o pipefail
+          if ! xcodebuild -workspace Myusic.xcworkspace -list | grep -q "MyusicKit-Package"; then
+            echo "no MyusicKit-Package scheme in this workspace; skipping the fast gate"
+            exit 0
+          fi
+          xcodebuild build-for-testing \
+            -workspace Myusic.xcworkspace -scheme MyusicKit-Package \
+            -destination "generic/platform=iOS Simulator" \
+            -derivedDataPath .derived-ci -clonedSourcePackagesDirPath .spm \
+            -jobs "$(sysctl -n hw.ncpu)" ARCHS=arm64 ONLY_ACTIVE_ARCH=NO \
+            | xcbeautify --quiet --is-ci
+
       - name: Build for testing
         run: |
           set -o pipefail

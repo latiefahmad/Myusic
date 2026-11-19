@@ -32,7 +32,13 @@ final class TransitionFilterAutomationTests: XCTestCase {
 
         filter.setCutoffs(lowPassHz: 400, highPassHz: TransitionFilterProcessor.offHz)
         XCTAssertTrue(filter.isFiltering)
-        let noise = (0..<(8_192 * 2)).map { Float(($0 * 7_919) % 201 - 100) / 200 }
+        // Spelled out in steps: as one expression the integer-modulus dance inside the
+        // Float conversion is expensive enough that the Swift 6 type checker gives up
+        // ("unable to type-check this expression in reasonable time").
+        let noise: [Float] = (0..<(8_192 * 2)).map { index in
+            let sample = (index * 7_919) % 201 - 100
+            return Float(sample) / 200
+        }
         _ = DSPTestSignals.run(filter, noise, sampleRate: sampleRate, configure: false)
 
         filter.open()
