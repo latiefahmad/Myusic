@@ -1,0 +1,161 @@
+name: iOS
+
+# Builds the Myusic scheme for the simulator and runs its test plan. The
+# iPhone-only path of the monorepo lives in ios/; Gradle never touches it.
+on:
+  push:
+    branches: [main]
+    paths: ["ios/**", ".github/workflows/ios.yml"]
+  pull_request:
+    paths: ["ios/**", ".github/workflows/ios.yml"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ios-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  SIM_NAME: iPhone 16
+  XCB_FLAGS: >-
+    -workspace Myusic.xcworkspace -scheme Myusic
+    -skipPackagePluginValidation -skipMacroValidation
+    COMPILER_INDEX_STORE_ENABLE=NO
+
+jobs:
+  test:
+    name: Build and test
+    # Xcode 26 is the first toolchain that reads the Icon Composer files in the
+    # app target. Pin DEVELOPER_DIR here if the image's default Xcode moves on.
+    runs-on: macos-26
+    timeout-minutes: 120
+    defaults:
+      run:
+        working-directory: ios
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Show tools
+        run: |
+          xcodebuild -version
+          xcrun --sdk iphonesimulator --show-sdk-version
+
+      - name: xcbeautify
+        run: brew install xcbeautify
+
+      - name: Cache Swift package checkouts
+        uses: actions/cache@v4
+        with:
+          path: ios/.spm
+          key: spm-${{ runner.os }}-${{ hashFiles('ios/MyusicKit/Package.resolved', 'ios/Myusic.xcworkspace/xcshareddata/swiftpm/Package.resolved') }}
+          restore-keys: spm-${{ runner.os }}-
+
+      - name: Build for testing
+        run: |
+          set -o pipefail
+          # shellcheck disable=SC2086 # XCB_FLAGS is a list of flags
+          xcodebuild build-for-testing $XCB_FLAGS \
+            -destination "generic/platform=iOS Simulator" \
+            -derivedDataPath .derived-ci -clonedSourcePackagesDirPath .spm \
+            -jobs "$(sysctl -n hw.ncpu)" ARCHS=arm64 ONLY_ACTIVE_ARCH=NO \
+            | xcbeautify --quiet --is-ci
+
+      # The image ships no iPhone 16, so create one on the runtime that matches the selected Xcode.
+      - name: Create and boot the simulator
+        run: |
+          VERSION=$(xcrun --sdk iphonesimulator --show-sdk-version)
+          RUNTIME="com.apple.CoreSimulator.SimRuntime.iOS-${VERSION//./-}"
+          UDID=$(xcrun simctl create "$SIM_NAME" com.apple.CoreSimulator.SimDeviceType.iPhone-16 "$RUNTIME")
+          echo "SIM_UDID=$UDID" >> "$GITHUB_ENV"
+          xcrun simctl boot "$UDID"
+
+      # Playback and Automix tests need a running audio clock. A virtual machine may have no
+      # output device; BlackHole provides one.
+      - name: Make sure there is an audio output
+        env:
+          HOMEBREW_NO_AUTO_UPDATE: "1"
+          HOMEBREW_NO_INSTALL_CLEANUP: "1"
+        run: |
+          if system_profiler SPAudioDataType | grep -q "Default Output Device: Yes"; then
+            echo "output device present"
+          else
+            brew install --quiet blackhole-2ch switchaudio-osx
+            sudo killall coreaudiod
+            sleep 3
+            SwitchAudioSource -t output -s "BlackHole 2ch" || true
+          fi
+          xcrun simctl bootstatus "$SIM_UDID" -b > /dev/null
+
+      # Each test may take 60 s (180 s at most); a failed test is retried once.
+      - name: Test
+        run: |
+          set -o pipefail
+          XCTESTRUN=$(find .derived-ci/Build/Products -maxdepth 1 -name 'Myusic_Myusic_*.xctestrun' | head -1)
+          xcodebuild test-without-building -xctestrun "$XCTESTRUN" \
+            -destination "id=$SIM_UDID" \
+            -resultBundlePath "$RUNNER_TEMP/Myusic.xcresult" \
+            -test-timeouts-enabled YES -default-test-execution-time-allowance 60 \
+            -maximum-test-execution-time-allowance 180 \
+            -retry-tests-on-failure -test-iterations 2 \
+            -collect-test-diagnostics never \
+            | xcbeautify --is-ci --renderer github-actions
+
+      - name: Upload test results
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-xcresult
+          path: ${{ runner.temp }}/*.xcresult
+          if-no-files-found: ignore
+          retention-days: 7
+
+  unsigned-ipa:
+    name: Unsigned IPA
+    # Run this from the Actions tab when a build is wanted for AltStore,
+    # SideStore or an Ad Hoc profile. The IPA carries no signature: the
+    # installer signs it with the user's own Apple ID.
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: macos-26
+    timeout-minutes: 60
+    defaults:
+      run:
+        working-directory: ios
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: xcbeautify
+        run: brew install xcbeautify
+
+      - name: Build
+        run: |
+          set -o pipefail
+          xcodebuild archive \
+            -workspace Myusic.xcworkspace -scheme Myusic \
+            -destination "generic/platform=iOS" \
+            -archivePath "$RUNNER_TEMP/Myusic.xcarchive" \
+            -derivedDataPath .derived-ipa -clonedSourcePackagesDirPath .spm \
+            -skipPackagePluginValidation -skipMacroValidation \
+            CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY="" \
+            | xcbeautify --quiet --is-ci
+
+      - name: Package the IPA
+        run: |
+          APP="$RUNNER_TEMP/Myusic.xcarchive/Products/Applications/Myusic.app"
+          VERSION=$(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' "$APP/Info.plist")
+          rm -rf "$RUNNER_TEMP/Payload"
+          mkdir "$RUNNER_TEMP/Payload"
+          cp -R "$APP" "$RUNNER_TEMP/Payload/"
+          cd "$RUNNER_TEMP"
+          zip -qry "Myusic-$VERSION-ios-unsigned.ipa" Payload
+          shasum -a 256 "Myusic-$VERSION-ios-unsigned.ipa" | tee "Myusic-$VERSION-ios-unsigned.ipa.sha256"
+          echo "IPA=$RUNNER_TEMP/Myusic-$VERSION-ios-unsigned.ipa" >> "$GITHUB_ENV"
+
+      - name: Upload the IPA
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-unsigned-ipa
+          path: |
+            ${{ env.IPA }}
+            ${{ env.IPA }}.sha256
