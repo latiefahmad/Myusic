@@ -308,6 +308,23 @@ jobs:
           tag_name: ${{ github.ref_name }}
           name: Myusic ${{ github.ref_name }}
           draft: true
+          generate_release_notes: true
+          body: |
+            Android, Windows, Linux and macOS builds, all produced from this tag by GitHub Actions.
+            The iPhone/iPad IPA is built on demand from the Actions tab (`iOS` → Run workflow) and
+            stays unsigned: AltStore, SideStore or your own Ad Hoc profile signs it.
+
+            | Platform | File |
+            |---|---|
+            | Windows 10/11 x64 | `Myusic-<version>-windows-x64-setup.exe`, `.msi`, or the portable ZIP |
+            | Linux x86_64 | `Myusic-<version>-linux-x86_64.AppImage`, `.deb` or `.rpm` |
+            | macOS 13+ | `Myusic-<version>-macos-arm64.dmg` (Apple Silicon) or `-macos-x64.dmg` (Intel) |
+            | Android 8+ | `myusic-prod-release-signed` from the `Android Release APK` run for this tag |
+
+            macOS builds are unsigned unless a Developer ID is configured: right-click the app and
+            choose Open the first time, or run `xattr -cr /Applications/Myusic.app`.
+
+            Support: https://saweria.co/latiefahmad
           files: dist/*
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
