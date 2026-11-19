@@ -175,7 +175,9 @@ public final class TrackLog: @unchecked Sendable {
     /// - Parameter context: extra header lines only the caller knows, e.g. what the player reports
     ///   it is playing ("playing: flac · 24-bit · 96000 Hz") and the source settings in force.
     public func forTrack(_ song: Song, context: [String] = []) -> String {
-        let (snapshot, started) = lock.withLock { (lines, startedAt[song.videoId]) }
+        let (snapshot, started) = lock.withLock { () -> ([Line], Date?) in
+            (lines, startedAt[song.videoId])
+        }
         let candidates = [
             snapshot.first(where: { $0.track == song.videoId })?.at,
             started?.addingTimeInterval(-leadIn),
