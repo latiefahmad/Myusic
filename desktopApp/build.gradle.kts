@@ -84,8 +84,11 @@ dependencies {
     // The shared player loads artwork through Coil, as the phone does.
     implementation("io.coil-kt.coil3:coil-network-okhttp:3.0.4")
 
-    // Automix runs the same two models the Android build does.
-    implementation("com.microsoft.onnxruntime:onnxruntime:1.29.0")
+    // Automix runs the same two models the Android build does. 1.23.0 is the last release whose
+    // jar still carries an Intel-mac native (`osx-x64`): 1.24 onward ship only `osx-aarch64`, so
+    // the x64 build started without Automix ("Could not initialize class
+    // ai.onnxruntime.OrtSession$SessionOptions").
+    implementation("com.microsoft.onnxruntime:onnxruntime:1.23.0")
 
     // Decoding, resampling and demuxing for the audio engine.
     implementation("org.bytedeco:javacpp:$javacppVersion")
