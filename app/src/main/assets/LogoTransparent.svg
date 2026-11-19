@@ -1,7 +1,5 @@
 <svg width="560" height="484" viewBox="0 0 560 484" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <!-- The ZMyusic Z+M monogram, as white strokes tinted by the caller. -->
-  <g stroke="currentColor" stroke-width="77.13" stroke-linecap="round" stroke-linejoin="round" fill="none" transform="translate(-186.11 -187.22) scale(0.8383)">
-    <path d="M268 300 H520 L268 724 H520"/>
-    <path d="M556 724 V300 L700 560 L844 300 V724"/>
+  <g transform="translate(0 -0.5) scale(1)">
+  <path d="M95 400 L95 85 L280 330 L465 85 L465 400" fill="none" stroke="#FFFFFF" stroke-width="116" stroke-linecap="round" stroke-linejoin="round"/>
   </g>
 </svg>
