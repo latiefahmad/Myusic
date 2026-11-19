@@ -580,40 +580,46 @@ final class SyncedLyricsPanelTests: XCTestCase {
         // somewhere the next frame does not: the layer tree is read a layer at a time, and at the
         // end of the page's move the presentation and model layers disagree for one commit. A
         // real jump moves the row's trajectory - the next sample carries on from where it put the
-        // row - while such a read is undone by the next sample. So a step over the limit is only
-        // a jump when the row is still on the jumped side of where it was.
-        var suspect: [(text: String, from: CGFloat, to: CGFloat, at: Int)] = []
+        // row - while such a read is undone by the next sample, which steps the row back. So a
+        // step over the limit is held for one sample: it is a jump once the row is seen past
+        // where it started, and a bad read when it is back there (whose return step is then not
+        // a jump of its own).
+        var pending: [String: (from: CGFloat, to: CGFloat, at: Int)] = [:]
         // Plays from `from` to `to`, noting a row below the break that moves faster than the
         // page's glide. The limit is per elapsed time, not per runner frame, so a loaded runner
         // does not turn one sparse sample into a false jump.
         func play(from: Int, to: Int) {
             clock.reset(positionMs: from, isPlaying: true)
             var last: (tops: [CGFloat], at: Date)?
-            suspect = []
+            pending = [:]
             while clock.positionMs < to {
                 RunLoop.main.run(until: Date().addingTimeInterval(0.008))
                 // A row's layer seen before its first commit reads as the window's origin: skipped.
                 let tops = below.compactMap { host.lyricsVoice($0)?.drawnTopInWindow }.filter { abs($0) > 0.5 }
                 let now = Date()
-                guard tops.count == below.count else { last = nil; suspect = []; continue }
-                for pending in suspect {
-                    guard let row = below.firstIndex(of: pending.text) else { continue }
+                guard tops.count == below.count else { last = nil; pending = [:]; continue }
+                var suppress: Set<String> = []
+                for (text, step) in pending {
+                    guard let row = below.firstIndex(of: text) else { continue }
                     let top = tops[row]
-                    // Still past where it was, not back at it: this was a move, not a bad read.
-                    if abs(top - pending.from) > abs(top - pending.to) {
-                        jumps.append("\(pending.text) \(Int(pending.from - 120)) to \(Int(pending.to - 120)) at \(pending.at) ms")
+                    if abs(top - step.from) <= abs(top - step.to) {
+                        // Back where it started: this step was a read across a commit.
+                        suppress.insert(text)
+                    } else {
+                        jumps.append("\(text) \(Int(step.from - 120)) to \(Int(step.to - 120)) at \(step.at) ms")
                     }
                 }
-                suspect = []
+                pending = [:]
                 if let last {
                     let maximumTravel = CGFloat(1_400 * now.timeIntervalSince(last.at) + 8)
-                    for ((text, was), top) in zip(zip(below, last.tops), tops) where abs(top - was) > maximumTravel {
-                        suspect.append((text, was, top, clock.positionMs))
+                    for ((text, was), top) in zip(zip(below, last.tops), tops)
+                        where abs(top - was) > maximumTravel && !suppress.contains(text) {
+                        pending[text] = (was, top, clock.positionMs)
                     }
                 }
                 last = (tops, now)
             }
-            suspect = []
+            pending = [:]
         }
         play(from: 2_900, to: 4_200)    // the page moves onto the break and the dots open
         uiSnapshot(host, "lyrics-break-open")
