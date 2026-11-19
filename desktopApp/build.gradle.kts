@@ -576,3 +576,12 @@ compose.desktop {
     }
 
 }
+
+tasks.test {
+    // CI reads failures out of the log, where Gradle's default leaves only
+    // "AssertionError at File.kt:121" — the assertion message is the useful part.
+    testLogging {
+        events("failed")
+        exceptionFormat = org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
+    }
+}
