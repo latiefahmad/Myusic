@@ -84,3 +84,11 @@ jobs:
       with:
         name: myusic-wear-prod-release-signed
         path: wearos/build/outputs/apk/prod/release/*.apk
+
+    # Android TV is its own module with its own applicationId; the phone
+    # artifact never covered it.
+    - name: Upload Android TV APK Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: myusic-tv-prod-release-signed
+        path: tv/build/outputs/apk/prod/release/*.apk
