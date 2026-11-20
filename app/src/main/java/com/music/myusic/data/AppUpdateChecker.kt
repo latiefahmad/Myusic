@@ -76,7 +76,9 @@ object AppUpdateChecker {
             val url = release["html_url"]?.jsonPrimitive?.contentOrNull ?: return@runCatching
             val apkUrl = apkAssetUrl(release)
             val notes = release["body"]?.jsonPrimitive?.contentOrNull
-            val latest = tag.removePrefix("v")
+            // The release tag is "Myusic-v1.0.0"; releases made before the tag
+            // took the app's name were plain "v1.9.1", so both forms strip.
+            val latest = tag.removePrefix("Myusic-").removePrefix("v")
             if (isNewer(latest, BuildConfig.VERSION_NAME)) {
                 _available.value = UpdateInfo(latest, url, apkUrl, notes)
             }
@@ -94,17 +96,17 @@ object AppUpdateChecker {
     }
 
     /**
-     * One release carries the phone app and the TV app, each as a universal
-     * APK plus per-ABI splits:
+     * One release carries the phone app, the TV app and the watch app:
      *
-     *     Myusic-v1.8.apk     Myusic-v1.8_arm64-v8a.apk     ...
-     *     MyusicTV-v1.8.apk   MyusicTV-v1.8_arm64-v8a.apk   ...
+     *     Myusic-1.0.0-android-phone-universal.apk
+     *     Myusic-1.0.0-android-phone-arm64-v8a.apk   Myusic-1.0.0-android-tv-…
      *
-     * so this app's APKs are the ones named with its own
-     * [BuildConfig.UPDATE_APK_PREFIX] — "Myusic-" never matches a TV file,
-     * since the prefix ends at the hyphen. The universal build (no `_ABI`
-     * suffix) is taken first, as it installs anywhere; failing that, the split
-     * for this device's ABI. A release with neither leaves
+     * so this app's APKs are the phone ones. The TV files used to be named
+     * "MyusicTV-v1.8.apk", which the prefix already excluded, but the shared
+     * "Myusic-<version>-android-" stem now matches both, and installing the TV
+     * app from here would add a second app under another id. The universal
+     * build (no ABI) is taken first, as it installs anywhere; failing that, the
+     * split for this device's ABI. A release with neither leaves
      * [UpdateInfo.apkUrl] null and the UI falls back to opening the releases
      * page.
      */
@@ -120,9 +122,16 @@ object AppUpdateChecker {
                 if (ours) name.removeSuffix(".apk").removeSuffix(".APK") to url else null
             }
             .orEmpty()
-        apks.firstOrNull { (name, _) -> '_' !in name }?.second
+            .filterNot { (name, _) -> "-tv-" in name.lowercase() }
+        // Pre-phone/TV-naming releases had no ABI marker other than "_abi", so a
+        // name with no underscore there is the universal one. The current names
+        // say "-universal" instead and their splits are hyphenated too.
+        val universal: (String) -> Boolean = { name ->
+            if ("-android-" in name) name.endsWith("-universal") else '_' !in name
+        }
+        apks.firstOrNull { (name, _) -> universal(name) }?.second
             ?: Build.SUPPORTED_ABIS.firstNotNullOfOrNull { abi ->
-                apks.firstOrNull { (name, _) -> name.endsWith("_$abi") }?.second
+                apks.firstOrNull { (name, _) -> name.endsWith("_$abi") || name.endsWith("-$abi") }?.second
             }
     }.getOrNull()
 

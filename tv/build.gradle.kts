@@ -82,8 +82,10 @@ android {
         // Haze falls back to a translucent scrim below that.
         minSdk = 26
         targetSdk = 36
-        versionCode = 39
-        versionName = "1.9.1"
+        // Read from the root project, like the phone and watch apps: a version
+        // bump must not need three edits in three modules.
+        versionCode = rootProject.extra["myusicVersionCode"] as Int
+        versionName = rootProject.extra["myusicVersionName"] as String
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 

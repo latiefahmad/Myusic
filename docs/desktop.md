@@ -33,7 +33,7 @@ actually inside the archive.
 
 | Variable / property | Effect |
 |---|---|
-| `-Pmyusic.version=1.9.1` | Public version, overriding the root `myusicVersionName` |
+| `-Pmyusic.version=1.0.0` | Public version, overriding the root `myusicVersionName` |
 | `-Pmyusic.target=windows\|linux\|macos` | Cross-configure the build for another OS |
 | `local.properties`: `LASTFM_API_KEY`, `LASTFM_SECRET` | Scrobbling and Last.fm sign-in |
 | `local.properties`: `LISTEN_TOGETHER_SERVER` | Party server, when not using the default |

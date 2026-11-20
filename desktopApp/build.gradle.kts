@@ -7,7 +7,7 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 val appVersion: String = providers.gradleProperty("myusic.version").orNull
     ?.removePrefix("v")
     ?.takeIf { it.isNotBlank() }
-    ?: (rootProject.extra["myusicVersionName"] as? String ?: "1.9.1")
+    ?: (rootProject.extra["myusicVersionName"] as? String ?: "1.0.0")
 
 /** Which platform this build is *for*, which is the host unless told otherwise. */
 val hostOsName = System.getProperty("os.name").orEmpty()

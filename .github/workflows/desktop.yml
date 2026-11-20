@@ -2,11 +2,11 @@ name: Desktop Release
 
 on:
   push:
-    tags: ["v*.*.*"]
+    tags: ["Myusic-v*.*.*"]
   workflow_dispatch:
     inputs:
       version:
-        description: "Version to stamp into the packages, without the leading v"
+        description: "Version to stamp into the packages, without the leading Myusic-v"
         required: true
 
 permissions:
@@ -35,7 +35,7 @@ jobs:
         id: version
         run: |
           version="${{ inputs.version }}"
-          [ -n "$version" ] || version="${GITHUB_REF_NAME#v}"
+          [ -n "$version" ] || version="${GITHUB_REF_NAME#Myusic-v}"
           echo "value=$version" >> "$GITHUB_OUTPUT"
           echo "Building $version"
 
@@ -148,7 +148,7 @@ jobs:
         shell: bash
         run: |
           version="${{ inputs.version }}"
-          [ -n "$version" ] || version="${GITHUB_REF_NAME#v}"
+          [ -n "$version" ] || version="${GITHUB_REF_NAME#Myusic-v}"
           echo "value=$version" >> "$GITHUB_OUTPUT"
           echo "Building $version"
 
@@ -218,7 +218,7 @@ jobs:
         id: version
         run: |
           version="${{ inputs.version }}"
-          [ -n "$version" ] || version="${GITHUB_REF_NAME#v}"
+          [ -n "$version" ] || version="${GITHUB_REF_NAME#Myusic-v}"
           echo "value=$version" >> "$GITHUB_OUTPUT"
           echo "Building $version"
 
@@ -301,12 +301,17 @@ jobs:
 
       - run: ls -lh dist
 
+      - name: Work out the version
+        id: release-version
+        if: github.ref_type == 'tag'
+        run: echo "value=${GITHUB_REF_NAME#Myusic-v}" >> "$GITHUB_OUTPUT"
+
       - name: Draft the release
         if: github.ref_type == 'tag'
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ github.ref_name }}
-          name: Myusic ${{ github.ref_name }}
+          name: Myusic ${{ steps.release-version.outputs.value }}
           draft: true
           # The body lives in one file so the iOS build, which usually creates the
           # draft first, writes the same one.

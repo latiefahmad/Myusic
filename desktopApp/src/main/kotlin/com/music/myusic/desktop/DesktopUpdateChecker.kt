@@ -55,7 +55,7 @@ internal object DesktopUpdateChecker {
             ?: return@runCatching null
         val tag = release["tag_name"]?.jsonPrimitive?.contentOrNull ?: return@runCatching null
         val url = release["html_url"]?.jsonPrimitive?.contentOrNull ?: return@runCatching null
-        val latest = tag.removePrefix("v")
+        val latest = tag.removePrefix("Myusic-").removePrefix("v")
         if (!isNewer(latest, currentVersion)) return@runCatching null
         UpdateInfo(
             version = latest,

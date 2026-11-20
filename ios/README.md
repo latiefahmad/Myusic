@@ -27,7 +27,7 @@
 
 ## What this is
 
-This is the iPhone and iPad app of [Myusic](https://github.com/latiefahmad/Myusic), a YouTube Music client for Android, the desktop and iOS. It is a native SwiftUI app that follows the Android app screen for screen, currently tracking Myusic for Android 1.9.1.
+This is the iPhone and iPad app of [Myusic](https://github.com/latiefahmad/Myusic), a YouTube Music client for Android, the desktop and iOS. It is a native SwiftUI app that follows the Android app screen for screen, currently tracking Myusic for Android 1.0.0.
 
 Myusic for iOS began as [BitChord for iOS](https://github.com/maanya145/BitChord-iOS), the SwiftUI port of [BitChord for Android](https://github.com/kushagrasinghx/BitChord) by [Kushagra Singh](https://github.com/kushagrasinghx). The original copyright notices and the GPLv3 licence stay in place; the Android app in this repository is now the reference for every module here.
 

@@ -7,7 +7,7 @@ on:
     branches: [main]
     # A tag is a release: build the IPA that belongs on it. Path filters are
     # not evaluated for tag pushes, so the tag always gets one.
-    tags: ["v*.*.*"]
+    tags: ["Myusic-v*.*.*"]
     paths: ["ios/**", ".github/workflows/ios.yml"]
   pull_request:
     paths: ["ios/**", ".github/workflows/ios.yml"]
@@ -159,6 +159,7 @@ jobs:
           zip -qry "Myusic-$VERSION-ios-unsigned.ipa" Payload
           shasum -a 256 "Myusic-$VERSION-ios-unsigned.ipa" | tee "Myusic-$VERSION-ios-unsigned.ipa.sha256"
           echo "IPA=$RUNNER_TEMP/Myusic-$VERSION-ios-unsigned.ipa" >> "$GITHUB_ENV"
+          echo "VERSION=$VERSION" >> "$GITHUB_ENV"
 
       - name: Upload the IPA
         uses: actions/upload-artifact@v4
@@ -173,7 +174,7 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ github.ref_name }}
-          name: Myusic ${{ github.ref_name }}
+          name: Myusic ${{ env.VERSION }}
           # This job finishes first, so it is usually the one that creates the
           # draft: it has to name and describe it, or the release page opens blank.
           body_path: .github/release-body.md

@@ -42,7 +42,7 @@ on iOS?" has an answer in the table rather than in a discussion.
 | Addon quality picker | Yes | In progress | Not yet |
 | Offline device playlists | Yes | In progress | Not yet |
 
-"In progress" means the module exists and is being brought up to the 1.9.1
+"In progress" means the module exists and is being brought up to the 1.0.0
 feature set; it is not a promise for a particular release.
 
 ## Tier 2 - platform-only

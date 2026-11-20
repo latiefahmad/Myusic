@@ -42,7 +42,7 @@ buildscript {
  * release tag's alone.
  */
 extra["myusicVersionCode"] = 39
-extra["myusicVersionName"] = "1.9.1"
+extra["myusicVersionName"] = "1.0.0"
 
 /*
  * Bump this by hand before cutting each sideloaded test build ("beta2",
