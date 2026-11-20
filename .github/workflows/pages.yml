@@ -34,6 +34,11 @@ jobs:
 
       - name: Configure Pages
         uses: actions/configure-pages@v5
+        with:
+          # The repository has never published a Pages site, so let this step
+          # create it (GitHub Actions as the source) on the first run instead of
+          # failing with "Get Pages site failed".
+          enablement: true
 
       - name: Upload the docs folder
         uses: actions/upload-pages-artifact@v3
