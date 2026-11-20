@@ -45,12 +45,12 @@ import com.music.myusic.ui.components.SUPPORTED_LANGUAGES
 import com.music.myusic.ui.components.languageDisplayNameRes
 import com.music.myusic.ui.tv.TvAppMark
 import com.music.myusic.ui.tv.audio.TvSpatialAudioEngine
+import com.music.myusic.ui.tv.components.TvAboutDialog
 import com.music.myusic.ui.tv.components.TvChromePinned
+import com.music.myusic.ui.tv.components.TvDialog
+import com.music.myusic.ui.tv.components.TvDialogButton
 import com.music.myusic.ui.tv.components.TvListHeader
 import com.music.myusic.ui.tv.components.TvListRow
-import com.music.myusic.ui.tv.dialogs.TvAboutDialog
-import com.music.myusic.ui.tv.dialogs.TvDialog
-import com.music.myusic.ui.tv.dialogs.TvDialogButton
 import com.music.myusic.ui.tv.dialogs.TvEqualizerDialog
 import com.music.myusic.ui.tv.dialogs.TvLyricsSourcesDialog
 import com.music.myusic.ui.tv.dialogs.TvRefreshRateDialog
