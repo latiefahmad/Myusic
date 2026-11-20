@@ -66,6 +66,25 @@ class AppUpdateCheckerAssetTest {
     }
 
     @Test
+    fun `legacy splits resolve by abi`() {
+        val splits = listOf(
+            asset("Myusic-v1.9.1_x86_64.apk"),
+            asset("Myusic-v1.9.1_arm64-v8a.apk"),
+            asset("MyusicTV-v1.9.1_x86_64.apk"),
+            asset("MyusicTV-v1.9.1_arm64-v8a.apk"),
+        )
+
+        assertEquals(
+            "https://example.test/Myusic-v1.9.1_arm64-v8a.apk",
+            pickApkAsset(splits, "phone", abis),
+        )
+        assertEquals(
+            "https://example.test/MyusicTV-v1.9.1_arm64-v8a.apk",
+            pickApkAsset(splits, "tv", abis),
+        )
+    }
+
+    @Test
     fun `no matching apk returns null`() {
         assertNull(pickApkAsset(listOf(asset("Myusic-1.0.0-android-wear.apk")), "phone", abis))
         assertNull(pickApkAsset(emptyList(), "tv", abis))

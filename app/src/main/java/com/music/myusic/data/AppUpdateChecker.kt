@@ -269,17 +269,21 @@ internal data class ReleaseAsset(val name: String, val url: String)
  */
 internal fun pickApkAsset(assets: List<ReleaseAsset>, variant: String, abis: List<String>): String? {
     val own = assets.filter { isOwnAsset(it.name, variant) }
+    // The asset name keeps its ".apk" here; strip it before looking at the
+    // suffix, or every universal and ABI check misses.
+    fun stem(name: String) = name.lowercase().removeSuffix(".apk")
     fun universal(name: String): Boolean {
-        val n = name.lowercase()
+        val n = stem(name)
         // New names say "-universal"; the pre-1.0 names had only the absence of
         // an "_<abi>" suffix to mark the universal build.
         return if ("-android-" in n) n.endsWith("-universal") else '_' !in n
     }
     return own.firstOrNull { universal(it.name) }?.url
         ?: abis.firstNotNullOfOrNull { abi ->
+            val suffix = abi.lowercase()
             own.firstOrNull {
-                it.name.endsWith("_$abi", ignoreCase = true) ||
-                    it.name.endsWith("-$abi", ignoreCase = true)
+                val n = stem(it.name)
+                n.endsWith("_$suffix") || n.endsWith("-$suffix")
             }?.url
         }
 }
