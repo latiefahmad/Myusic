@@ -1,1 +1,2 @@
 native/ffmpeg/build.sh text eol=lf
+.github/scripts/*.sh text eol=lf
