@@ -1,6 +1,7 @@
 package com.music.myusic.ui.tv.screens
 
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -16,6 +17,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -27,19 +29,28 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.core.os.LocaleListCompat
 import com.music.myusic.BuildConfig
+import com.music.myusic.MyusicApplication
+import com.music.myusic.R
 import com.music.myusic.data.AppUpdateChecker
+import com.music.myusic.data.LocaleTags
 import com.music.myusic.data.settings.AppSettings
 import com.music.myusic.data.settings.TvSettings
 import com.music.myusic.ui.MainViewModel
+import com.music.myusic.ui.components.SUPPORTED_LANGUAGES
+import com.music.myusic.ui.components.languageDisplayNameRes
 import com.music.myusic.ui.tv.TvAppMark
 import com.music.myusic.ui.tv.audio.TvSpatialAudioEngine
 import com.music.myusic.ui.tv.components.TvChromePinned
 import com.music.myusic.ui.tv.components.TvListHeader
 import com.music.myusic.ui.tv.components.TvListRow
 import com.music.myusic.ui.tv.dialogs.TvAboutDialog
+import com.music.myusic.ui.tv.dialogs.TvDialog
+import com.music.myusic.ui.tv.dialogs.TvDialogButton
 import com.music.myusic.ui.tv.dialogs.TvEqualizerDialog
 import com.music.myusic.ui.tv.dialogs.TvLyricsSourcesDialog
 import com.music.myusic.ui.tv.dialogs.TvRefreshRateDialog
@@ -55,7 +66,7 @@ import com.music.myusic.ui.tv.theme.TvType
 import kotlinx.coroutines.launch
 
 // Discord Rich Presence is hidden on TV for now; TvDiscordDialog is kept for when it returns.
-private enum class SettingsSheet { Theme, RefreshRate, Equalizer, Scrobbling, LyricsSources, Update, About }
+private enum class SettingsSheet { Theme, RefreshRate, Equalizer, Scrobbling, LyricsSources, Language, Update, About }
 
 private const val DefaultBlurb = "Playback, sound and display preferences for Myusic on this TV."
 
@@ -101,6 +112,14 @@ fun TvSettingsScreen(
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     var checkingUpdate by remember { mutableStateOf(false) }
+    // Read on open; picking closes the dialog so this is a fresh read next time.
+    val languageTitle = stringResource(R.string.app_language)
+    val language = remember(sheet) {
+        val picked = MyusicApplication.pickedAppLocale
+            ?: AppCompatDelegate.getApplicationLocales().get(0)?.toLanguageTag()
+            ?: LocaleTags.systemTag()
+        languageDisplayNameRes(LocaleTags.appResourceTag(picked))
+    }
 
     Row(
         modifier = modifier
@@ -338,6 +357,17 @@ fun TvSettingsScreen(
             }
 
             item { TvListHeader("General") }
+
+            // The picker itself is the phone's; this row is the way back to
+            // what it chose, since a TV cannot reach that screen.
+            item {
+                TvListRow(
+                    title = languageTitle,
+                    value = stringResource(language),
+                    onFocused = { blurb = "Change the language of the app on this TV." },
+                    onClick = { sheet = SettingsSheet.Language },
+                )
+            }
             item {
                 val version = update?.version
                 TvListRow(
@@ -365,9 +395,9 @@ fun TvSettingsScreen(
                                         AppUpdateChecker.CheckResult.UpdateAvailable ->
                                             sheet = SettingsSheet.Update
                                         AppUpdateChecker.CheckResult.UpToDate ->
-                                            Toast.makeText(context, "Myusic is up to date", Toast.LENGTH_SHORT).show()
+                                            Toast.makeText(context, R.string.up_to_date, Toast.LENGTH_SHORT).show()
                                         AppUpdateChecker.CheckResult.Failed ->
-                                            Toast.makeText(context, "Could not check for updates", Toast.LENGTH_SHORT).show()
+                                            Toast.makeText(context, R.string.update_check_failed, Toast.LENGTH_SHORT).show()
                                         AppUpdateChecker.CheckResult.Skipped -> Unit
                                     }
                                 } finally {
@@ -402,6 +432,7 @@ fun TvSettingsScreen(
         SettingsSheet.Equalizer -> TvEqualizerDialog(onDismiss = { sheet = null })
         SettingsSheet.Scrobbling -> TvScrobbleDialog(onDismiss = { sheet = null })
         SettingsSheet.LyricsSources -> TvLyricsSourcesDialog(onDismiss = { sheet = null })
+        SettingsSheet.Language -> TvLanguageDialog(onDismiss = { sheet = null })
         SettingsSheet.Update -> update?.let { TvUpdateDialog(update = it, onDismiss = { sheet = null }) }
         SettingsSheet.About -> TvAboutDialog(onDismiss = { sheet = null })
         null -> Unit
@@ -409,3 +440,45 @@ fun TvSettingsScreen(
 }
 
 private fun onOff(value: Boolean) = if (value) "On" else "Off"
+
+/**
+ * Picks the app's language on TV.
+ *
+ * The same list and the same two records as the phone's picker, since the TV
+ * app cannot show that one: the choice is written back with
+ * [MyusicApplication.persistAppLocale] and applied on the next start, and
+ * `setApplicationLocales` here carries it the rest of the way - this dialog
+ * is recreated onto its own new language, and Settings picks the new name up
+ * when it is opened again.
+ */
+@Composable
+private fun TvLanguageDialog(onDismiss: () -> Unit) {
+    val current = LocaleTags.appResourceTag(
+        MyusicApplication.pickedAppLocale
+            ?: AppCompatDelegate.getApplicationLocales().get(0)?.toLanguageTag()
+            ?: LocaleTags.systemTag(),
+    )
+    TvDialog(title = stringResource(R.string.app_language), onDismissRequest = onDismiss) {
+        LazyColumn(
+            modifier = Modifier.fillMaxWidth(),
+            verticalArrangement = Arrangement.spacedBy(2.dp),
+        ) {
+            items(SUPPORTED_LANGUAGES, key = { it.tag }) { language ->
+                val selected = LocaleTags.appResourceTag(language.tag) == current
+                TvListRow(
+                    title = stringResource(language.nameRes),
+                    value = if (selected) stringResource(R.string.selected) else "",
+                    enabled = !selected,
+                    onClick = {
+                        AppCompatDelegate.setApplicationLocales(
+                            LocaleListCompat.forLanguageTags(LocaleTags.appResourceTag(language.tag)),
+                        )
+                        MyusicApplication.persistAppLocale(language.tag)
+                        onDismiss()
+                    },
+                )
+            }
+        }
+        TvDialogButton(text = stringResource(R.string.cancel), onClick = onDismiss, initialFocus = true)
+    }
+}

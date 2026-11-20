@@ -41,6 +41,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.os.LocaleListCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.music.myusic.MyusicApplication
 import com.music.myusic.R
 import com.music.myusic.data.settings.AppSettings
 import com.music.myusic.data.sources.addon.AddonAuth
@@ -212,6 +213,10 @@ fun AppLanguageDialog(
                             AppCompatDelegate.setApplicationLocales(
                                 LocaleListCompat.forLanguageTags(language.tag),
                             )
+                            // The TV app has an applicationId of its own and
+                            // cannot see AppCompat's per-app storage; it reads
+                            // this copy of the pick at startup instead.
+                            MyusicApplication.persistAppLocale(language.tag)
                             onDismiss()
                         },
                     )

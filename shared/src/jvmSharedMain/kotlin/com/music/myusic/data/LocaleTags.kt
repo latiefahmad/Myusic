@@ -80,6 +80,20 @@ object LocaleTags {
         else -> null
     }
 
+    /**
+     * The tag Android resource directories are qualified by, for a picker tag.
+     *
+     * Simplified is the bare `zh` catalogue and Traditional is `zh-rTW`, so
+     * `values-<tag>` finds a catalogue for either. The region-qualified form
+     * is also what the per-app language storage holds, which keeps the phone
+     * and TV apps reading the same pick.
+     */
+    fun appResourceTag(appTag: String): String = when (normalizeAppTag(appTag)) {
+        ZH_HANT -> ZH_TW_WIRE
+        ZH_HANS -> ZH_CN_WIRE
+        else -> normalizeAppTag(appTag).substringBefore('-')
+    }
+
     fun acceptLanguage(appTag: String): String {
         return when (normalizeAppTag(appTag)) {
             ZH_HANT -> "zh-TW,zh-Hant;q=0.9,zh;q=0.8,en-US;q=0.7,en;q=0.6"

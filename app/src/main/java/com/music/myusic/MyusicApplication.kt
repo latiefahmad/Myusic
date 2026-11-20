@@ -1,6 +1,7 @@
 package com.music.myusic
 
 import android.app.Application
+import android.content.Context
 import androidx.annotation.OptIn
 import androidx.compose.ui.ComposeUiFlags
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -20,6 +21,8 @@ import com.music.myusic.auth.AuthStore
 import com.music.myusic.data.DebugLog
 import com.music.myusic.data.lyrics.LyricsTranslation
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.core.os.LocaleListCompat
+import com.music.myusic.data.LocaleTags
 import com.music.myusic.ui.player.AndroidPlayerHost
 import com.music.myusic.ui.player.PlayerPlatform
 import com.music.myusic.data.canvas.CanvasCache
@@ -58,6 +61,7 @@ class MyusicApplication : Application(), SingletonImageLoader.Factory, Configura
     @kotlin.OptIn(ExperimentalComposeUiApi::class)
     override fun onCreate() {
         super.onCreate()
+        attach(this)
         // The player is drawn by the shared UI module; this is what it reads
         // underneath — settings, the Canvas decoder, outputs, the party.
         AndroidStreamHooks.installEarly()
@@ -95,6 +99,10 @@ class MyusicApplication : Application(), SingletonImageLoader.Factory, Configura
         SpotifyLibrary.auth = SpotifyLibrary.Auth {
             SpotifyToken.accessToken()?.let { SpotifyLibrary.Tokens(it, SpotifyToken.clientToken()) }
         }
+        // Before any Activity is created: the per-app language has to be
+        // applied by the first one, and the TV app draws its rows from the
+        // same strings.xml this reads.
+        applyAppLocale(this)
         // The per-app language picker, which YouTube Music's `hl` follows.
         // Full tag (zh-Hant / zh-Hans preserved); Innertube maps to hl/gl.
         Innertube.appLanguage = { AppCompatDelegate.getApplicationLocales().get(0)?.toLanguageTag() }
@@ -310,6 +318,42 @@ class MyusicApplication : Application(), SingletonImageLoader.Factory, Configura
             private set
 
         /**
+         * The language the app's screens are drawn in, or null until [apply]
+         * has read it - the pickers only offer it after that.
+         *
+         * The TV app is part of the phone APK but has an applicationId of its
+         * own, so AppCompat's per-app storage (`<package>.AppCompatDelegate`)
+         * does not carry across; Android keeps a picked locale on the
+         * application's own record instead. This is that record's copy.
+         */
+        @Volatile
+        var pickedAppLocale: String? = null
+            private set
+
+        private const val PREFS_APP_LOCALE = "myusic_app_locale"
+
+        /**
+         * Puts the chosen language back on before the first screen is drawn.
+         *
+         * Only the phone app has the language picker, but the TV app shares
+         * this Application - so whatever was picked there is what the TV draws
+         * too, and it has to be the tag `values-zh-rTW`-style catalogues are
+         * matched by, simplified / traditional apart. Runs before any Activity
+         * exists: setting a locale after one has resolved its resources
+         * recreates it.
+         */
+        private fun applyAppLocale(context: Context) {
+            val prefs = context.getSharedPreferences(PREFS_APP_LOCALE, Context.MODE_PRIVATE)
+            // Not the migration below: it must not overwrite a pick with a
+            // replay of one. The default only applies when nothing is picked.
+            pickedAppLocale = prefs.getString("tag", null)
+                ?.takeIf { it.isNotBlank() }
+                ?.let { LocaleTags.appResourceTag(it) }
+            val tag = pickedAppLocale ?: return
+            AppCompatDelegate.setApplicationLocales(LocaleListCompat.forLanguageTags(tag))
+        }
+
+        /**
          * One-time move from region-less script tags to regional ones.
          *
          * Early builds of the Simplified/Traditional picker stored `zh-Hant` /
@@ -327,8 +371,31 @@ class MyusicApplication : Application(), SingletonImageLoader.Factory, Configura
                 else -> return
             }
             AppCompatDelegate.setApplicationLocales(
-                androidx.core.os.LocaleListCompat.forLanguageTags(replacement),
+                LocaleListCompat.forLanguageTags(replacement),
             )
+            // The pick the app is now running is the regional one, so the TV
+            // app reads its own copy as regional rather than script-only.
+            persistAppLocale(replacement)
+        }
+
+        /**
+         * Remembers what was picked, so a start from TV - which cannot reach
+         * the picker - draws in it too. [tag] is BCP-47, region only, and the
+         * TV side reads it back through [appResourceTag] after normalising.
+         */
+        fun persistAppLocale(tag: String?) {
+            val prefs = instance.getSharedPreferences(PREFS_APP_LOCALE, Context.MODE_PRIVATE)
+            val stored = tag?.takeIf { it.isNotBlank() }?.let { LocaleTags.appResourceTag(it) }
+            prefs.edit().putString("tag", stored).apply()
+            pickedAppLocale = stored
+        }
+
+        /** The running Application, kept because the prefs above are instance-scoped. */
+        private lateinit var instance: MyusicApplication
+
+        /** Set once in [onCreate]; [persistAppLocale] has no other way here. */
+        internal fun attach(application: MyusicApplication) {
+            instance = application
         }
     }
 }
