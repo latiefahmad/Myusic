@@ -105,6 +105,9 @@
     <string name="no_dolby_atmos">Nenhum painel Dolby Atmos neste dispositivo</string>
     <string name="dolby_atmos_open_failed">Não foi possível abrir as configurações do Dolby Atmos</string>
     <string name="update_available">Atualização disponível: v%1$s</string>
+    <string name="check_for_updates">Procurar atualizações</string>
+    <string name="up_to_date">O Myusic está atualizado</string>
+    <string name="update_check_failed">Não foi possível procurar atualizações</string>
     <string name="software_update">Atualização de software</string>
     <string name="update_available_body">O Myusic %1$s está disponível para download.</string>
     <string name="update_downloading_body">Baixando Myusic %1$s…</string>

@@ -102,6 +102,9 @@
     <string name="no_dolby_atmos">อุปกรณ์นี้ไม่มีแผงควบคุม Dolby Atmos</string>
     <string name="dolby_atmos_open_failed">เปิดการตั้งค่า Dolby Atmos ไม่ได้</string>
     <string name="update_available">มีอัปเดต: v%1$s</string>
+    <string name="check_for_updates">ตรวจหาการอัปเดต</string>
+    <string name="up_to_date">Myusic เป็นเวอร์ชันล่าสุดแล้ว</string>
+    <string name="update_check_failed">ไม่สามารถตรวจหาการอัปเดตได้</string>
     <string name="software_update">การอัปเดตซอฟต์แวร์</string>
     <string name="update_available_body">Myusic %1$s พร้อมให้ดาวน์โหลดแล้ว</string>
     <string name="update_downloading_body">กำลังดาวน์โหลด Myusic %1$s…</string>

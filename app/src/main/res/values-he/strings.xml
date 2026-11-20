@@ -105,6 +105,9 @@
     <string name="no_dolby_atmos">אין פאנל Dolby Atmos במכשיר זה</string>
     <string name="dolby_atmos_open_failed">לא ניתן לפתוח את הגדרות Dolby Atmos</string>
     <string name="update_available">עדכון זמין: גרסה %1$s</string>
+    <string name="check_for_updates">בדוק עדכונים</string>
+    <string name="up_to_date">Myusic מעודכן</string>
+    <string name="update_check_failed">לא ניתן היה לבדוק עדכונים</string>
     <string name="software_update">עדכון תוכנה</string>
     <string name="update_available_body">Myusic %1$s זמין להורדה.</string>
     <string name="update_downloading_body">מוריד את Myusic %1$s…</string>

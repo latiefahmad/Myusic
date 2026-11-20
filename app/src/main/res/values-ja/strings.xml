@@ -98,6 +98,9 @@
     <string name="no_dolby_atmos">このデバイスにはDolby Atmosパネルがありません</string>
     <string name="dolby_atmos_open_failed">Dolby Atmosの設定を開けませんでした</string>
     <string name="update_available">アップデートが利用可能です：v%1$s</string>
+    <string name="check_for_updates">アップデートを確認</string>
+    <string name="up_to_date">Myusic は最新です</string>
+    <string name="update_check_failed">アップデートを確認できませんでした</string>
     <string name="software_update">ソフトウェアアップデート</string>
     <string name="update_available_body">Myusic %1$s がダウンロード可能です。</string>
     <string name="update_downloading_body">Myusic %1$s をダウンロード中…</string>

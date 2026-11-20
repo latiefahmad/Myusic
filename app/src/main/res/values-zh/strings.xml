@@ -98,6 +98,9 @@
     <string name="no_dolby_atmos">此设备没有杜比全景声面板</string>
     <string name="dolby_atmos_open_failed">无法打开杜比全景声设置</string>
     <string name="update_available">有可用更新：v%1$s</string>
+    <string name="check_for_updates">检查更新</string>
+    <string name="up_to_date">Myusic 已是最新版本</string>
+    <string name="update_check_failed">无法检查更新</string>
     <string name="software_update">软件更新</string>
     <string name="update_available_body">Myusic %1$s 现已可供下载。</string>
     <string name="update_downloading_body">正在下载 Myusic %1$s…</string>

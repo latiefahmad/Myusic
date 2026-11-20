@@ -98,6 +98,9 @@
     <string name="no_dolby_atmos">Tidak ada panel Dolby Atmos di perangkat ini</string>
     <string name="dolby_atmos_open_failed">Tidak dapat membuka pengaturan Dolby Atmos</string>
     <string name="update_available">Pembaruan tersedia: v%1$s</string>
+    <string name="check_for_updates">Periksa pembaruan</string>
+    <string name="up_to_date">Myusic sudah versi terbaru</string>
+    <string name="update_check_failed">Tidak dapat memeriksa pembaruan</string>
     <string name="software_update">Pembaruan Perangkat Lunak</string>
     <string name="update_available_body">Myusic %1$s tersedia untuk diunduh.</string>
     <string name="update_downloading_body">Mengunduh Myusic %1$s…</string>

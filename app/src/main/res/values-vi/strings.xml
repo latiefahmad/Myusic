@@ -105,6 +105,9 @@
     <string name="no_dolby_atmos">Thiết bị này không có bảng điều khiển Dolby Atmos</string>
     <string name="dolby_atmos_open_failed">Không thể mở cài đặt Dolby Atmos</string>
     <string name="update_available">Có bản cập nhật mới: v%1$s</string>
+    <string name="check_for_updates">Kiểm tra cập nhật</string>
+    <string name="up_to_date">Myusic đã là phiên bản mới nhất</string>
+    <string name="update_check_failed">Không thể kiểm tra cập nhật</string>
     <string name="software_update">Cập nhật phần mềm</string>
     <string name="update_available_body">Myusic %1$s đã sẵn sàng để tải xuống.</string>
     <string name="update_downloading_body">Đang tải xuống Myusic %1$s…</string>
