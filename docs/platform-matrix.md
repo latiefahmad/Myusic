@@ -82,13 +82,13 @@ the foot of the page, leaving the full height to the feed.
 
 | Platform | Channel |
 |---|---|
-| Android phone / tablet | GitHub Releases APK (`Myusic-*.apk`) |
-| Android TV | GitHub Releases APK (`MyusicTV-*.apk`) |
-| Wear OS | Bundled in the phone APK |
+| Android phone / tablet | GitHub Releases APK (`Myusic-<version>-android-phone-*.apk`) |
+| Android TV | GitHub Releases APK (`Myusic-<version>-android-tv-*.apk`) |
+| Wear OS | GitHub Releases APK (`Myusic-<version>-android-wear.apk`) |
 | Windows | MSI / EXE / portable ZIP |
 | Linux | DEB / RPM / AppImage |
-| macOS | DMG, Developer ID signed and notarized |
-| iPhone / iPad | AltStore, TestFlight internal, or Ad Hoc with the user's own certificate |
+| macOS | DMG, unsigned unless a Developer ID is configured |
+| iPhone / iPad | AltStore, SideStore, or Ad Hoc with the user's own certificate |
 
 No client is submitted to the Play Store or the App Store: both reject
 third-party YouTube clients under their store policies, and the app is
@@ -97,6 +97,6 @@ GPL-3.0. Distribution is direct.
 ## Versioning
 
 One version for every platform, from `build.gradle.kts`:
-`myusicVersionCode` and `myusicVersionName`. Desktop and iOS release one
-version behind Android when a feature is still catching up; the changelog says
-which build each platform got.
+`myusicVersionCode` and `myusicVersionName`. A release tag is
+`Myusic-v<version>`, and every workflow stamps that version into the files it
+builds, so one release page carries every platform at the same version.

@@ -67,7 +67,7 @@ internal object DesktopUpdateChecker {
 
     /**
      * The release names its files `Myusic-<version>-windows-x64-setup.exe` and
-     * `Myusic-<version>-linux-x86_64.AppImage` (see .github/workflows/release.yml); match on the
+     * `Myusic-<version>-linux-x86_64.AppImage` (see .github/workflows/desktop.yml); match on the
      * platform part so a version change does not matter.
      */
     private fun installerUrl(release: JsonObject): String? {

@@ -4,7 +4,7 @@
 
 # Myusic
 
-**A refined YouTube Music client for Android, Android TV and Wear OS.**
+**A refined YouTube Music client for Android, the desktop and iOS.**
 
 <br/>
 

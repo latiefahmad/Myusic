@@ -56,7 +56,7 @@ xcodebuild test -workspace Myusic.xcworkspace -scheme Myusic \
 
 The UI tests in `MyusicUITests`, some of which need the network, are in a second test plan, `App/MyusicE2E.xctestplan`. Run it with `-testPlan MyusicE2E` added to the command above. Tests that call real services are skipped unless `MYUSIC_LIVE_TESTS=1` is set. The default run must stay offline and deterministic.
 
-Every pull request runs the `Tests` workflow in `.github/workflows/tests.yml` on GitHub Actions. It builds the `Myusic` scheme and runs the `Myusic` test plan on an iPhone 16 simulator. It does not run the UI tests in `MyusicE2E`. On a failure, the run keeps the `.xcresult` bundle as an artifact for 7 days. Run the tests your change touches before you open a pull request, and say in the pull request which ones you ran. Do not introduce new failures. If a test was already failing before your change, say so.
+Every pull request runs the `iOS` workflow in the repository's `.github/workflows/ios.yml` on GitHub Actions. It builds the `Myusic` scheme and runs the `Myusic` test plan on an iPhone 16 simulator. It does not run the UI tests in `MyusicE2E`. On a failure, the run keeps the `.xcresult` bundle as an artifact for 7 days. Run the tests your change touches before you open a pull request, and say in the pull request which ones you ran. Do not introduce new failures. If a test was already failing before your change, say so.
 
 ## Code style
 

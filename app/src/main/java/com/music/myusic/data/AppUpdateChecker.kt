@@ -96,43 +96,37 @@ object AppUpdateChecker {
     }
 
     /**
-     * One release carries the phone app, the TV app and the watch app:
+     * One release carries the phone, TV and watch APKs under one naming stem:
      *
      *     Myusic-1.0.0-android-phone-universal.apk
-     *     Myusic-1.0.0-android-phone-arm64-v8a.apk   Myusic-1.0.0-android-tv-…
+     *     Myusic-1.0.0-android-tv-arm64-v8a.apk
+     *     Myusic-1.0.0-android-wear.apk
      *
-     * so this app's APKs are the phone ones. The TV files used to be named
-     * "MyusicTV-v1.8.apk", which the prefix already excluded, but the shared
-     * "Myusic-<version>-android-" stem now matches both, and installing the TV
-     * app from here would add a second app under another id. The universal
-     * build (no ABI) is taken first, as it installs anywhere; failing that, the
-     * split for this device's ABI. A release with neither leaves
-     * [UpdateInfo.apkUrl] null and the UI falls back to opening the releases
-     * page.
+     * [BuildConfig.UPDATE_APK_VARIANT] says which one is this app's, because
+     * the phone app must never install the TV app (another package id) or the
+     * watch app (another device). Releases made before the shared naming used
+     * `Myusic-<version>.apk` for the phone and `MyusicTV-<version>.apk` for the
+     * TV app; both still match, so an old install can find its first update
+     * after the rename. The universal build is preferred because it installs
+     * anywhere; failing that, the split for this device's ABI. A release with
+     * neither leaves [UpdateInfo.apkUrl] null and the UI falls back to opening
+     * the releases page.
      */
     private fun apkAssetUrl(release: JsonObject): String? = runCatching {
-        val apks = release["assets"]?.jsonArray
+        val assets = release["assets"]?.jsonArray
             ?.mapNotNull { it as? JsonObject }
             ?.mapNotNull { asset ->
                 val name = asset["name"]?.jsonPrimitive?.contentOrNull ?: return@mapNotNull null
                 val url = asset["browser_download_url"]?.jsonPrimitive?.contentOrNull ?: return@mapNotNull null
-                val ours = name.startsWith(BuildConfig.UPDATE_APK_PREFIX, ignoreCase = true) &&
-                    name.endsWith(".apk", ignoreCase = true) &&
-                    asset["state"]?.jsonPrimitive?.contentOrNull == "uploaded"
-                if (ours) name.removeSuffix(".apk").removeSuffix(".APK") to url else null
+                val uploaded = asset["state"]?.jsonPrimitive?.contentOrNull == "uploaded"
+                if (uploaded && name.endsWith(".apk", ignoreCase = true)) {
+                    ReleaseAsset(name, url)
+                } else {
+                    null
+                }
             }
             .orEmpty()
-            .filterNot { (name, _) -> "-tv-" in name.lowercase() }
-        // Pre-phone/TV-naming releases had no ABI marker other than "_abi", so a
-        // name with no underscore there is the universal one. The current names
-        // say "-universal" instead and their splits are hyphenated too.
-        val universal: (String) -> Boolean = { name ->
-            if ("-android-" in name) name.endsWith("-universal") else '_' !in name
-        }
-        apks.firstOrNull { (name, _) -> universal(name) }?.second
-            ?: Build.SUPPORTED_ABIS.firstNotNullOfOrNull { abi ->
-                apks.firstOrNull { (name, _) -> name.endsWith("_$abi") || name.endsWith("-$abi") }?.second
-            }
+        pickApkAsset(assets, BuildConfig.UPDATE_APK_VARIANT, Build.SUPPORTED_ABIS.toList())
     }.getOrNull()
 
     /**
@@ -261,5 +255,41 @@ object AppUpdateChecker {
             if (a != b) return a > b
         }
         return c.isPreRelease && !l.isPreRelease
+    }
+}
+
+/** One `.apk` asset from the latest release, as the updater sees it. */
+internal data class ReleaseAsset(val name: String, val url: String)
+
+/**
+ * Picks the downloadable APK for [variant] ("phone" or "tv").
+ *
+ * Kept out of [AppUpdateChecker] so the naming rules can be tested without a
+ * network call or an Android device. [abis] is the device's preference order.
+ */
+internal fun pickApkAsset(assets: List<ReleaseAsset>, variant: String, abis: List<String>): String? {
+    val own = assets.filter { isOwnAsset(it.name, variant) }
+    fun universal(name: String): Boolean {
+        val n = name.lowercase()
+        // New names say "-universal"; the pre-1.0 names had only the absence of
+        // an "_<abi>" suffix to mark the universal build.
+        return if ("-android-" in n) n.endsWith("-universal") else '_' !in n
+    }
+    return own.firstOrNull { universal(it.name) }?.url
+        ?: abis.firstNotNullOfOrNull { abi ->
+            own.firstOrNull {
+                it.name.endsWith("_$abi", ignoreCase = true) ||
+                    it.name.endsWith("-$abi", ignoreCase = true)
+            }?.url
+        }
+}
+
+private fun isOwnAsset(name: String, variant: String): Boolean {
+    val n = name.lowercase()
+    return when (variant) {
+        "tv" -> n.startsWith("myusictv-") || "-android-tv-" in n
+        // Custom ROMs can install the watch APK on a phone; it is still a
+        // different app for a different device, not an update for this one.
+        else -> n.startsWith("myusic-") && "-android-tv-" !in n && "-android-wear" !in n
     }
 }

@@ -220,7 +220,7 @@ enum ReplayPoster {
     }
 
     private static func drawFooter() {
-        text(L10n.countedOnDeviceWithBitchord, x: margin, baseline: height - 64, font: label(24), color: white(0x73), tracking: 0.08)
+        text(L10n.countedOnDeviceWithMyusic, x: margin, baseline: height - 64, font: label(24), color: white(0x73), tracking: 0.08)
     }
 
     // MARK: One story card

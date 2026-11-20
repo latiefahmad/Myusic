@@ -293,7 +293,7 @@ enum L10n {
     /// Couldn't open that link
     static var couldntOpenLink: String { tr("couldnt_open_link") }
     /// Counted on this device with Myusic
-    static var countedOnDeviceWithBitchord: String { tr("counted_on_device_with_myusic") }
+    static var countedOnDeviceWithMyusic: String { tr("counted_on_device_with_myusic") }
     /// Create playlist
     static var createPlaylist: String { tr("create_playlist") }
     /// Crossfade
@@ -1410,8 +1410,6 @@ enum L10n {
     static var saveName: String { tr("save_name") }
     /// Saved
     static var saved: String { tr("saved") }
-    /// Saved to Music/Myusic
-    static var savedToBitchordFolder: String { tr("saved_to_myusic_folder") }
     /// Saved to Downloads
     static var savedToDownloads: String { tr("saved_to_downloads") }
     /// Saved to YouTube Music
@@ -1958,8 +1956,6 @@ enum L10n {
     static var widgetNext: String { tr("widget_next") }
     /// Nothing played yet
     static var widgetNothingPlayed: String { tr("widget_nothing_played") }
-    /// Open Myusic
-    static var widgetOpenBitchord: String { tr("widget_open_myusic") }
     /// Pause
     static var widgetPause: String { tr("widget_pause") }
     /// The track with Like, Shuffle and playback controls, in a single row.

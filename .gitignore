@@ -1,8 +1,5 @@
 # Gradle
 .gradle/
-.vscode/
-/build/
-/app/build/
 build/
 gradle-app.setting
 !gradle-wrapper.jar
@@ -14,7 +11,8 @@ local.properties
 # Kotlin
 .kotlin/
 
-# Android Studio / IntelliJ
+# Android Studio / IntelliJ / VS Code
+.vscode/
 .idea/
 *.iml
 *.ipr
