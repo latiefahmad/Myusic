@@ -122,6 +122,8 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.music.myusic.auth.DiscordLoginScreen
@@ -530,6 +532,11 @@ private fun MyusicApp(
     viewModel: MainViewModel = viewModel(),
 ) {
     val context = LocalContext.current
+    // Sideloaded apps get no store-initiated update. Check on every resume;
+    // AppUpdateChecker throttles the network call to once every few hours.
+    LifecycleEventEffect(Lifecycle.Event.ON_RESUME) {
+        viewModel.checkForUpdates()
+    }
     val clipboard = LocalClipboardManager.current
     val hazeState = remember { HazeState() }
     // Recording the backdrop layer costs a draw pass, so it only runs when a
@@ -3177,6 +3184,21 @@ private fun MyusicApp(
                                 onSpotifyCanvasAuth = { showSpotifyCanvasAuth = true },
                                 onAppLanguage = { showAppLanguage = true },
                                 onEditSignatureApi = { editingSignatureApi = true },
+                                onCheckForUpdates = {
+                                    scope.launch {
+                                        when (AppUpdateChecker.check(force = true)) {
+                                            AppUpdateChecker.CheckResult.UpdateAvailable -> {
+                                                updateDialogShown = true
+                                                showUpdateDialog = true
+                                            }
+                                            AppUpdateChecker.CheckResult.UpToDate ->
+                                                Toast.makeText(context, R.string.up_to_date, Toast.LENGTH_SHORT).show()
+                                            AppUpdateChecker.CheckResult.Failed ->
+                                                Toast.makeText(context, R.string.update_check_failed, Toast.LENGTH_SHORT).show()
+                                            AppUpdateChecker.CheckResult.Skipped -> Unit
+                                        }
+                                    }
+                                },
                                 onConfirmBitPerfect = { confirmBitPerfect = it },
                                 onConfirmFixedVolume = { confirmFixedVolume = true },
                                 contentPadding = listPadding,

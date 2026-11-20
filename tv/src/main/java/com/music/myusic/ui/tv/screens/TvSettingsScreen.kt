@@ -1,5 +1,6 @@
 package com.music.myusic.ui.tv.screens
 
+import android.widget.Toast
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -21,9 +22,11 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.music.myusic.BuildConfig
@@ -49,6 +52,7 @@ import com.music.myusic.ui.tv.personalization.AppThemeOption
 import com.music.myusic.ui.tv.theme.TvDimensions
 import com.music.myusic.ui.tv.theme.TvGlass
 import com.music.myusic.ui.tv.theme.TvType
+import kotlinx.coroutines.launch
 
 // Discord Rich Presence is hidden on TV for now; TvDiscordDialog is kept for when it returns.
 private enum class SettingsSheet { Theme, RefreshRate, Equalizer, Scrobbling, LyricsSources, Update, About }
@@ -94,6 +98,9 @@ fun TvSettingsScreen(
     var blurb by remember { mutableStateOf(DefaultBlurb) }
     var sheet by remember { mutableStateOf<SettingsSheet?>(null) }
     val update by AppUpdateChecker.available.collectAsState()
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+    var checkingUpdate by remember { mutableStateOf(false) }
 
     Row(
         modifier = modifier
@@ -331,15 +338,45 @@ fun TvSettingsScreen(
             }
 
             item { TvListHeader("General") }
-            if (update != null) {
-                item {
-                    TvListRow(
-                        title = "Software Update",
-                        value = "${update?.version.orEmpty()} Available",
-                        onFocused = { blurb = "Download and install the new version of Myusic for TV." },
-                        onClick = { sheet = SettingsSheet.Update },
-                    )
-                }
+            item {
+                val version = update?.version
+                TvListRow(
+                    title = "Software Update",
+                    value = when {
+                        checkingUpdate -> "Checking…"
+                        version != null -> "$version Available"
+                        else -> "Check for Updates"
+                    },
+                    onFocused = {
+                        blurb = if (version != null) {
+                            "Download and install the new version of Myusic for TV."
+                        } else {
+                            "Ask GitHub whether a newer version of Myusic for TV is out."
+                        }
+                    },
+                    onClick = {
+                        if (version != null) {
+                            sheet = SettingsSheet.Update
+                        } else {
+                            scope.launch {
+                                checkingUpdate = true
+                                try {
+                                    when (AppUpdateChecker.check(force = true)) {
+                                        AppUpdateChecker.CheckResult.UpdateAvailable ->
+                                            sheet = SettingsSheet.Update
+                                        AppUpdateChecker.CheckResult.UpToDate ->
+                                            Toast.makeText(context, "Myusic is up to date", Toast.LENGTH_SHORT).show()
+                                        AppUpdateChecker.CheckResult.Failed ->
+                                            Toast.makeText(context, "Could not check for updates", Toast.LENGTH_SHORT).show()
+                                        AppUpdateChecker.CheckResult.Skipped -> Unit
+                                    }
+                                } finally {
+                                    checkingUpdate = false
+                                }
+                            }
+                        }
+                    },
+                )
             }
             item {
                 TvListRow(

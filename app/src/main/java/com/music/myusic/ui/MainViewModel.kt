@@ -663,8 +663,18 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
     }
 
 
-    /** Set once per launch if GitHub has a release newer than this build. */
+    /** Set when GitHub has a release newer than this build. */
     val updateAvailable: StateFlow<AppUpdateChecker.UpdateInfo?> = AppUpdateChecker.available
+
+    /**
+     * Re-checks the latest release. AppUpdateChecker throttles this to a few
+     * hours, so the activity can call it on every resume without hitting GitHub
+     * each time. The Settings row calls [AppUpdateChecker.check] directly when
+     * it needs the result to show.
+     */
+    fun checkForUpdates() {
+        viewModelScope.launch { AppUpdateChecker.check() }
+    }
 
     // ---- Ratings, library and playlists -------------------------------------
 
@@ -1513,7 +1523,7 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
             // A leftover APK only means "Install Now" for the session that
             // downloaded it — see AppUpdateChecker.clearCache.
             AppUpdateChecker.clearCache(getApplication())
-            AppUpdateChecker.check()
+            checkForUpdates()
         }
     }
 

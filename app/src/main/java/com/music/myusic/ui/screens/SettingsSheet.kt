@@ -204,6 +204,8 @@ fun SettingsScreen(
     onSpotifyCanvasAuth: () -> Unit,
     onAppLanguage: () -> Unit,
     onEditSignatureApi: () -> Unit,
+    /** Asks GitHub for a newer release and reports the answer. */
+    onCheckForUpdates: () -> Unit,
     /**
      * Asks before [mode] is turned on: it hands volume to the DAC at full
      * scale. Shown in the app's frosted alert, which needs the app's blur.
@@ -1762,6 +1764,14 @@ fun SettingsScreen(
                         }
                     }
                 }
+            }
+            val checkForUpdatesTitle = stringResource(R.string.check_for_updates)
+            row(checkForUpdatesTitle, "update", "version", "upgrade", "github", "release") {
+                SettingsRow(
+                    icon = Icons.Rounded.Cached,
+                    title = checkForUpdatesTitle,
+                    onClick = onCheckForUpdates,
+                )
             }
         }
 

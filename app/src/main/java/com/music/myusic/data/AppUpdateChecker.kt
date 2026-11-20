@@ -10,6 +10,8 @@ import com.music.myusic.BuildConfig
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
@@ -21,9 +23,10 @@ import java.io.File
 
 /**
  * Myusic ships as a sideloaded APK off GitHub Releases rather than through
- * a store, so there's nothing to push an update notice on its own — this
- * polls the repo's "latest release" once per launch and compares its tag
- * against the running build.
+ * a store, so there's nothing to push an update notice on its own - this
+ * polls the repo's "latest release" at launch and, throttled, whenever the
+ * app comes back to the foreground, then compares its tag against the
+ * running build.
  *
  * The update itself is also handled here: the release's `.apk` asset is
  * downloaded into the app's cache and handed to the system package installer,
@@ -40,7 +43,20 @@ object AppUpdateChecker {
         val notes: String?,
     )
 
+    /** What one [check] found, for the Settings row that asks on demand. */
+    enum class CheckResult { UpdateAvailable, UpToDate, Failed, Skipped }
+
     private const val CACHE_SUBDIR = "updates"
+
+    /**
+     * How long a check stands before the next resume asks GitHub again.
+     * A cold start always checks (the process's first call is never throttled);
+     * this only keeps quick app switches from repeating the request.
+     */
+    private const val CHECK_INTERVAL_MS = 6 * 60 * 60 * 1000L
+
+    private val checkMutex = Mutex()
+    private var lastCheckAt = 0L
 
     private const val LATEST_RELEASE_URL =
         "https://api.github.com/repos/latiefahmad/Myusic/releases/latest"
@@ -65,23 +81,48 @@ object AppUpdateChecker {
     @Volatile
     private var downloadCancelled = false
 
-    suspend fun check() = withContext(Dispatchers.IO) {
-        runCatching {
-            val request = Request.Builder().url(LATEST_RELEASE_URL).build()
-            val body = Http.client.newCall(request).execute().use { response ->
-                if (!response.isSuccessful) null else response.body?.string()
-            } ?: return@runCatching
-            val release = json.parseToJsonElement(body) as? JsonObject ?: return@runCatching
-            val tag = release["tag_name"]?.jsonPrimitive?.contentOrNull ?: return@runCatching
-            val url = release["html_url"]?.jsonPrimitive?.contentOrNull ?: return@runCatching
-            val apkUrl = apkAssetUrl(release)
-            val notes = release["body"]?.jsonPrimitive?.contentOrNull
-            // The release tag is "Myusic-v1.0.0"; releases made before the tag
-            // took the app's name were plain "v1.9.1", so both forms strip.
-            val latest = tag.removePrefix("Myusic-").removePrefix("v")
-            if (isNewer(latest, BuildConfig.VERSION_NAME)) {
-                _available.value = UpdateInfo(latest, url, apkUrl, notes)
-            }
+    /**
+     * Polls the latest release. [force] skips the six-hour interval for the
+     * Settings row; a resume uses the default and usually returns [CheckResult.Skipped].
+     * Network and parse failures are reported rather than thrown, so a caller
+     * can tell "up to date" from "couldn't ask".
+     */
+    suspend fun check(force: Boolean = false): CheckResult = checkMutex.withLock {
+        val now = System.currentTimeMillis()
+        if (!force && lastCheckAt != 0L && now - lastCheckAt < CHECK_INTERVAL_MS) {
+            return@withLock CheckResult.Skipped
+        }
+        lastCheckAt = now
+        withContext(Dispatchers.IO) {
+            runCatching {
+                val request = Request.Builder().url(LATEST_RELEASE_URL).build()
+                val body = Http.client.newCall(request).execute().use { response ->
+                    if (response.isSuccessful) response.body?.string() else null
+                } ?: return@runCatching CheckResult.Failed
+                val release = json.parseToJsonElement(body) as? JsonObject
+                    ?: return@runCatching CheckResult.Failed
+                val tag = release["tag_name"]?.jsonPrimitive?.contentOrNull
+                    ?: return@runCatching CheckResult.Failed
+                val url = release["html_url"]?.jsonPrimitive?.contentOrNull
+                    ?: return@runCatching CheckResult.Failed
+                // The release tag is "Myusic-v1.0.0"; releases made before the
+                // tag took the app's name were plain "v1.9.1", so both strip.
+                val latest = tag.removePrefix("Myusic-").removePrefix("v")
+                if (isNewer(latest, BuildConfig.VERSION_NAME)) {
+                    _available.value = UpdateInfo(
+                        version = latest,
+                        releaseUrl = url,
+                        apkUrl = apkAssetUrl(release),
+                        notes = release["body"]?.jsonPrimitive?.contentOrNull,
+                    )
+                    CheckResult.UpdateAvailable
+                } else {
+                    // A release can be edited or pulled; don't keep offering
+                    // one this check no longer sees.
+                    _available.value = null
+                    CheckResult.UpToDate
+                }
+            }.getOrElse { CheckResult.Failed }
         }
     }
 

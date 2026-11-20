@@ -54,6 +54,13 @@ class TvActivity : ComponentActivity() {
         }
     }
 
+    override fun onResume() {
+        super.onResume()
+        // The ViewModel checks once at launch; this catches a TV left on for a
+        // while. AppUpdateChecker throttles the network call to a few hours.
+        viewModel.checkForUpdates()
+    }
+
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         setIntent(intent)
