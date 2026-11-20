@@ -90,7 +90,9 @@ final class AppUpdateCheckerTests: XCTestCase {
                       response: .json(releaseJSON(version: "1.2.0")))
         let checker = AppUpdateChecker(session: stub.makeSession(), currentVersion: { "1.0.0" })
 
-        XCTAssertEqual(await checker.check(), .updateAvailable)
+        // Awaited into a plain value first: XCTAssert* take autoclosures, which cannot hold `await`.
+        let result = await checker.check()
+        XCTAssertEqual(result, .updateAvailable)
         XCTAssertEqual(checker.available?.version, "1.2.0")
         XCTAssertEqual(stub.requests.count, 1)
         XCTAssertEqual(stub.requests.first?.value(forHTTPHeaderField: "Accept"), "application/vnd.github+json")
@@ -100,17 +102,23 @@ final class AppUpdateCheckerTests: XCTestCase {
         let stub = URLProtocolStub()
         stub.register(host: "api.github.com", path: "/repos/latiefahmad/Myusic/releases/latest",
                       response: .json(releaseJSON(version: "1.2.0")))
-        var clock = Date(timeIntervalSince1970: 1_700_000_000)
+        // A box, not a captured `var`: the checker holds the closure and the test keeps moving the
+        // clock, and a captured mutable local under strict concurrency is a warning at best.
+        final class Clock { var now = Date(timeIntervalSince1970: 1_700_000_000) }
+        let clock = Clock()
         let checker = AppUpdateChecker(session: stub.makeSession(), currentVersion: { "1.0.0" },
-                                       now: { clock })
+                                       now: { clock.now })
 
-        XCTAssertEqual(await checker.check(), .updateAvailable)
-        clock = clock.addingTimeInterval(AppUpdateChecker.interval - 60)
-        XCTAssertEqual(await checker.check(), .skipped, "inside the window")
+        let first = await checker.check()
+        XCTAssertEqual(first, .updateAvailable)
+        clock.now = clock.now.addingTimeInterval(AppUpdateChecker.interval - 60)
+        let throttled = await checker.check()
+        XCTAssertEqual(throttled, .skipped, "inside the window")
         XCTAssertEqual(stub.requests.count, 1, "the throttled check made no request")
 
-        clock = clock.addingTimeInterval(120)
-        XCTAssertEqual(await checker.check(), .updateAvailable, "past the window")
+        clock.now = clock.now.addingTimeInterval(120)
+        let afterWindow = await checker.check()
+        XCTAssertEqual(afterWindow, .updateAvailable, "past the window")
         XCTAssertEqual(stub.requests.count, 2)
     }
 
@@ -121,7 +129,8 @@ final class AppUpdateCheckerTests: XCTestCase {
         let checker = AppUpdateChecker(session: stub.makeSession(), currentVersion: { "1.0.0" })
 
         _ = await checker.check()
-        XCTAssertEqual(await checker.check(force: true), .updateAvailable)
+        let forced = await checker.check(force: true)
+        XCTAssertEqual(forced, .updateAvailable)
         XCTAssertEqual(stub.requests.count, 2)
     }
 
@@ -130,13 +139,15 @@ final class AppUpdateCheckerTests: XCTestCase {
         stub.register(host: "api.github.com", path: "/repos/latiefahmad/Myusic/releases/latest",
                       response: .json(releaseJSON(version: "1.2.0")))
         let checker = AppUpdateChecker(session: stub.makeSession(), currentVersion: { "1.0.0" })
-        XCTAssertEqual(await checker.check(), .updateAvailable)
+        let offered = await checker.check()
+        XCTAssertEqual(offered, .updateAvailable)
         XCTAssertNotNil(checker.available)
 
         // The release was edited down to the running version.
         stub.register(host: "api.github.com", path: "/repos/latiefahmad/Myusic/releases/latest",
                       response: .json(releaseJSON(version: "1.0.0")))
-        XCTAssertEqual(await checker.check(force: true), .upToDate)
+        let pulled = await checker.check(force: true)
+        XCTAssertEqual(pulled, .upToDate)
         XCTAssertNil(checker.available, "a release no longer seen must not keep being offered")
     }
 
@@ -145,7 +156,8 @@ final class AppUpdateCheckerTests: XCTestCase {
         stub.register(host: "api.github.com", path: "/repos/latiefahmad/Myusic/releases/latest",
                       response: .failure(.notConnectedToInternet))
         let checker = AppUpdateChecker(session: stub.makeSession(), currentVersion: { "1.0.0" })
-        XCTAssertEqual(await checker.check(), .failed)
+        let result = await checker.check()
+        XCTAssertEqual(result, .failed)
         XCTAssertNil(checker.available)
     }
 }
