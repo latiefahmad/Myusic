@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Myusic — YouTube Music, beautifully yours</title>
+<meta name="description" content="A refined YouTube Music client for Android, Android TV, Wear OS, Windows, Linux, macOS and iOS. Lossless playback, synced lyrics, offline downloads. Free and open source." />
+<meta property="og:title" content="Myusic — YouTube Music, beautifully yours" />
+<meta property="og:description" content="A refined YouTube Music client for Android, Android TV, Wear OS, desktop and iOS." />
+<meta property="og:type" content="website" />
+<meta property="og:image" content="assets/Banner.png" />
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
+<link rel="apple-touch-icon" href="assets/Logo.png" />
+<style>
+  :root {
+    --navy: #071a3c;
+    --navy-2: #0b2c63;
+    --cyan: #22d3ee;
+    --cyan-soft: #67e8f9;
+    --blue: #2563eb;
+    --ink: #0d1733;
+    --body: #47506b;
+    --muted: #6b7690;
+    --line: #e6e9f2;
+    --bg: #ffffff;
+    --bg-soft: #f6f8fc;
+    --bg-soft-2: #eef2f9;
+    --warn-bg: #fff7ed;
+    --warn-line: #fed7aa;
+    --ok: #16a34a;
+    --radius: 16px;
+    --radius-lg: 24px;
+    --shadow: 0 1px 2px rgba(7, 26, 60, .06), 0 12px 32px rgba(7, 26, 60, .07);
+    --shadow-lg: 0 2px 4px rgba(7, 26, 60, .06), 0 24px 60px rgba(7, 26, 60, .12);
+    --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+    --sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    font-family: var(--sans);
+    color: var(--body);
+    background: var(--bg);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+  h1, h2, h3, h4 { color: var(--ink); line-height: 1.15; margin: 0; letter-spacing: -.02em; }
+  a { color: var(--blue); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  p { margin: 0 0 1rem; }
+  img { max-width: 100%; display: block; }
+  code { font-family: var(--mono); font-size: .92em; background: var(--bg-soft-2); padding: .12em .42em; border-radius: 6px; color: #22315c; }
+  .wrap { width: min(1140px, 100% - 2.5rem); margin-inline: auto; }
+  .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--blue); }
+  .btn {
+    display: inline-flex; align-items: center; gap: .55rem;
+    font-weight: 600; font-size: .95rem; line-height: 1;
+    padding: .85rem 1.3rem; border-radius: 999px; border: 1px solid transparent;
+    cursor: pointer; transition: transform .12s ease, box-shadow .12s ease, background .12s ease;
+    white-space: nowrap;
+  }
+  .btn:hover { text-decoration: none; transform: translateY(-1px); }
+  .btn-primary { background: var(--navy); color: #fff; box-shadow: var(--shadow); }
+  .btn-primary:hover { background: var(--navy-2); }
+  .btn-ghost { background: #fff; color: var(--ink); border-color: var(--line); }
+  .btn-ghost:hover { border-color: #cfd6e6; }
+  .btn-link { padding: .85rem .4rem; color: var(--ink); font-weight: 600; }
+  .btn-link:hover { color: var(--blue); }
+
+  /* ---------- Nav ---------- */
+  header.nav {
+    position: sticky; top: 0; z-index: 50;
+    background: rgba(255, 255, 255, .82);
+    backdrop-filter: saturate(160%) blur(12px);
+    border-bottom: 1px solid var(--line);
+  }
+  .nav-inner { display: flex; align-items: center; gap: 1.25rem; height: 64px; }
+  .brand { display: flex; align-items: center; gap: .6rem; font-weight: 800; color: var(--ink); font-size: 1.05rem; }
+  .brand img { width: 30px; height: 30px; border-radius: 9px; }
+  .brand:hover { text-decoration: none; }
+  .nav-links { display: flex; gap: 1.35rem; margin-left: .5rem; }
+  .nav-links a { color: var(--body); font-weight: 500; font-size: .93rem; }
+  .nav-links a:hover { color: var(--ink); text-decoration: none; }
+  .nav-right { margin-left: auto; display: flex; align-items: center; gap: .6rem; }
+  .nav-right .btn { padding: .6rem 1.05rem; font-size: .9rem; }
+  .menu-toggle { display: none; background: none; border: 0; cursor: pointer; padding: .4rem; color: var(--ink); }
+  @media (max-width: 900px) {
+    .nav-links { display: none; }
+    .menu-toggle { display: inline-flex; margin-left: auto; }
+    .nav-right .btn-ghost { display: none; }
+  }
+
+  /* ---------- Hero ---------- */
+  .hero { padding: 4.5rem 0 3rem; background:
+      radial-gradient(900px 460px at 78% -8%, rgba(34, 211, 238, .16), transparent 60%),
+      radial-gradient(720px 420px at 8% 0%, rgba(37, 99, 235, .10), transparent 55%);
+    border-bottom: 1px solid var(--line);
+  }
+  .hero-grid { display: grid; grid-template-columns: 1.05fr .95fr; gap: 3rem; align-items: center; }
+  .hero-badges { display: flex; flex-wrap: wrap; gap: .5rem; margin-bottom: 1.2rem; }
+  .pill { font-size: .78rem; font-weight: 600; padding: .32rem .7rem; border-radius: 999px; background: #fff; border: 1px solid var(--line); color: var(--ink); }
+  .pill .tag { color: var(--blue); }
+  .hero h1 { font-size: clamp(2.1rem, 4.2vw, 3.15rem); font-weight: 800; margin-bottom: 1rem; }
+  .hero h1 em { font-style: normal; background: linear-gradient(90deg, var(--cyan), var(--blue)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .hero-lede { font-size: 1.12rem; max-width: 34rem; }
+  .hero-cta { display: flex; flex-wrap: wrap; gap: .75rem; align-items: center; margin-top: 1.5rem; }
+  .hero-note { font-size: .88rem; color: var(--muted); margin-top: 1rem; }
+  .hero-meta { display: grid; grid-template-columns: max-content 1fr; gap: .35rem 1rem; margin-top: 2rem; font-size: .9rem; }
+  .hero-meta dt { color: var(--muted); font-weight: 600; }
+  .hero-meta dd { margin: 0; color: var(--ink); }
+  @media (max-width: 860px) {
+    .hero-grid { grid-template-columns: 1fr; gap: 2rem; }
+    .hero { padding-top: 2.5rem; }
+  }
+
+  /* App mock */
+  .mock { background: #fff; border: 1px solid var(--line); border-radius: var(--radius-lg); box-shadow: var(--shadow-lg); overflow: hidden; }
+  .mock-top { display: flex; align-items: center; gap: .5rem; padding: .7rem .9rem; border-bottom: 1px solid var(--line); background: var(--bg-soft); }
+  .dot { width: 11px; height: 11px; border-radius: 50%; }
+  .dot.r { background: #ff5f57; } .dot.y { background: #febc2e; } .dot.g { background: #28c840; }
+  .mock-title { margin-left: .5rem; font-size: .8rem; color: var(--muted); font-weight: 600; }
+  .mock-body { display: grid; grid-template-columns: 128px 1fr; min-height: 320px; }
+  .mock-rail { background: var(--navy); padding: .9rem .7rem; display: flex; flex-direction: column; gap: .35rem; }
+  .mock-rail .ri { display: flex; align-items: center; gap: .5rem; color: #a9bce0; font-size: .78rem; font-weight: 600; padding: .45rem .55rem; border-radius: 9px; }
+  .mock-rail .ri.active { background: rgba(34, 211, 238, .16); color: #fff; }
+  .mock-rail .ic { width: 15px; height: 15px; border-radius: 4px; background: currentColor; opacity: .75; }
+  .mock-main { padding: 1rem 1.1rem; }
+  .mock-main h4 { font-size: .95rem; margin-bottom: .8rem; }
+  .shelf { display: grid; grid-template-columns: repeat(3, 1fr); gap: .7rem; }
+  .card { border: 1px solid var(--line); border-radius: 12px; padding: .6rem; }
+  .art { aspect-ratio: 1; border-radius: 9px; margin-bottom: .5rem; background: linear-gradient(135deg, #0b2c63, #22d3ee); position: relative; overflow: hidden; }
+  .art::after { content: ""; position: absolute; inset: 32% 30% 34% 34%; border-radius: 50%; border: 3px solid rgba(255,255,255,.85); border-right-color: transparent; }
+  .card .line { height: 7px; border-radius: 4px; background: var(--bg-soft-2); margin-bottom: 5px; }
+  .card .line.short { width: 60%; }
+  .mock-player { margin-top: .9rem; display: flex; align-items: center; gap: .7rem; padding: .7rem .8rem; border: 1px solid var(--line); border-radius: 14px; background: var(--bg-soft); }
+  .pv-art { width: 40px; height: 40px; border-radius: 9px; background: linear-gradient(135deg, #2563eb, #67e8f9); flex: none; }
+  .pv-info { flex: 1; }
+  .pv-info .line { height: 8px; border-radius: 4px; background: #dfe5f1; margin-bottom: 5px; }
+  .pv-info .line.short { width: 45%; }
+  .pv-play { width: 34px; height: 34px; border-radius: 50%; background: var(--navy); flex: none; display: grid; place-items: center; }
+  .pv-play::after { content: ""; border-left: 10px solid #fff; border-top: 6px solid transparent; border-bottom: 6px solid transparent; margin-left: 2px; }
+
+  /* ---------- Sections ---------- */
+  section { padding: 4.5rem 0; border-bottom: 1px solid var(--line); }
+  section.soft { background: var(--bg-soft); }
+  .sec-head { max-width: 46rem; margin-bottom: 2.6rem; }
+  .sec-head h2 { font-size: clamp(1.6rem, 2.8vw, 2.2rem); font-weight: 800; margin: .5rem 0 .7rem; }
+  .sec-no { font-size: .8rem; font-weight: 700; letter-spacing: .12em; color: var(--muted); }
+
+  /* How it works */
+  .flow { display: grid; gap: 1rem; }
+  .flow-row { display: grid; grid-template-columns: 46px 1fr; gap: 1rem; align-items: start; }
+  .flow-no { width: 46px; height: 46px; border-radius: 14px; background: #fff; border: 1px solid var(--line); display: grid; place-items: center; font-weight: 800; color: var(--navy); box-shadow: var(--shadow); }
+  .flow-card { background: #fff; border: 1px solid var(--line); border-radius: var(--radius); padding: 1.1rem 1.3rem; box-shadow: var(--shadow); }
+  .flow-card h4 { margin-bottom: .3rem; font-size: 1.02rem; }
+  .flow-card p { margin: 0; font-size: .95rem; }
+  .arch { margin-top: 2.4rem; display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; }
+  .arch .col { background: #fff; border: 1px solid var(--line); border-radius: var(--radius); padding: 1.2rem; box-shadow: var(--shadow); }
+  .arch .col h5 { color: var(--ink); font-size: .8rem; text-transform: uppercase; letter-spacing: .1em; margin: 0 0 .7rem; }
+  .arch ul { margin: 0; padding-left: 1.1rem; font-size: .92rem; }
+  .arch li { margin-bottom: .3rem; }
+  @media (max-width: 780px) { .arch { grid-template-columns: 1fr; } }
+
+  /* Features */
+  .features { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; }
+  .feature { background: #fff; border: 1px solid var(--line); border-radius: var(--radius); padding: 1.3rem; box-shadow: var(--shadow); }
+  .feature .fic { width: 38px; height: 38px; border-radius: 11px; background: linear-gradient(135deg, var(--navy), var(--navy-2)); display: grid; place-items: center; margin-bottom: .8rem; }
+  .feature .fic svg { width: 20px; height: 20px; stroke: var(--cyan); }
+  .feature h4 { font-size: 1rem; margin-bottom: .35rem; }
+  .feature p { margin: 0; font-size: .92rem; }
+  @media (max-width: 900px) { .features { grid-template-columns: 1fr 1fr; } }
+  @media (max-width: 600px) { .features { grid-template-columns: 1fr; } }
+
+  /* Download */
+  .dl-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; }
+  .dl-card { background: #fff; border: 1px solid var(--line); border-radius: var(--radius); padding: 1.3rem; box-shadow: var(--shadow); display: flex; flex-direction: column; }
+  .dl-card .dhead { display: flex; align-items: center; gap: .7rem; margin-bottom: .8rem; }
+  .dl-ic { width: 40px; height: 40px; border-radius: 12px; background: var(--bg-soft-2); display: grid; place-items: center; flex: none; }
+  .dl-ic svg { width: 22px; height: 22px; }
+  .dl-card h4 { font-size: 1.02rem; margin: 0; }
+  .dl-card .sub { font-size: .82rem; color: var(--muted); }
+  .dl-opts { display: flex; flex-direction: column; gap: .5rem; margin-top: auto; padding-top: .8rem; }
+  .dl-opt { display: flex; align-items: center; justify-content: space-between; gap: .8rem; padding: .6rem .75rem; border: 1px solid var(--line); border-radius: 12px; transition: border-color .12s ease, background .12s ease; }
+  .dl-opt:hover { border-color: #bcc7de; background: var(--bg-soft); text-decoration: none; }
+  .dl-opt .name { font-weight: 600; color: var(--ink); font-size: .9rem; }
+  .dl-opt .size { font-size: .78rem; color: var(--muted); font-family: var(--mono); }
+  .dl-opt .go { color: var(--blue); font-weight: 700; font-size: .85rem; }
+  .dl-note { font-size: .85rem; color: var(--muted); margin-top: 1.4rem; }
+  @media (max-width: 780px) { .dl-grid { grid-template-columns: 1fr; } }
+
+  /* Install / steps */
+  .steps { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 2.4rem; align-items: start; }
+  .steps > * { min-width: 0; }
+  .step-list { counter-reset: s; display: grid; gap: 1.3rem; min-width: 0; }
+  .step { display: grid; grid-template-columns: 38px minmax(0, 1fr); gap: .9rem; }
+  .step .n { counter-increment: s; width: 38px; height: 38px; border-radius: 50%; background: var(--navy); color: #fff; display: grid; place-items: center; font-weight: 700; }
+  .step .n::before { content: counter(s); }
+  .step h4 { font-size: 1rem; margin-bottom: .3rem; }
+  .step p { margin: 0; font-size: .93rem; }
+  pre { background: var(--navy); color: #dbe7ff; border-radius: 14px; padding: 1rem 1.1rem; overflow-x: auto; font-family: var(--mono); font-size: .85rem; line-height: 1.6; }
+  pre code { background: none; color: inherit; padding: 0; }
+  .need { margin-top: 1.4rem; background: #fff; border: 1px solid var(--line); border-radius: var(--radius); padding: 1.2rem; box-shadow: var(--shadow); }
+  .need h4 { font-size: .95rem; margin-bottom: .6rem; }
+  .need ul { margin: 0; padding-left: 1.1rem; font-size: .92rem; }
+  .need li { margin-bottom: .3rem; }
+  @media (max-width: 820px) { .steps { grid-template-columns: minmax(0, 1fr); gap: 1.8rem; } }
+
+  .callout { background: var(--warn-bg); border: 1px solid var(--warn-line); border-radius: var(--radius); padding: 1.05rem 1.2rem; margin-top: 1.3rem; font-size: .93rem; }
+  .callout strong { color: #9a3412; }
+
+  /* FAQ */
+  .faq { max-width: 800px; margin-inline: auto; }
+  details { background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: .2rem 1.1rem; margin-bottom: .7rem; box-shadow: var(--shadow); }
+  details[open] { border-color: #c9d4ea; }
+  summary { list-style: none; cursor: pointer; font-weight: 600; color: var(--ink); padding: .95rem 0; display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+  summary::-webkit-details-marker { display: none; }
+  summary::after { content: "+"; font-size: 1.3rem; color: var(--blue); font-weight: 400; }
+  details[open] summary::after { content: "–"; }
+  details p { margin: 0 0 1rem; font-size: .94rem; }
+
+  /* Fine print + footer */
+  .fine { background: var(--bg); }
+  .fine-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2.4rem; }
+  .fine-grid h3 { font-size: 1.05rem; margin-bottom: .6rem; }
+  .fine-grid p, .fine-grid li { font-size: .9rem; }
+  @media (max-width: 780px) { .fine-grid { grid-template-columns: 1fr; gap: 1.6rem; } }
+  footer { background: var(--navy); color: #a9bce0; padding: 3rem 0; }
+  footer .fwrap { display: flex; flex-wrap: wrap; gap: 1.5rem; align-items: center; justify-content: space-between; }
+  footer .brand { color: #fff; }
+  footer a { color: #cfe0ff; }
+  footer .flinks { display: flex; flex-wrap: wrap; gap: 1.1rem; font-size: .9rem; }
+  footer .fineprint { width: 100%; font-size: .82rem; color: #8ba2cf; margin-top: 1.2rem; }
+  .skip { position: absolute; left: -9999px; }
+  .skip:focus { left: 1rem; top: 1rem; background: #fff; padding: .5rem 1rem; border-radius: 8px; z-index: 100; }
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="nav">
+  <div class="wrap nav-inner">
+    <a class="brand" href="#top">
+      <img src="assets/Logo.png" alt="Myusic app icon" />
+      Myusic
+    </a>
+    <nav class="nav-links" aria-label="Primary">
+      <a href="#how">How it works</a>
+      <a href="#features">Features</a>
+      <a href="#download">Download</a>
+      <a href="#install">Install</a>
+      <a href="#faq">FAQ</a>
+    </nav>
+    <div class="nav-right">
+      <a class="btn btn-ghost" href="https://github.com/latiefahmad/Myusic" target="_blank" rel="noopener">GitHub</a>
+      <a class="btn btn-primary" href="#download">Download</a>
+    </div>
+    <button class="menu-toggle" aria-label="Menu" onclick="document.getElementById('download').scrollIntoView()">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+    </button>
+  </div>
+</header>
+
+<main id="main">
+  <a id="top"></a>
+
+  <!-- Hero -->
+  <section class="hero" style="border-bottom:1px solid var(--line)">
+    <div class="wrap hero-grid">
+      <div>
+        <div class="hero-badges">
+          <span class="pill"><span class="tag" id="verPill">v1.0.0</span> &nbsp;·&nbsp; Free &amp; open source</span>
+          <span class="pill">Android · TV · Wear OS · Desktop · iOS</span>
+        </div>
+        <h1>YouTube Music, <em>beautifully yours.</em></h1>
+        <p class="hero-lede">
+          Myusic is a refined YouTube Music client: lossless playback, word-synced lyrics,
+          animated artwork, offline downloads and Listen Together — on your phone, your TV,
+          your desktop and your wrist.
+        </p>
+        <div class="hero-cta">
+          <a class="btn btn-primary" href="#download">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>
+            Download
+          </a>
+          <a class="btn btn-ghost" href="https://github.com/latiefahmad/Myusic" target="_blank" rel="noopener">Browse the source</a>
+          <a class="btn btn-link" href="https://github.com/latiefahmad/Myusic/releases" target="_blank" rel="noopener">All releases →</a>
+        </div>
+        <p class="hero-note">Free · No account required to install · Updates itself from GitHub Releases</p>
+
+        <dl class="hero-meta">
+          <dt>Version</dt><dd id="metaVersion">1.0.0</dd>
+          <dt>Runs on</dt><dd>Android 8+ · Android TV · Wear OS 3+ · Windows · Linux · macOS · iOS 17+</dd>
+          <dt>Licence</dt><dd>GPL-3.0, open source</dd>
+          <dt>Price</dt><dd>Free</dd>
+        </dl>
+      </div>
+
+      <div class="mock" aria-hidden="true">
+        <div class="mock-top">
+          <span class="dot r"></span><span class="dot y"></span><span class="dot g"></span>
+          <span class="mock-title">Myusic — Now playing</span>
+        </div>
+        <div class="mock-body">
+          <div class="mock-rail">
+            <div class="ri active"><span class="ic"></span> Home</div>
+            <div class="ri"><span class="ic"></span> Explore</div>
+            <div class="ri"><span class="ic"></span> Library</div>
+            <div class="ri"><span class="ic"></span> Downloads</div>
+            <div class="ri"><span class="ic"></span> Settings</div>
+          </div>
+          <div class="mock-main">
+            <h4>Made for you</h4>
+            <div class="shelf">
+              <div class="card"><div class="art"></div><div class="line"></div><div class="line short"></div></div>
+              <div class="card"><div class="art"></div><div class="line"></div><div class="line short"></div></div>
+              <div class="card"><div class="art"></div><div class="line"></div><div class="line short"></div></div>
+            </div>
+            <div class="mock-player">
+              <div class="pv-art"></div>
+              <div class="pv-info"><div class="line"></div><div class="line short"></div></div>
+              <div class="pv-play"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- How it works -->
+  <section id="how">
+    <div class="wrap">
+      <div class="sec-head">
+        <div class="sec-no">01 · How it works</div>
+        <h2>One app, every screen you listen on.</h2>
+        <p>Myusic talks to YouTube Music with your own Google account, then draws the whole
+        experience itself — the same library, queue and lyrics across Android, TV, desktop and iOS.</p>
+      </div>
+
+      <div class="flow">
+        <div class="flow-row">
+          <div class="flow-no">1</div>
+          <div class="flow-card">
+            <h4>Sign in</h4>
+            <p>Connect your Google account for personalised home, library and playlists — or use it signed out for a clean, account-free player.</p>
+          </div>
+        </div>
+        <div class="flow-row">
+          <div class="flow-no">2</div>
+          <div class="flow-card">
+            <h4>Play anything</h4>
+            <p>Search, browse and stream from YouTube Music, with Hi-Res lossless from a configured module source when you want it.</p>
+          </div>
+        </div>
+        <div class="flow-row">
+          <div class="flow-no">3</div>
+          <div class="flow-card">
+            <h4>Make it yours</h4>
+            <p>Animated artwork, synced lyrics, dynamic theming, per-network quality and offline downloads — all kept in sync by the app's own update checker.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="arch">
+        <div class="col">
+          <h5>Built with</h5>
+          <ul>
+            <li><strong>Kotlin</strong> — Android phone, tablet, TV, Wear OS and the JVM desktop</li>
+            <li><strong>Swift</strong> — iPhone and iPad</li>
+            <li><strong>Go</strong> — the Listen Together party server</li>
+          </ul>
+        </div>
+        <div class="col">
+          <h5>Runs where</h5>
+          <ul>
+            <li>Android 8.0+ on phones and tablets</li>
+            <li>Android TV (Leanback)</li>
+            <li>Wear OS 3+</li>
+            <li>Windows 10/11, Linux, macOS 13+</li>
+            <li>iPhone and iPad, iOS 17+</li>
+          </ul>
+        </div>
+        <div class="col">
+          <h5>Bring your own</h5>
+          <ul>
+            <li>Spotify playlists and Liked Songs</li>
+            <li>Local music library</li>
+            <li>Pluggable module sources</li>
+            <li>Last.fm and ListenBrainz scrobbling</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features -->
+  <section id="features" class="soft">
+    <div class="wrap">
+      <div class="sec-head">
+        <div class="sec-no">02 · Features</div>
+        <h2>Built to be left alone.</h2>
+        <p>Everything you'd want from a music player, without the things you wouldn't.</p>
+      </div>
+      <div class="features" id="featureGrid">
+        <!-- filled by script -->
+      </div>
+    </div>
+  </section>
+
+  <!-- Download -->
+  <section id="download">
+    <div class="wrap">
+      <div class="sec-head">
+        <div class="sec-no">03 · Download</div>
+        <h2>One release, every platform.</h2>
+        <p>Every build comes from the same tagged release on GitHub, produced by CI. Signed APKs
+        install straight over an older Myusic; the desktop builds are unsigned unless noted.</p>
+      </div>
+      <div class="dl-grid" id="dlGrid">
+        <!-- filled by script -->
+      </div>
+      <p class="dl-note">
+        Looking for something else? Every asset, including ABI splits and checksums, is on the
+        <a href="https://github.com/latiefahmad/Myusic/releases/latest" target="_blank" rel="noopener">latest release page</a>.
+        To verify a download, on Windows run <code>Get-FileHash .\Myusic-setup.exe</code>,
+        on Linux/macOS run <code>shasum -a 256 &lt;file&gt;</code>, and compare with the release's checksums.
+      </p>
+    </div>
+  </section>
+
+  <!-- Install -->
+  <section id="install" class="soft">
+    <div class="wrap">
+      <div class="sec-head">
+        <div class="sec-no">04 · Install</div>
+        <h2>A few minutes, a few taps.</h2>
+      </div>
+      <div class="steps">
+        <div class="step-list">
+          <div class="step">
+            <div class="n"></div>
+            <div>
+              <h4>Download the build for your device</h4>
+              <p>Pick the installer from the section above. Android and Wear OS need “Install unknown apps” enabled for whichever app you download with.</p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="n"></div>
+            <div>
+              <h4>Install it</h4>
+              <p>Android and Windows run their own installers. macOS may warn the first time — right-click the app and choose <strong>Open</strong>, or run <code>xattr -cr /Applications/Myusic.app</code>.</p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="n"></div>
+            <div>
+              <h4>Open and sign in</h4>
+              <p>Use Myusic signed out, or sign in with Google for your personalised library. Spotify, Last.fm and Listen Together connect from Settings.</p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="n"></div>
+            <div>
+              <h4>Keep it updated</h4>
+              <p>Myusic checks GitHub Releases on launch and when it comes back to the foreground, and offers the newer build right inside the app.</p>
+            </div>
+          </div>
+        </div>
+        <div>
+          <div class="need">
+            <h4>To build from source</h4>
+            <p style="font-size:.9rem;margin-bottom:.6rem">You need JDK 21 (Android also builds on 17), Android SDK 37, and the NDK/CMake toolchain for the native audio components.</p>
+<pre><code>./gradlew assembleDevDebug          # Android APK
+./gradlew :desktopApp:run           # desktop, from the host
+./gradlew testDevDebugUnitTest      # unit tests</code></pre>
+            <p style="font-size:.9rem;margin:.8rem 0 .4rem">The iOS app is built from <code>ios/</code> in Xcode, not Gradle:</p>
+<pre><code>cd ios
+open Myusic.xcworkspace</code></pre>
+          </div>
+          <div class="callout">
+            <strong>Windows says “Windows protected your PC”?</strong>
+            The installer isn't signed with a paid certificate yet. Choose <strong>More info</strong>, then <strong>Run anyway</strong>.
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section id="faq">
+    <div class="wrap faq">
+      <div class="sec-head" style="text-align:center;margin-inline:auto">
+        <div class="sec-no">05 · FAQ</div>
+        <h2>Questions people actually ask.</h2>
+      </div>
+
+      <details open>
+        <summary>Is Myusic free?</summary>
+        <p>Yes. Myusic is free and open source under the GPL-3.0 licence. There is no account to create and nothing to pay — if it earns a spot in your rotation, you can <a href="https://saweria.co/latiefahmad" target="_blank" rel="noopener">chip in on Saweria</a>.</p>
+      </details>
+      <details>
+        <summary>Is it safe? What does it connect to?</summary>
+        <p>Myusic is built from source on GitHub, and every release is produced by public CI. It talks to YouTube Music with your own account, and to GitHub Releases for its own updates. It hosts no media.</p>
+      </details>
+      <details>
+        <summary>Is it affiliated with YouTube or Google?</summary>
+        <p>No. Myusic is an independent, community-built client. It is not affiliated with, endorsed by, or connected to Google, YouTube or YouTube Music.</p>
+      </details>
+      <details>
+        <summary>Which platforms are supported?</summary>
+        <p>Android 8.0+ phones and tablets, Android TV, Wear OS 3+, Windows 10/11, Linux, macOS 13+, and iPhone/iPad on iOS 17+. The desktop build covers the same player, queue and lyrics as the phone.</p>
+      </details>
+      <details>
+        <summary>Do I need a Google account?</summary>
+        <p>No. You can use Myusic signed out for a clean, account-free player. Signing in with Google unlocks your personalised home, library and playlists.</p>
+      </details>
+      <details>
+        <summary>How do updates work?</summary>
+        <p>The app checks GitHub Releases on launch and when it returns to the foreground. When a newer build exists it offers it in-app — Android downloads and installs the APK straight over the old one.</p>
+      </details>
+      <details>
+        <summary>Does it work with Spotify and my local files?</summary>
+        <p>Yes. You can connect a Spotify account to play your playlists and Liked Songs, and Myusic scans your device's local music library alongside its streaming sources.</p>
+      </details>
+      <details>
+        <summary>Can I scrobble?</summary>
+        <p>Yes — Myusic scrobbles to Last.fm and ListenBrainz, and shows Discord Rich Presence with the live track and progress.</p>
+      </details>
+      <details>
+        <summary>How do I uninstall it?</summary>
+        <p>Uninstall it like any other app: on Android from Settings → Apps, on Windows from Apps &amp; features, on macOS by moving it from Applications to the Bin, and on Linux with your package manager or by deleting the AppImage.</p>
+      </details>
+    </div>
+  </section>
+
+  <!-- Fine print -->
+  <section class="fine">
+    <div class="wrap fine-grid">
+      <div>
+        <div class="sec-no">06 · Fine print</div>
+        <h3 style="margin-top:.6rem">Disclaimer</h3>
+        <p>Myusic is an independent, community-driven third-party audio player and client. It is
+        <strong>not</strong> associated with Google LLC, YouTube Music, Deezer, Telegram, or any of their
+        parent companies, and hosts no copyrighted media. Use it at your own discretion and follow
+        the terms of the services you use.</p>
+      </div>
+      <div>
+        <div class="sec-no">&nbsp;</div>
+        <h3 style="margin-top:.6rem">Credits &amp; licence</h3>
+        <p>Myusic began as a fork of <a href="https://github.com/kushagrasinghx/BitChord" target="_blank" rel="noopener">BitChord</a>
+        by Kushagra Singh, and remains GPL-3.0; the original copyright notices stay in the source files.
+        Animated lyrics credit <a href="https://github.com/binimum/am-lyrics" target="_blank" rel="noopener">binimum/am-lyrics</a>.</p>
+        <p><a href="https://github.com/latiefahmad/Myusic/blob/main/LICENSE" target="_blank" rel="noopener">Read the licence →</a></p>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap fwrap">
+    <a class="brand" href="#top">
+      <img src="assets/Logo.png" alt="" width="30" height="30" style="border-radius:9px" />
+      Myusic
+    </a>
+    <nav class="flinks" aria-label="Footer">
+      <a href="https://github.com/latiefahmad/Myusic" target="_blank" rel="noopener">Source</a>
+      <a href="https://github.com/latiefahmad/Myusic/releases" target="_blank" rel="noopener">Releases</a>
+      <a href="https://github.com/latiefahmad/Myusic/issues" target="_blank" rel="noopener">Issues</a>
+      <a href="https://saweria.co/latiefahmad" target="_blank" rel="noopener">Support</a>
+      <a href="https://github.com/latiefahmad/Myusic/blob/main/LICENSE" target="_blank" rel="noopener">GPL-3.0</a>
+    </nav>
+    <p class="fineprint">
+      Not affiliated with Google, YouTube or YouTube Music. Built from the tagged release on
+      <a href="https://github.com/latiefahmad/Myusic" target="_blank" rel="noopener">latiefahmad/Myusic</a>.
+    </p>
+  </div>
+</footer>
+
+<script>
+  // ---- Data ---------------------------------------------------------------
+  const OWNER = "latiefahmad";
+  const REPO = "Myusic";
+  const RELEASE_TAG = "Myusic-v1.0.0";
+  const VERSION = "1.0.0";
+
+  const DL_BASE = `https://github.com/${OWNER}/${REPO}/releases/download/${RELEASE_TAG}/`;
+
+  // Human-readable sizes come from the release assets; these are the fallbacks
+  // for the current tag so the page reads correctly even before the API answers.
+  const PLATFORMS = [
+    {
+      id: "windows", name: "Windows", sub: "Windows 10 / 11 · x64",
+      icon: '<path d="M3 5.5 10.5 4.4v7.05H3V5.5Zm8.8-1.25L21 3v8.45h-9.2V4.25ZM3 12.55h7.5v7.05L3 18.5v-5.95Zm8.8 0H21V21l-9.2-1.25v-7.2Z"/>',
+      fill: true,
+      options: [
+        { label: "Installer (.exe)", file: `Myusic-${VERSION}-windows-x64-setup.exe` },
+        { label: "MSI package", file: `Myusic-${VERSION}-windows-x64.msi` },
+        { label: "Portable ZIP", file: `Myusic-${VERSION}-windows-x64-portable.zip` },
+      ],
+    },
+    {
+      id: "android", name: "Android & TV", sub: "Android 8.0+ · phone & tablet · Android TV",
+      icon: '<path d="M7 9h10v7a3 3 0 0 1-3 3H10a3 3 0 0 1-3-3V9Zm-1 0H4a1 1 0 0 0-1 1v5a1 1 0 0 0 1 1h2V9Zm12 0h2a1 1 0 0 1 1 1v5a1 1 0 0 1-1 1h-2V9ZM7 8a5 5 0 0 1 10 0H7Z"/>',
+      fill: true,
+      options: [
+        { label: "Phone · universal APK", file: `Myusic-${VERSION}-android-phone-universal.apk` },
+        { label: "Android TV · universal", file: `Myusic-${VERSION}-android-tv-universal.apk` },
+        { label: "Wear OS", file: `Myusic-${VERSION}-android-wear.apk` },
+      ],
+    },
+    {
+      id: "desktop", name: "Linux & macOS", sub: "Linux x86_64 · macOS 13+",
+      icon: '<path d="M12 3c2 0 3 1.4 3 3.2 0 1.3-.6 2.2-1.4 2.9 1.7.7 2.9 2 3.2 4 .2 1.3.2 2.4-.1 3.3-.3 1-1 1.6-1.9 1.6-.7 0-1.3-.3-1.9-.6-.9-.5-1.3-.6-1.9-.6s-1 .1-1.9.6c-.6.3-1.2.6-1.9.6-.9 0-1.6-.6-1.9-1.6-.3-.9-.3-2-.1-3.3.3-2 1.5-3.3 3.2-4-.8-.7-1.4-1.6-1.4-2.9C9 4.4 10 3 12 3Z"/>',
+      fill: true,
+      options: [
+        { label: "Linux · AppImage", file: `Myusic-${VERSION}-linux-x86_64.AppImage` },
+        { label: "Linux · .deb", file: `Myusic-${VERSION}-linux-amd64.deb` },
+        { label: "macOS · Apple Silicon", file: `Myusic-${VERSION}-macos-arm64.dmg` },
+        { label: "macOS · Intel", file: `Myusic-${VERSION}-macos-x64.dmg` },
+      ],
+    },
+    {
+      id: "ios", name: "iPhone & iPad", sub: "iOS 17+ · sideload, unsigned",
+      icon: '<path d="M16.3 12.6c0-2 1.6-3 1.7-3.1-1-1.4-2.4-1.6-2.9-1.6-1.2-.1-2.4.7-3 .7-.6 0-1.6-.7-2.6-.7-1.3 0-2.6.8-3.3 2-1.4 2.4-.4 6 1 8 .7 1 1.5 2 2.5 2 1 0 1.4-.6 2.6-.6s1.5.6 2.6.6c1.1 0 1.8-1 2.4-2 .8-1.1 1.1-2.2 1.1-2.3 0 0-2.1-.8-2.1-3Zm-2-5.9c.5-.7.9-1.6.8-2.6-.8 0-1.8.6-2.4 1.2-.5.6-.9 1.5-.8 2.5.9.1 1.8-.4 2.4-1.1Z"/>',
+      fill: true,
+      options: [
+        { label: "Unsigned IPA (sideload)", file: `Myusic-${VERSION}-ios-unsigned.ipa` },
+        { label: "How to sideload", href: "https://github.com/latiefahmad/Myusic#download" },
+      ],
+    },
+  ];
+
+  const FEATURES = [
+    { t: "Lossless playback", d: "Hi-Res FLAC/ALAC from a configured module source, with YouTube Music as fallback.", i: "M9 18V6l10-2v12M9 18a3 3 0 1 1-3-3 3 3 0 0 1 3 3Zm10-2a3 3 0 1 1-3-3 3 3 0 0 1 3 3Z" },
+    { t: "Word-synced lyrics", d: "Word- and syllable-level highlighting pulled from multiple lyric providers.", i: "M4 5h16M4 10h10M4 15h16M4 20h7" },
+    { t: "Animated artwork", d: "Motion album canvas on the now-playing screen, with artwork-driven theming.", i: "M4 4h16v16H4zM4 15l4-4 3 3 4-5 5 6" },
+    { t: "Offline downloads", d: "Save tracks with embedded metadata and play them with no connection.", i: "M12 3v12m0 0 4-4m-4 4-4-4M5 21h14" },
+    { t: "Listen Together", d: "Host or join a listening party and keep everyone's queue in sync.", i: "M17 20v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2M10 10a3 3 0 1 0 0-6 3 3 0 0 0 0 6Zm11 10v-2a4 4 0 0 0-3-3.9M16 4.1a4 4 0 0 1 0 7.8" },
+    { t: "Every screen", d: "Phone, tablet, Android TV, Wear OS, desktop and iOS — one library, one queue.", i: "M4 5h16v10H4zM8 20h8M12 15v5" },
+    { t: "Scrobbling", d: "Last.fm and ListenBrainz, plus Discord Rich Presence with live progress.", i: "M4 12a8 8 0 1 0 16 0 8 8 0 0 0-16 0Zm8-5v5l4 2" },
+    { t: "Bit-perfect USB", d: "Sends lossless tracks to a USB DAC unchanged, at each track's own rate and depth.", i: "M12 2v6m0 14v-6M8 8h8v8H8z" },
+    { t: "Replay", d: "Your listening year, turned into posters worth sharing.", i: "M4 4h16v16H4zM8 9h8M8 13h5" },
+  ];
+
+  // ---- Render -------------------------------------------------------------
+  const svg = (path, extra = "") =>
+    `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" ${extra}>${path}</svg>`;
+
+  function renderFeatures() {
+    const grid = document.getElementById("featureGrid");
+    grid.innerHTML = FEATURES.map((f) => `
+      <article class="feature">
+        <div class="fic"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="${f.i}"/></svg></div>
+        <h4>${f.t}</h4>
+        <p>${f.d}</p>
+      </article>`).join("");
+  }
+
+  function renderDownloads() {
+    const grid = document.getElementById("dlGrid");
+    grid.innerHTML = PLATFORMS.map((p) => `
+      <article class="dl-card" id="dl-${p.id}">
+        <div class="dhead">
+          <div class="dl-ic">
+            <svg viewBox="0 0 24 24" fill="currentColor" style="color:var(--navy)">${p.icon}</svg>
+          </div>
+          <div>
+            <h4>${p.name}</h4>
+            <div class="sub">${p.sub}</div>
+          </div>
+        </div>
+        <div class="dl-opts">
+          ${p.options.map((o) => {
+            const href = o.href || (DL_BASE + encodeURIComponent(o.file));
+            const external = o.href ? ' target="_blank" rel="noopener"' : ' download';
+            return `<a class="dl-opt" href="${href}"${external} data-file="${o.file || ""}">
+              <span class="name">${o.label}</span>
+              <span class="size" data-size="${o.file || ""}"></span>
+              <span class="go">↓</span>
+            </a>`;
+          }).join("")}
+        </div>
+      </article>`).join("");
+  }
+
+  function humanSize(bytes) {
+    if (!bytes) return "";
+    const mb = bytes / 1048576;
+    return mb >= 1024 ? (mb / 1024).toFixed(1) + " GB" : Math.round(mb) + " MB";
+  }
+
+  // Fill in real sizes from the GitHub API when it answers; silently keep the
+  // page as-is when it doesn't (offline, rate-limited, blocked).
+  async function enrichSizes() {
+    try {
+      const res = await fetch(`https://api.github.com/repos/${OWNER}/${REPO}/releases/tags/${RELEASE_TAG}`, {
+        headers: { Accept: "application/vnd.github+json" },
+      });
+      if (!res.ok) return;
+      const data = await res.json();
+      const byName = Object.fromEntries((data.assets || []).map((a) => [a.name, a.size]));
+      document.querySelectorAll("[data-size]").forEach((el) => {
+        const n = el.getAttribute("data-size");
+        if (n && byName[n]) el.textContent = humanSize(byName[n]);
+      });
+    } catch (_) { /* offline: leave the page as rendered */ }
+  }
+
+  document.getElementById("verPill").textContent = "v" + VERSION;
+  document.getElementById("metaVersion").textContent = VERSION;
+  renderFeatures();
+  renderDownloads();
+  enrichSizes();
+</script>
+</body>
+</html>
