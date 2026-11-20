@@ -5,6 +5,9 @@ name: iOS
 on:
   push:
     branches: [main]
+    # A tag is a release: build the IPA that belongs on it. Path filters are
+    # not evaluated for tag pushes, so the tag always gets one.
+    tags: ["v*.*.*"]
     paths: ["ios/**", ".github/workflows/ios.yml"]
   pull_request:
     paths: ["ios/**", ".github/workflows/ios.yml"]
@@ -27,6 +30,8 @@ env:
 jobs:
   test:
     name: Build and test
+    # The tag's commit already passed on main; a tag run is for the IPA.
+    if: github.ref_type != 'tag'
     # Xcode 26 is the first toolchain that reads the Icon Composer files in the
     # app target. Pin DEVELOPER_DIR here if the image's default Xcode moves on.
     runs-on: macos-26
@@ -114,9 +119,12 @@ jobs:
   unsigned-ipa:
     name: Unsigned IPA
     # Run this from the Actions tab when a build is wanted for AltStore,
-    # SideStore or an Ad Hoc profile. The IPA carries no signature: the
-    # installer signs it with the user's own Apple ID.
-    if: github.event_name == 'workflow_dispatch'
+    # SideStore or an Ad Hoc profile, and automatically for a release tag. The
+    # IPA carries no signature: the installer signs it with the user's own
+    # Apple ID.
+    if: github.event_name == 'workflow_dispatch' || github.ref_type == 'tag'
+    permissions:
+      contents: write
     runs-on: macos-26
     timeout-minutes: 60
     defaults:
@@ -159,3 +167,15 @@ jobs:
           path: |
             ${{ env.IPA }}
             ${{ env.IPA }}.sha256
+
+      - name: Attach the IPA to the draft release
+        if: github.ref_type == 'tag'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          draft: true
+          files: |
+            ${{ env.IPA }}
+            ${{ env.IPA }}.sha256
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
