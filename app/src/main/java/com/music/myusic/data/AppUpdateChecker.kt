@@ -58,6 +58,14 @@ object AppUpdateChecker {
     private val checkMutex = Mutex()
     private var lastCheckAt = 0L
 
+    /**
+     * The version the shade has already announced, so a resume that re-finds
+     * the same release does not notify again. Cleared when a check stops seeing
+     * the release, so a version re-published later can be announced afresh.
+     */
+    @Volatile
+    private var notifiedVersion: String? = null
+
     private const val LATEST_RELEASE_URL =
         "https://api.github.com/repos/latiefahmad/Myusic/releases/latest"
 
@@ -86,8 +94,13 @@ object AppUpdateChecker {
      * Settings row; a resume uses the default and usually returns [CheckResult.Skipped].
      * Network and parse failures are reported rather than thrown, so a caller
      * can tell "up to date" from "couldn't ask".
+     *
+     * When [context] is given and a newer release is found, a shade notification
+     * announces it — but only once per version across the whole process, so a
+     * resume that re-finds the same release does not re-notify. Callers that show
+     * the result themselves (the Settings row) can pass null and skip the shade.
      */
-    suspend fun check(force: Boolean = false): CheckResult = checkMutex.withLock {
+    suspend fun check(context: Context? = null, force: Boolean = false): CheckResult = checkMutex.withLock {
         val now = System.currentTimeMillis()
         if (!force && lastCheckAt != 0L && now - lastCheckAt < CHECK_INTERVAL_MS) {
             return@withLock CheckResult.Skipped
@@ -109,17 +122,24 @@ object AppUpdateChecker {
                 // tag took the app's name were plain "v1.9.1", so both strip.
                 val latest = tag.removePrefix("Myusic-").removePrefix("v")
                 if (isNewer(latest, BuildConfig.VERSION_NAME)) {
-                    _available.value = UpdateInfo(
+                    val info = UpdateInfo(
                         version = latest,
                         releaseUrl = url,
                         apkUrl = apkAssetUrl(release),
                         notes = release["body"]?.jsonPrimitive?.contentOrNull,
                     )
+                    _available.value = info
+                    if (context != null && latest != notifiedVersion) {
+                        notifiedVersion = latest
+                        AppUpdateNotifications.post(context, info)
+                    }
                     CheckResult.UpdateAvailable
                 } else {
                     // A release can be edited or pulled; don't keep offering
                     // one this check no longer sees.
                     _available.value = null
+                    if (context != null) AppUpdateNotifications.cancel(context)
+                    notifiedVersion = null
                     CheckResult.UpToDate
                 }
             }.getOrElse { CheckResult.Failed }

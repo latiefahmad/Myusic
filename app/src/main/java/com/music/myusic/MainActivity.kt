@@ -131,6 +131,7 @@ import com.music.myusic.auth.SpotifyLoginScreen
 import com.music.myusic.auth.WebSessionMode
 import com.music.myusic.auth.YtMusicLoginScreen
 import com.music.myusic.data.AppUpdateChecker
+import com.music.myusic.data.AppUpdateNotifications
 import com.music.myusic.data.LocalMediaRepository
 import com.music.myusic.data.listentogether.JamInviteLink
 import com.music.myusic.data.listentogether.ListenTogether
@@ -403,6 +404,8 @@ class MainActivity : AppCompatActivity() {
         JamInviteLink.consume(intent)
         // Likewise for a link tapped or shared from another app — see [MusicLink].
         MusicLink.consume(intent)
+        // And for a tap on an update notification, which asks for the dialog.
+        AppUpdateNotifications.consume(intent)
         setContent {
             val theme by AppSettings.themeMode.collectAsStateWithLifecycle()
             val appFont by AppSettings.appFont.collectAsStateWithLifecycle()
@@ -510,6 +513,7 @@ class MainActivity : AppCompatActivity() {
         PlayerDeepLink.consume(intent)
         JamInviteLink.consume(intent)
         MusicLink.consume(intent)
+        AppUpdateNotifications.consume(intent)
     }
 }
 
@@ -897,6 +901,19 @@ private fun MyusicApp(
         if (updateNotice != null && !updateDialogShown) {
             updateDialogShown = true
             showUpdateDialog = true
+        }
+    }
+
+    // The far end of the relay from an update notification's tap. A tap asks for
+    // the dialog directly, so it opens whether or not this launch's own
+    // once-per-launch popup has already been spent — the notification *is* the
+    // reminder the user tapped. Cleared by being served, like PlayerDeepLink.
+    val updateNotificationTapped by AppUpdateNotifications.pending.collectAsStateWithLifecycle()
+    LaunchedEffect(updateNotificationTapped) {
+        if (updateNotificationTapped) {
+            updateDialogShown = true
+            showUpdateDialog = true
+            AppUpdateNotifications.handled()
         }
     }
     val query by viewModel.query.collectAsStateWithLifecycle()

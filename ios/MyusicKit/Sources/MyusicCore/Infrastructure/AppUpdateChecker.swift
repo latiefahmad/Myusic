@@ -67,7 +67,9 @@ public final class AppUpdateChecker {
         self.now = now
     }
 
-    static func bundleVersion() -> String? {
+    /// The running build's version, read from the main bundle. Public because it is the default
+    /// for the public initializer's `currentVersion`.
+    public static func bundleVersion() -> String? {
         Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String
     }
 

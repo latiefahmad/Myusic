@@ -671,9 +671,12 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
      * hours, so the activity can call it on every resume without hitting GitHub
      * each time. The Settings row calls [AppUpdateChecker.check] directly when
      * it needs the result to show.
+     *
+     * The application context is handed over so a found update also reaches the
+     * shade; the checker itself decides whether this version has been announced.
      */
     fun checkForUpdates() {
-        viewModelScope.launch { AppUpdateChecker.check() }
+        viewModelScope.launch { AppUpdateChecker.check(getApplication()) }
     }
 
     // ---- Ratings, library and playlists -------------------------------------
