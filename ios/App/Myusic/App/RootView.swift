@@ -30,6 +30,9 @@ struct RootView: View {
 struct AppShell: View {
     let model: AppModel
     @Environment(\.scenePhase) private var scenePhase
+    /// The update the listener has already answered, so the launch notice shows once and the
+    /// settings row underneath stays quiet about the same version.
+    @State private var acknowledgedUpdate: String?
 
     var body: some View {
         RootTabView()
@@ -46,6 +49,17 @@ struct AppShell: View {
             // The in-app language (LanguageBundle): number formats and right-to-left mirroring.
             .environment(\.locale, LanguageBundle.locale)
             .environment(\.layoutDirection, LanguageBundle.layoutDirection)
+            // Sideloaded, so nothing else says a new build is out: one alert per version per
+            // launch. "Later" only closes it; the Settings row can always ask again.
+            .alert(updateAlertVersion.map { L10n.updateAvailable($0) } ?? L10n.softwareUpdate,
+                   isPresented: updateAlertShown) {
+                Button(L10n.download) { openUpdatePage() }
+                Button(L10n.later, role: .cancel) { acknowledgedUpdate = model.availableUpdate?.version }
+            } message: {
+                if let update = model.availableUpdate {
+                    Text(updateMessage(for: update))
+                }
+            }
             .onOpenURL { url in model.open(url) }
             .onContinueUserActivity(NSUserActivityTypeBrowsingWeb) { activity in
                 if let url = activity.webpageURL { model.open(url) }
@@ -54,5 +68,26 @@ struct AppShell: View {
                 model.scenePhaseChanged(phase)
             }
             .task { model.start() }
+    }
+
+    private var updateAlertVersion: String? {
+        guard let update = model.availableUpdate, update.version != acknowledgedUpdate else { return nil }
+        return update.version
+    }
+
+    private var updateAlertShown: Binding<Bool> {
+        Binding(get: { updateAlertVersion != nil },
+                set: { if !$0 { acknowledgedUpdate = model.availableUpdate?.version } })
+    }
+
+    private func openUpdatePage() {
+        if let url = model.availableUpdate?.releaseUrl { UIApplication.shared.open(url) }
+        acknowledgedUpdate = model.availableUpdate?.version
+    }
+
+    private func updateMessage(for update: AppUpdateChecker.UpdateInfo) -> String {
+        let body = L10n.updateAvailableBody(update.version)
+        guard let notes = update.notes, !notes.isEmpty else { return body }
+        return "\(body)\n\n\(notes.prefix(600))"
     }
 }

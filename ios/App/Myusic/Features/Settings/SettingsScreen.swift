@@ -35,6 +35,10 @@ struct SettingsScreen: View {
     // afterwards. Held per direction, or an import's result reports itself under "Export".
     @State private var exportStatus: String?
     @State private var importStatus: String?
+    /// What the "Software Update" row is doing right now, and what the last tap found. Only ever
+    /// the calm half of the news: a newer build is left to the launch notice's alert.
+    @State private var checkingForUpdate = false
+    @State private var updateCheckStatus: String?
     @State private var confirmImport = false
     @State private var exportDocument: SettingsBackupDocument?
     @State private var exportMonths = 0
@@ -370,6 +374,9 @@ struct SettingsScreen: View {
         case .hideSongStatus:
             SettingsToggleRow(symbol: "eye.slash", title: L10n.hideSongStatus,
                               subtitle: L10n.hideSongStatusSubtitle, isOn: $settings.hideSongStatus)
+        case .checkForUpdates:
+            SettingsRow(symbol: "arrow.down.circle", title: L10n.softwareUpdate,
+                        subtitle: updateCheckStatus ?? updateSubtitle) { Task { await checkForUpdates() } }
 
         case .appLanguage:
             SettingsRow(symbol: "globe", title: L10n.appLanguage, subtitle: AppLanguage.current().name()) {
@@ -407,6 +414,35 @@ struct SettingsScreen: View {
             showExporter = true
         } catch {
             exportStatus = SettingsBackup.exportStatus(.failure(error))
+        }
+    }
+
+    // MARK: - Software update
+
+    /// The update row is drawn without running anything at launch, so the model's cached
+    /// availability is what the screen reflects. It checks on every activation and on demand from
+    /// the row, so it is never stale for long.
+
+    /// The row's resting subtitle: the version when one is known, so the row reads as an offer
+    /// rather than a button; otherwise a plain call to action.
+    private var updateSubtitle: String {
+        guard let update = app.availableUpdate else { return L10n.checkForUpdates }
+        return L10n.updateAvailable(update.version)
+    }
+
+    /// Asks GitHub now. "Up to date" and "couldn't check" land on the row; a found update is left
+    /// to the launch notice's alert, which the refreshed `availableUpdate` puts on screen.
+    private func checkForUpdates() async {
+        guard !checkingForUpdate else { return }
+        checkingForUpdate = true
+        updateCheckStatus = L10n.checkForUpdates
+        let result = await app.checkForUpdatesNow()
+        checkingForUpdate = false
+        switch result {
+        case .updateAvailable: updateCheckStatus = nil
+        case .upToDate: updateCheckStatus = L10n.upToDate
+        case .failed: updateCheckStatus = L10n.updateCheckFailed
+        case .skipped: updateCheckStatus = nil
         }
     }
 

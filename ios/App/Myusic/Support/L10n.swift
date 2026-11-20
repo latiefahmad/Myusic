@@ -234,6 +234,8 @@ enum L10n {
     static var channelSessionUnavailable: String { tr("channel_session_unavailable") }
     /// Switch with the avatar, then tap Use this channel
     static var channelSwitchInstructions: String { tr("channel_switch_instructions") }
+    /// Check for updates
+    static var checkForUpdates: String { tr("check_for_updates") }
     /// Checking…
     static var checking: String { tr("checking") }
     /// Chinese (Simplified)
@@ -1000,6 +1002,10 @@ enum L10n {
     static var savedBang: String { tr("saved_bang") }
     /// Send your lyrics card
     static var shareYourLyrics: String { tr("share_your_lyrics") }
+    /// Could not check for updates
+    static var updateCheckFailed: String { tr("update_check_failed") }
+    /// Myusic is up to date
+    static var upToDate: String { tr("up_to_date") }
     /// Your lyrics card
     static var yourLyricsCard: String { tr("your_lyrics_card") }
     /// Lyrics sources

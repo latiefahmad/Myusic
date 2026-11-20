@@ -76,6 +76,9 @@ final class AppModel {
     /// Bumped after the in-app language changes (LanguageBundle.override), so the whole tree is
     /// rebuilt with the new strings and layout direction without a relaunch.
     var languageRevision = 0
+    /// The newest release found, or nil. Observed by the Settings row and the launch notice; the
+    /// checker itself is throttled, so this is whatever the last permitted check saw.
+    private(set) var availableUpdate: AppUpdateChecker.UpdateInfo?
 
     // MARK: Services
 
@@ -98,6 +101,9 @@ final class AppModel {
     @ObservationIgnored let dspProcessors: [AudioDSPProcessor]
     @ObservationIgnored let palettes: ArtworkPaletteCache
     @ObservationIgnored let launch: AppLaunchOptions
+    /// Reads GitHub's latest release. Sideloaded, so nothing else tells the listener; see
+    /// ``AppUpdateChecker``.
+    @ObservationIgnored let updateChecker: AppUpdateChecker
 
     /// Lyrics from the sixteen providers, with InnerTube's signed-in client behind the two YouTube ones.
     @ObservationIgnored private(set) lazy var lyrics = LyricsRepository(
@@ -242,7 +248,8 @@ final class AppModel {
         network: any NetworkStatusProviding,
         innerTube: InnerTubeClient,
         audioCache: AudioStreamCache?,
-        launch: AppLaunchOptions
+        launch: AppLaunchOptions,
+        updateChecker: AppUpdateChecker = .shared
     ) {
         self.settings = settings
         self.likeState = likeState
@@ -251,6 +258,7 @@ final class AppModel {
         self.innerTube = innerTube
         self.audioCache = audioCache
         self.launch = launch
+        self.updateChecker = updateChecker
         palettes = .shared
         router = AppRouter()
 
@@ -519,9 +527,28 @@ final class AppModel {
         player.flushPersistence()
     }
 
+    /// Checks GitHub's latest release and publishes the answer. Called at launch and on every
+    /// activation; the checker throttles the request to a few hours, so most calls are no-ops.
+    func refreshUpdateAvailability() async {
+        await updateChecker.check()
+        availableUpdate = updateChecker.available
+    }
+
+    /// A row the listener tapped: skips the throttle and reports what happened, so Settings can
+    /// say "up to date" or "couldn't check" rather than silently do nothing.
+    @discardableResult
+    func checkForUpdatesNow() async -> AppUpdateCheckResult {
+        let result = await updateChecker.check(force: true)
+        availableUpdate = updateChecker.available
+        return result
+    }
+
     func scenePhaseChanged(_ phase: ScenePhase) {
         isInForeground = phase == .active
         if phase == .active {
+            // Sideloaded, so nothing pushes an update notice: ask GitHub on each activation. The
+            // checker throttles the request, so this is usually a no-op.
+            Task { await refreshUpdateAvailability() }
             // Activation diagnostics. One cheap line per activation so a user's pasted log can answer:
             // which build, which kind of in-app page was on top (for example the sign-in web view),
             // whether the app published anything to the system, and where the audio is
