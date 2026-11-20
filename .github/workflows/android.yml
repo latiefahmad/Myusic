@@ -38,6 +38,14 @@ jobs:
     - name: Checkout Repository
       uses: actions/checkout@v4
 
+    # The tag is what the updater compares against, so it has to name the
+    # version baked into the APK. See .github/scripts/verify-release-tag.sh.
+    - name: Verify the tag matches the app version
+      if: github.ref_type == 'tag'
+      env:
+        GH_TOKEN: ${{ github.token }}
+      run: bash .github/scripts/verify-release-tag.sh "$GITHUB_REF_NAME"
+
     - name: Set up JDK 17
       uses: actions/setup-java@v4
       with:
@@ -53,6 +61,47 @@ jobs:
         yes | "$SDKMANAGER" --licenses > /dev/null
         "$SDKMANAGER" "platforms;android-37.0" "ndk;27.0.12077973" "cmake;3.22.1"
         ln -sfn "$ANDROID_HOME/platforms/android-37.0" "$ANDROID_HOME/platforms/android-37"
+
+    # Android refuses an update whose versionCode is not higher than the
+    # installed one, and the updater compares versionName. Both have to move,
+    # so check the code against the last published APK rather than trusting
+    # the bump by hand. The check is skipped when there is no earlier APK.
+    - name: The versionCode must be higher than the last release's
+      if: github.ref_type == 'tag'
+      env:
+        GH_TOKEN: ${{ github.token }}
+      run: |
+        latest="$(gh api "repos/$GITHUB_REPOSITORY/releases/latest" --jq '.tag_name' 2>/dev/null || true)"
+        if [ -z "$latest" ] || [ "$latest" = "$GITHUB_REF_NAME" ]; then
+          echo "No earlier published release to compare with."
+          exit 0
+        fi
+        url="$(gh api "repos/$GITHUB_REPOSITORY/releases/latest" --jq '.assets[] | select(.name | endswith("-android-phone-universal.apk")) | .browser_download_url' | head -n1)"
+        if [ -z "$url" ]; then
+          echo "::warning::The latest release has no phone universal APK; skipping the versionCode check."
+          exit 0
+        fi
+        if ! curl -fsSL "$url" -o "$RUNNER_TEMP/latest.apk"; then
+          echo "::warning::Could not download the last APK; skipping the versionCode check."
+          exit 0
+        fi
+        aapt="$(find "$ANDROID_HOME/build-tools" -name aapt -type f | sort -V | tail -n1)"
+        [ -n "$aapt" ] || aapt="$(find "$ANDROID_HOME/build-tools" -name aapt2 -type f | sort -V | tail -n1)"
+        if [ -z "$aapt" ]; then
+          echo "::warning::No aapt/aapt2 on this runner; skipping the versionCode check."
+          exit 0
+        fi
+        old="$("$aapt" dump badging "$RUNNER_TEMP/latest.apk" 2>/dev/null | sed -n "s/.*versionCode='\([0-9]*\)'.*/\1/p" | head -n1)"
+        new="$(sed -n 's/^extra\["myusicVersionCode"\] = \([0-9]*\)/\1/p' build.gradle.kts | tr -d '\r')"
+        echo "Last release $latest has versionCode $old; this release has $new."
+        if [ -z "$old" ] || [ -z "$new" ]; then
+          echo "::warning::Could not read a versionCode; skipping the check."
+          exit 0
+        fi
+        if [ "$new" -le "$old" ]; then
+          echo "::error::myusicVersionCode must increase: $new is not greater than $old from $latest."
+          exit 1
+        fi
 
     - name: Setup Secrets (Keystore & local.properties)
       run: |

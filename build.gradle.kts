@@ -38,8 +38,13 @@ buildscript {
  * from the phone's own APK (see app/build.gradle.kts), and Android refuses an
  * update whose versionCode is lower than the one installed.
  *
- * No "v" in the name — the in-app updater reads it as a number; the "v" is the
+ * No "v" in the name - the in-app updater reads it as a number; the "v" is the
  * release tag's alone.
+ *
+ * Every release bumps both. The tag Myusic-v<name> must match the name, and
+ * the code must be higher than the last published release's: the updater
+ * compares names, while Android refuses an install whose code went backwards.
+ * CI checks both - see .github/scripts/verify-release-tag.sh and android.yml.
  */
 extra["myusicVersionCode"] = 39
 extra["myusicVersionName"] = "1.0.0"

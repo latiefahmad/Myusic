@@ -1,0 +1,49 @@
+#!/usr/bin/env bash
+# A release tag and the app's version stamp must agree. If they drift, the
+# updater offers a version the downloaded APK does not call itself, so every
+# launch offers the same update again. Run this from a tag job before
+# anything is built.
+set -euo pipefail
+
+tag="${1:?usage: verify-release-tag.sh <tag>}"
+version="${tag#Myusic-v}"
+
+if [ "$version" = "$tag" ] || ! [[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?$ ]]; then
+  echo "::error::Tag '$tag' is not Myusic-v<major>.<minor>.<patch>."
+  exit 1
+fi
+
+root="$(cd "$(dirname "$0")/../.." && pwd)"
+gradle="$root/build.gradle.kts"
+name="$(sed -n 's/^extra\["myusicVersionName"\] = "\(.*\)"/\1/p' "$gradle" | tr -d '\r')"
+code="$(sed -n 's/^extra\["myusicVersionCode"\] = \([0-9]*\)/\1/p' "$gradle" | tr -d '\r')"
+if [ -z "$name" ] || [ -z "$code" ]; then
+  echo "::error::Could not read myusicVersionName / myusicVersionCode from build.gradle.kts."
+  exit 1
+fi
+if [ "$version" != "$name" ]; then
+  echo "::error::Tag $tag names $version, but myusicVersionName is $name. Bump the version (and myusicVersionCode) or use the right tag."
+  exit 1
+fi
+
+# A published release is what /releases/latest serves the updater, so tagging
+# an older version afterwards would move "latest" backwards. Re-running the
+# same tag is allowed; going backwards is not.
+if [ -n "${GH_TOKEN:-}" ] && [ -n "${GITHUB_REPOSITORY:-}" ]; then
+  latest="$(gh api "repos/${GITHUB_REPOSITORY}/releases/latest" --jq .tag_name 2>/dev/null || true)"
+  if [ -n "$latest" ] && [ "$latest" != "$tag" ]; then
+    latest_version="${latest#Myusic-v}"
+    latest_version="${latest_version#v}"
+    core="${version%%-*}"
+    latest_core="${latest_version%%-*}"
+    if [ "$latest_core" != "$core" ]; then
+      newest="$(printf '%s\n%s\n' "$latest_core" "$core" | sort -n -t. -k1,1 -k2,2 -k3,3 | tail -n1)"
+      if [ "$newest" != "$core" ]; then
+        echo "::error::Tag $tag is older than the latest published release $latest."
+        exit 1
+      fi
+    fi
+  fi
+fi
+
+echo "Tag $tag matches myusicVersionName $name (versionCode $code)."

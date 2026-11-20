@@ -100,3 +100,9 @@ One version for every platform, from `build.gradle.kts`:
 `myusicVersionCode` and `myusicVersionName`. A release tag is
 `Myusic-v<version>`, and every workflow stamps that version into the files it
 builds, so one release page carries every platform at the same version.
+
+CI checks the pair before it builds a tag: the tag must equal
+`myusicVersionName`, and `myusicVersionCode` must be higher than the last
+published release's APK. A tag that disagrees with the code, or that would
+move "latest" backwards, fails instead of shipping an update no client can
+install.

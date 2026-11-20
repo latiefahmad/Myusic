@@ -133,6 +133,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Verify the tag matches the app version
+        if: github.ref_type == 'tag'
+        working-directory: .
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: bash .github/scripts/verify-release-tag.sh "$GITHUB_REF_NAME"
+
       - name: xcbeautify
         run: brew install xcbeautify
 
