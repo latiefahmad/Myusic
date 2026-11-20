@@ -329,7 +329,9 @@ jobs:
             SideStore or an Ad Hoc profile signs it with your own Apple ID.
 
             macOS builds are unsigned unless a Developer ID is configured: right-click the app and
-            choose Open the first time, or run `xattr -cr /Applications/Myusic.app`.
+            choose Open the first time, or run `xattr -cr /Applications/Myusic.app`. The Windows
+            installer is unsigned too: SmartScreen shows "Windows protected your PC", so choose
+            More info → Run anyway.
 
             Support: https://saweria.co/latiefahmad
           files: dist/*
