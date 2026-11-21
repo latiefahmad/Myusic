@@ -10,12 +10,12 @@ APP_DIR_SRC=${1:?usage: appimage.sh <app-image-dir> <out.AppImage> [appimagetool
 OUT=${2:?usage: appimage.sh <app-image-dir> <out.AppImage> [appimagetool]}
 TOOL=${3:-appimagetool}
 
-[ -x "$APP_DIR_SRC/bin/Myusic" ] || { echo "no launcher in $APP_DIR_SRC" >&2; exit 1; }
+[ -x "$APP_DIR_SRC/bin/ZMyusic" ] || { echo "no launcher in $APP_DIR_SRC" >&2; exit 1; }
 
 ROOT=$(cd "$(dirname "$0")/../.." && pwd)
 STAGE=$(mktemp -d)
 trap 'rm -rf "$STAGE"' EXIT
-APPDIR="$STAGE/Myusic.AppDir"
+APPDIR="$STAGE/ZMyusic.AppDir"
 
 mkdir -p "$APPDIR/usr"
 cp -a "$APP_DIR_SRC/." "$APPDIR/usr/"
@@ -24,25 +24,25 @@ cp -a "$APP_DIR_SRC/." "$APPDIR/usr/"
 cat > "$APPDIR/AppRun" <<'APPRUN'
 #!/bin/sh
 HERE="$(dirname "$(readlink -f "$0")")"
-exec "$HERE/usr/bin/Myusic" "$@"
+exec "$HERE/usr/bin/ZMyusic" "$@"
 APPRUN
 chmod +x "$APPDIR/AppRun"
 
-cat > "$APPDIR/myusic.desktop" <<'DESKTOP'
+cat > "$APPDIR/zmyusic.desktop" <<'DESKTOP'
 [Desktop Entry]
 Type=Application
-Name=Myusic
+Name=ZMyusic
 GenericName=Music Player
 Comment=Aesthetic YouTube Music client
-Exec=Myusic
-Icon=myusic
+Exec=ZMyusic
+Icon=zmyusic
 Categories=AudioVideo;Audio;Player;
 Terminal=false
-StartupWMClass=com-music-myusic-desktop-MainKt
+StartupWMClass=com-music-zmyusic-desktop-MainKt
 DESKTOP
 
 # appimagetool reads the icon by the desktop entry; the desktop reads .DirIcon.
-cp "$ROOT/desktopApp/packaging/icons/AppIcon.png" "$APPDIR/myusic.png"
+cp "$ROOT/desktopApp/packaging/icons/AppIcon.png" "$APPDIR/zmyusic.png"
 cp "$ROOT/desktopApp/packaging/icons/AppIcon.png" "$APPDIR/.DirIcon"
 
 mkdir -p "$(dirname "$OUT")"

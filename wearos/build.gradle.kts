@@ -7,7 +7,7 @@ plugins {
 }
 
 /*
- * Myusic for Wear OS: a remote for the phone app, not a second player.
+ * ZMyusic for Wear OS: a remote for the phone app, not a second player.
  *
  * It holds no library, streams nothing and runs no Palette or blur of its own —
  * the phone sends it what is playing, the cover as a 240px JPEG, and the mesh
@@ -16,8 +16,8 @@ plugins {
  *
  * It has to share the phone app's application id *and* signing key, because the
  * Wearable Data Layer only delivers between apps that match on both. So:
- *   dev  -> com.dev.myusic   pairs only with the phone's dev build
- *   prod -> com.music.myusic pairs only with the phone's prod build
+ *   dev  -> com.dev.zmyusic   pairs only with the phone's dev build
+ *   prod -> com.zmyusic.zmyusic pairs only with the phone's prod build
  * and each build type is signed exactly the way the phone's is (debug key for
  * debug, the release keystore for release), so a watch build pairs with the
  * phone build of the same variant.
@@ -28,20 +28,20 @@ val signing = Properties().apply {
     if (file.exists()) file.inputStream().use { load(it) }
 }
 
-val betaSuffix = rootProject.extra["myusicBetaSuffix"] as String
+val betaSuffix = rootProject.extra["zmyusicBetaSuffix"] as String
 
 android {
-    namespace = "com.music.myusic.wear"
+    namespace = "com.zmyusic.zmyusic.wear"
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.music.myusic"
+        applicationId = "com.zmyusic.zmyusic"
         // Wear OS 3, the oldest a Galaxy Watch 4 ever shipped with.
         minSdk = 30
         targetSdk = 36
         // The phone's version — see the root build.gradle.kts.
-        versionCode = rootProject.extra["myusicVersionCode"] as Int
-        versionName = rootProject.extra["myusicVersionName"] as String
+        versionCode = rootProject.extra["zmyusicVersionCode"] as Int
+        versionName = rootProject.extra["zmyusicVersionName"] as String
     }
 
     sourceSets {
@@ -53,12 +53,12 @@ android {
     productFlavors {
         create("dev") {
             dimension = "env"
-            applicationId = "com.dev.myusic"
-            resValue("string", "app_name", "Myusic Dev")
+            applicationId = "com.dev.zmyusic"
+            resValue("string", "app_name", "ZMyusic Dev")
         }
         create("prod") {
             dimension = "env"
-            resValue("string", "app_name", "Myusic")
+            resValue("string", "app_name", "ZMyusic")
         }
     }
 
@@ -81,11 +81,11 @@ android {
          * signs with the debug key — that is the part pairing depends on — but a
          * debuggable, un-R8'd Compose app is the slow kind, and on a watch CPU
          * that is the difference between a smooth crown and a stuttering one.
-         * Pass -Pmyusic.wearDebuggable=true to get a debugger back.
+         * Pass -Pzmyusic.wearDebuggable=true to get a debugger back.
          */
         debug {
             if (betaSuffix.isNotEmpty()) versionNameSuffix = "-$betaSuffix"
-            val debuggable = providers.gradleProperty("myusic.wearDebuggable").orNull == "true"
+            val debuggable = providers.gradleProperty("zmyusic.wearDebuggable").orNull == "true"
             isDebuggable = debuggable
             isMinifyEnabled = !debuggable
             isShrinkResources = !debuggable
@@ -136,10 +136,10 @@ kotlin {
     }
 }
 
-// Named after the phone APKs (Myusic-v1.8.apk) but with their own prefix, so
-// the phone's updater — which only takes assets starting "Myusic-" — can never
+// Named after the phone APKs (ZMyusic-v1.8.apk) but with their own prefix, so
+// the phone's updater — which only takes assets starting "ZMyusic-" — can never
 // pick a watch APK by mistake.
-base.archivesName.set("MyusicWear")
+base.archivesName.set("ZMyusicWear")
 
 dependencies {
     implementation("androidx.wear.compose:compose-material3:1.6.2")

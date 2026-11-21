@@ -1,5 +1,5 @@
 {
-  "name": "myusic-web",
+  "name": "zmyusic-web",
   "private": true,
   "type": "module",
   "packageManager": "pnpm@12.11.2",
@@ -7,11 +7,11 @@
     "node": ">=22"
   },
   "scripts": {
-    "dev": "pnpm --filter @myusic/app dev",
-    "dev:ext": "pnpm --filter @myusic/extension dev",
-    "dev:ext:firefox": "pnpm --filter @myusic/extension dev:firefox",
+    "dev": "pnpm --filter @zmyusic/app dev",
+    "dev:ext": "pnpm --filter @zmyusic/extension dev",
+    "dev:ext:firefox": "pnpm --filter @zmyusic/extension dev:firefox",
     "build": "pnpm -r build",
-    "build:site": "pnpm --filter @myusic/extension package && pnpm --filter @myusic/app build",
+    "build:site": "pnpm --filter @zmyusic/extension package && pnpm --filter @zmyusic/app build",
     "typecheck": "pnpm -r typecheck",
     "test": "pnpm -r test",
     "fixtures": "node scripts/capture-fixtures.mjs"

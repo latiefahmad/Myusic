@@ -4,7 +4,7 @@ about: Something in the iOS app does not work as it should
 labels: bug
 ---
 
-<!-- Bugs that also happen in the Android app belong there: https://github.com/latiefahmad/Myusic/issues -->
+<!-- Bugs that also happen in the Android app belong there: https://github.com/latiefahmad/ZMyusic/issues -->
 
 **Device and iOS version**
 For example: iPhone 15, iOS 18.1.

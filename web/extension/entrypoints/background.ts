@@ -9,7 +9,7 @@ import {
   type BridgeRequest,
   type BridgeResponse,
   type Capability,
-} from '@myusic/shared/bridge';
+} from '@zmyusic/shared/bridge';
 import * as discord from '../lib/discord';
 import { grantedOrigins, lyricsFetch, requestOrigins } from '../lib/lyricsFetch';
 import { installRules } from '../lib/rules';
@@ -217,7 +217,7 @@ function onCookieChanged({ cookie }: Browser.cookies.CookieChangeInfo): void {
       spotify
         .authState()
         .then((data) => broadcast({ event: 'spotify.authState', data }))
-        .catch((error: unknown) => console.warn('Myusic: reading the Spotify session failed', error));
+        .catch((error: unknown) => console.warn('ZMyusic: reading the Spotify session failed', error));
     }, 1000);
     return;
   }
@@ -228,7 +228,7 @@ function onCookieChanged({ cookie }: Browser.cookies.CookieChangeInfo): void {
   cookieTimer = setTimeout(() => {
     authState(true)
       .then((data) => broadcast({ event: 'yt.authState', data }))
-      .catch((error: unknown) => console.warn('Myusic: reading the YouTube session failed', error));
+      .catch((error: unknown) => console.warn('ZMyusic: reading the YouTube session failed', error));
   }, 1000);
 }
 
@@ -236,7 +236,7 @@ export default defineBackground(() => {
   // Dynamic rules persist, but are rewritten on every install and startup so
   // an update that changes them never leaves stale ones behind.
   const refreshRules = () =>
-    installRules(__SITE_ORIGINS__).catch((error: unknown) => console.error('Myusic: installing rules failed', error));
+    installRules(__SITE_ORIGINS__).catch((error: unknown) => console.error('ZMyusic: installing rules failed', error));
   browser.runtime.onInstalled.addListener(refreshRules);
   browser.runtime.onStartup.addListener(refreshRules);
 

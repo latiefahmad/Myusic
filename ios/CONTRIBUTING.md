@@ -1,8 +1,8 @@
-# Contributing to Myusic for iOS
+# Contributing to ZMyusic for iOS
 
-Thank you for helping with Myusic for iOS. This guide covers how to propose a change, build and test the project, and what a pull request needs before review.
+Thank you for helping with ZMyusic for iOS. This guide covers how to propose a change, build and test the project, and what a pull request needs before review.
 
-Myusic for iOS is a port of the [Android app](https://github.com/latiefahmad/Myusic). Bugs that also happen on Android, and new features, usually belong in the Android app first. This repository takes iOS bugs, iOS-specific work, and ports of features that have already landed on Android.
+ZMyusic for iOS is a port of the [Android app](https://github.com/latiefahmad/ZMyusic). Bugs that also happen on Android, and new features, usually belong in the Android app first. This repository takes iOS bugs, iOS-specific work, and ports of features that have already landed on Android.
 
 ## Proposing a change
 
@@ -39,24 +39,24 @@ The scripts use `/Applications/Xcode.app` unless `DEVELOPER_DIR` points somewher
 ## Build and test
 
 ```sh
-scripts/kit-test.sh                       # MyusicKit tests on the Mac host, no simulator
+scripts/kit-test.sh                       # ZMyusicKit tests on the Mac host, no simulator
 scripts/kit-test.sh --filter LyricsTests  # one module's tests
-scripts/kit-build-ios.sh                  # compile MyusicKit for the iOS Simulator
+scripts/kit-build-ios.sh                  # compile ZMyusicKit for the iOS Simulator
 scripts/app-build.sh                      # compile the app, extensions and every test bundle
-scripts/sim-test.sh                       # the Myusic test plan on the "iPhone 16" simulator
-scripts/sim-test.sh -only-testing:MyusicTests
+scripts/sim-test.sh                       # the ZMyusic test plan on the "iPhone 16" simulator
+scripts/sim-test.sh -only-testing:ZMyusicTests
 ```
 
-The full gate is the `Myusic` scheme's test plan, `App/Myusic.xctestplan`. It runs `MyusicTests` and every `MyusicKit` test target:
+The full gate is the `ZMyusic` scheme's test plan, `App/ZMyusic.xctestplan`. It runs `ZMyusicTests` and every `ZMyusicKit` test target:
 
 ```sh
-xcodebuild test -workspace Myusic.xcworkspace -scheme Myusic \
+xcodebuild test -workspace ZMyusic.xcworkspace -scheme ZMyusic \
   -destination 'platform=iOS Simulator,name=iPhone 16'
 ```
 
-The UI tests in `MyusicUITests`, some of which need the network, are in a second test plan, `App/MyusicE2E.xctestplan`. Run it with `-testPlan MyusicE2E` added to the command above. Tests that call real services are skipped unless `MYUSIC_LIVE_TESTS=1` is set. The default run must stay offline and deterministic.
+The UI tests in `ZMyusicUITests`, some of which need the network, are in a second test plan, `App/ZMyusicE2E.xctestplan`. Run it with `-testPlan ZMyusicE2E` added to the command above. Tests that call real services are skipped unless `ZMYUSIC_LIVE_TESTS=1` is set. The default run must stay offline and deterministic.
 
-Every pull request runs the `iOS` workflow in the repository's `.github/workflows/ios.yml` on GitHub Actions. It builds the `Myusic` scheme and runs the `Myusic` test plan on an iPhone 16 simulator. It does not run the UI tests in `MyusicE2E`. On a failure, the run keeps the `.xcresult` bundle as an artifact for 7 days. Run the tests your change touches before you open a pull request, and say in the pull request which ones you ran. Do not introduce new failures. If a test was already failing before your change, say so.
+Every pull request runs the `iOS` workflow in the repository's `.github/workflows/ios.yml` on GitHub Actions. It builds the `ZMyusic` scheme and runs the `ZMyusic` test plan on an iPhone 16 simulator. It does not run the UI tests in `ZMyusicE2E`. On a failure, the run keeps the `.xcresult` bundle as an artifact for 7 days. Run the tests your change touches before you open a pull request, and say in the pull request which ones you ran. Do not introduce new failures. If a test was already failing before your change, say so.
 
 ## Code style
 
@@ -71,19 +71,19 @@ The repository has an `.editorconfig` for indentation and line endings: 4 spaces
 
 ### Modules
 
-- All non-UI logic lives in `MyusicKit`, one module per subsystem. Screens live in `App/Myusic/Features/<Area>`.
-- A module depends only on what `MyusicKit/Package.swift` declares. When a module needs something another module provides, it declares a small protocol and the app wires in the implementation. Shared types such as `Song` and `AppSettings` live in `MyusicCore`.
+- All non-UI logic lives in `ZMyusicKit`, one module per subsystem. Screens live in `App/ZMyusic/Features/<Area>`.
+- A module depends only on what `ZMyusicKit/Package.swift` declares. When a module needs something another module provides, it declares a small protocol and the app wires in the implementation. Shared types such as `Song` and `AppSettings` live in `ZMyusicCore`.
 - Make public only what the app or another module uses. Everything else stays `internal`.
 - Avoid generic top-level names such as `Client`, `Parser`, `Cache`, `Track`, `Settings` or `Store`. The app imports every module, so name types after their subsystem: `LyricsCache`, `InnerTubeClient`.
 - Extensions on standard types (`String`, `Data`, `URL`) are `internal` or `fileprivate` unless they are part of the module's API.
-- `MyusicKit` must also compile for macOS 14, so its tests run on the Mac host. Guard iOS-only frameworks such as `UIKit`, `AVAudioSession`, `CarPlay` and `WidgetKit` with `#if os(iOS)` or `#if canImport(UIKit)`.
+- `ZMyusicKit` must also compile for macOS 14, so its tests run on the Mac host. Guard iOS-only frameworks such as `UIKit`, `AVAudioSession`, `CarPlay` and `WidgetKit` with `#if os(iOS)` or `#if canImport(UIKit)`.
 
 ### Code
 
 - Swift 5 language mode. Use Swift concurrency (`async`/`await`, actors). UI-facing state is `@Observable` and `@MainActor`.
-- Networking goes through a `URLSession` passed into the initializer (default `.shared`), so tests can inject the `URLProtocol` stubs in `MyusicTestSupport`.
+- Networking goes through a `URLSession` passed into the initializer (default `.shared`), so tests can inject the `URLProtocol` stubs in `ZMyusicTestSupport`.
 - Store settings in `UserDefaults` (injectable suite), data as JSON under Application Support (injectable directory), and credentials in the Keychain.
-- Log with `os.Logger`, subsystem `com.music.myusic`, category set to the module name.
+- Log with `os.Logger`, subsystem `com.zmyusic.zmyusic`, category set to the module name.
 - Comment why the code does something, not what it does. No commented-out code. No TODO without an explanation.
 - The app project uses synchronized folders. A new `.swift` file in a target's folder is compiled without editing the project file.
 
@@ -92,7 +92,7 @@ The repository has an `.editorconfig` for indentation and line endings: 4 spaces
 - XCTest only. Tests are fast, deterministic and offline by default.
 - Put recorded API responses in the module's `Fixtures/` folder and load them with `Bundle.module`.
 - Name test classes after the behaviour they check (`QueueShuffleTests`), not after the Android file.
-- App tests go in `App/MyusicTests/<Area>`.
+- App tests go in `App/ZMyusicTests/<Area>`.
 
 ## Review
 
@@ -100,6 +100,6 @@ A maintainer reviews and approves every pull request before it merges. Review lo
 
 ## Dependencies and licensing
 
-Myusic for iOS is licensed under GPL-3.0. Everything you contribute, and every dependency, must be compatible with it. Files ported from Orchard keep their AGPL-3.0 headers; do not remove or weaken a licence header or a credit to another project.
+ZMyusic for iOS is licensed under GPL-3.0. Everything you contribute, and every dependency, must be compatible with it. Files ported from Orchard keep their AGPL-3.0 headers; do not remove or weaken a licence header or a credit to another project.
 
 The package has two third-party dependencies, AMSMB2 and ONNX Runtime. Do not add another unless the change cannot be done without it. A new dependency needs a reason in the pull request covering why it is necessary, its effect on app size, and its licence, and an entry in [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md).

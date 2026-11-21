@@ -1,10 +1,10 @@
 import Foundation
 import UniformTypeIdentifiers
 
-/// How a link shared into Myusic reaches the app (Android's `ACTION_SEND` into MainActivity).
+/// How a link shared into ZMyusic reaches the app (Android's `ACTION_SEND` into MainActivity).
 ///
-/// The Share Extension wraps what it was given in the app's own scheme — `myusic://open?url=…`
-/// for a link, `myusic://open?text=…` for text — which the app's `DeepLink` reads like any other
+/// The Share Extension wraps what it was given in the app's own scheme — `zmyusic://open?url=…`
+/// for a link, `zmyusic://open?text=…` for text — which the app's `DeepLink` reads like any other
 /// link, and opens it. If the system refuses to open the app from the extension, the link is left
 /// in the App Group instead and served the next time the app comes to the front.
 enum SharedLinkHandoff {
@@ -14,7 +14,7 @@ enum SharedLinkHandoff {
     /// start a song somebody shared and forgot about.
     static let lifetime: TimeInterval = 10 * 60
 
-    /// The `myusic://open` URL for a shared link or text; nil when there is nothing to hand over.
+    /// The `zmyusic://open` URL for a shared link or text; nil when there is nothing to hand over.
     static func appURL(link: URL?, text: String?) -> URL? {
         var components = URLComponents()
         components.scheme = SharedConstants.urlScheme

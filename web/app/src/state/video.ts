@@ -27,7 +27,7 @@ interface VideoState {
   activeHeight: number | null;
 }
 
-const QUALITY_KEY = 'myusic:video-quality';
+const QUALITY_KEY = 'zmyusic:video-quality';
 
 function storedQuality(): VideoQuality {
   const stored = localStorage.getItem(QUALITY_KEY);

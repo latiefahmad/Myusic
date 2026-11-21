@@ -4,7 +4,7 @@
 # used, because it is reached by reflection, by a service loader, or from native code.
 
 # The entry point.
--keep class com.music.myusic.desktop.MainKt { *; }
+-keep class com.zmyusic.zmyusic.desktop.MainKt { *; }
 
 # Kotlin metadata and coroutines' internals.
 -keepattributes *Annotation*, Signature, InnerClasses, EnclosingMethod, RuntimeVisibleAnnotations
@@ -13,12 +13,12 @@
 -keep class kotlinx.coroutines.** { *; }
 
 # kotlinx.serialization generates serializers and looks them up by name.
--keep,includedescriptorclasses class com.music.myusic.**$$serializer { *; }
--keepclassmembers class com.music.myusic.** {
+-keep,includedescriptorclasses class com.zmyusic.zmyusic.**$$serializer { *; }
+-keepclassmembers class com.zmyusic.zmyusic.** {
     *** Companion;
     *** serializer(...);
 }
--keepclasseswithmembers class com.music.myusic.** {
+-keepclasseswithmembers class com.zmyusic.zmyusic.** {
     kotlinx.serialization.KSerializer serializer(...);
 }
 -keep class kotlinx.serialization.** { *; }
@@ -60,7 +60,7 @@
 -dontwarn org.schabi.newpipe.**
 
 # Our own JNI entry points: the analyser's symbol names encode this package.
--keep class com.music.myusic.playback.smart.** { *; }
+-keep class com.zmyusic.zmyusic.playback.smart.** { *; }
 
 # Anything with a native method, and whatever it is called from.
 -keepclasseswithmembernames class * {

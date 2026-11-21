@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  The Myusic mark, drawn as filled capsules so every renderer
+  The ZMyusic mark, drawn as filled capsules so every renderer
     (Compose, TV, Wear) shows the same shape. Tinted by the caller.
 -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"

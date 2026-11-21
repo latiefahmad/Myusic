@@ -46,7 +46,7 @@ jobs:
           install -m 700 -d ~/.ssh
           printf '%s\n' "$KEY" > ~/.ssh/deploy && chmod 600 ~/.ssh/deploy
           printf '%s\n' "$KNOWN_HOSTS" > ~/.ssh/known_hosts
-          # The key is pinned to /usr/local/sbin/myusic-deploy on the VM.
+          # The key is pinned to /usr/local/sbin/zmyusic-deploy on the VM.
           ssh -i ~/.ssh/deploy deploy@"$HOST"
       - name: Health check
         if: steps.deploy.outputs.deployed == 'true'

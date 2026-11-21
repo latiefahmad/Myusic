@@ -1,4 +1,4 @@
-import type { DiscordPresenceOptions } from '@myusic/shared/bridge';
+import type { DiscordPresenceOptions } from '@zmyusic/shared/bridge';
 import { APPLE_ORIGINS, useAppleAccess } from '@/data/apple/artistArt';
 import { useAppleSettings } from '@/data/apple/motionArt';
 import { useHostAccess } from '@/extension/useHostAccess';
@@ -209,7 +209,7 @@ export function DiscordSettings() {
               <span>Name</span>
               <input
                 className={settingsUi.input}
-                placeholder="Myusic"
+                placeholder="ZMyusic"
                 value={options.activityName}
                 onChange={(e) => set({ activityName: e.currentTarget.value })}
               />
@@ -236,13 +236,13 @@ export function DiscordSettings() {
                 />
               </label>
             )}
-            <Toggle label="Myusic button" checked={options.button2Visible} onChange={(v) => set({ button2Visible: v })} />
+            <Toggle label="ZMyusic button" checked={options.button2Visible} onChange={(v) => set({ button2Visible: v })} />
             {options.button2Visible && (
               <label className={settingsUi.controlRow}>
-                <span>Myusic button text</span>
+                <span>ZMyusic button text</span>
                 <input
                   className={settingsUi.input}
-                  placeholder="Visit Myusic"
+                  placeholder="Visit ZMyusic"
                   value={options.button2Text}
                   onChange={(e) => set({ button2Text: e.currentTarget.value })}
                 />

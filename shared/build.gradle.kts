@@ -64,6 +64,6 @@ kotlin {
 }
 
 android {
-    namespace = "com.music.myusic.shared"
+    namespace = "com.zmyusic.zmyusic.shared"
     compileSdk = 36
 }

@@ -48,3 +48,7 @@ AGENTS.md
 
 # Claude Code session files (launch configs, worktrees)
 .claude/
+
+# Python caches from the branding asset generators
+__pycache__/
+*.pyc

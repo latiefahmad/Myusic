@@ -82,9 +82,9 @@ the foot of the page, leaving the full height to the feed.
 
 | Platform | Channel |
 |---|---|
-| Android phone / tablet | GitHub Releases APK (`Myusic-<version>-android-phone-*.apk`) |
-| Android TV | GitHub Releases APK (`Myusic-<version>-android-tv-*.apk`) |
-| Wear OS | GitHub Releases APK (`Myusic-<version>-android-wear.apk`) |
+| Android phone / tablet | GitHub Releases APK (`ZMyusic-<version>-android-phone-*.apk`) |
+| Android TV | GitHub Releases APK (`ZMyusic-<version>-android-tv-*.apk`) |
+| Wear OS | GitHub Releases APK (`ZMyusic-<version>-android-wear.apk`) |
 | Windows | MSI / EXE / portable ZIP |
 | Linux | DEB / RPM / AppImage |
 | macOS | DMG, unsigned unless a Developer ID is configured |
@@ -97,12 +97,12 @@ GPL-3.0. Distribution is direct.
 ## Versioning
 
 One version for every platform, from `build.gradle.kts`:
-`myusicVersionCode` and `myusicVersionName`. A release tag is
-`Myusic-v<version>`, and every workflow stamps that version into the files it
+`zmyusicVersionCode` and `zmyusicVersionName`. A release tag is
+`ZMyusic-v<version>`, and every workflow stamps that version into the files it
 builds, so one release page carries every platform at the same version.
 
 CI checks the pair before it builds a tag: the tag must equal
-`myusicVersionName`, and `myusicVersionCode` must be higher than the last
+`zmyusicVersionName`, and `zmyusicVersionCode` must be higher than the last
 published release's APK. A tag that disagrees with the code, or that would
 move "latest" backwards, fails instead of shipping an update no client can
 install.

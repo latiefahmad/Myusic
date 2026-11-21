@@ -41,13 +41,13 @@ buildscript {
  * No "v" in the name - the in-app updater reads it as a number; the "v" is the
  * release tag's alone.
  *
- * Every release bumps both. The tag Myusic-v<name> must match the name, and
+ * Every release bumps both. The tag ZMyusic-v<name> must match the name, and
  * the code must be higher than the last published release's: the updater
  * compares names, while Android refuses an install whose code went backwards.
  * CI checks both - see .github/scripts/verify-release-tag.sh and android.yml.
  */
-extra["myusicVersionCode"] = 39
-extra["myusicVersionName"] = "1.0.0"
+extra["zmyusicVersionCode"] = 39
+extra["zmyusicVersionName"] = "1.0.0"
 
 /*
  * Bump this by hand before cutting each sideloaded test build ("beta2",
@@ -68,7 +68,7 @@ extra["myusicVersionName"] = "1.0.0"
  * the phone compares the watch's installed APK with the one it carries, so a
  * beta watch app shows "Update available" as soon as the phone has the release.
  */
-extra["myusicBetaSuffix"] = ""
+extra["zmyusicBetaSuffix"] = ""
 
 plugins {
     id("com.android.application") version "8.10.1" apply false

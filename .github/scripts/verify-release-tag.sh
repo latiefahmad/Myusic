@@ -6,23 +6,23 @@
 set -euo pipefail
 
 tag="${1:?usage: verify-release-tag.sh <tag>}"
-version="${tag#Myusic-v}"
+version="${tag#ZMyusic-v}"
 
 if [ "$version" = "$tag" ] || ! [[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?$ ]]; then
-  echo "::error::Tag '$tag' is not Myusic-v<major>.<minor>.<patch>."
+  echo "::error::Tag '$tag' is not ZMyusic-v<major>.<minor>.<patch>."
   exit 1
 fi
 
 root="$(cd "$(dirname "$0")/../.." && pwd)"
 gradle="$root/build.gradle.kts"
-name="$(sed -n 's/^extra\["myusicVersionName"\] = "\(.*\)"/\1/p' "$gradle" | tr -d '\r')"
-code="$(sed -n 's/^extra\["myusicVersionCode"\] = \([0-9]*\)/\1/p' "$gradle" | tr -d '\r')"
+name="$(sed -n 's/^extra\["zmyusicVersionName"\] = "\(.*\)"/\1/p' "$gradle" | tr -d '\r')"
+code="$(sed -n 's/^extra\["zmyusicVersionCode"\] = \([0-9]*\)/\1/p' "$gradle" | tr -d '\r')"
 if [ -z "$name" ] || [ -z "$code" ]; then
-  echo "::error::Could not read myusicVersionName / myusicVersionCode from build.gradle.kts."
+  echo "::error::Could not read zmyusicVersionName / zmyusicVersionCode from build.gradle.kts."
   exit 1
 fi
 if [ "$version" != "$name" ]; then
-  echo "::error::Tag $tag names $version, but myusicVersionName is $name. Bump the version (and myusicVersionCode) or use the right tag."
+  echo "::error::Tag $tag names $version, but zmyusicVersionName is $name. Bump the version (and zmyusicVersionCode) or use the right tag."
   exit 1
 fi
 
@@ -32,7 +32,7 @@ fi
 if [ -n "${GH_TOKEN:-}" ] && [ -n "${GITHUB_REPOSITORY:-}" ]; then
   latest="$(gh api "repos/${GITHUB_REPOSITORY}/releases/latest" --jq .tag_name 2>/dev/null || true)"
   if [ -n "$latest" ] && [ "$latest" != "$tag" ]; then
-    latest_version="${latest#Myusic-v}"
+    latest_version="${latest#ZMyusic-v}"
     latest_version="${latest_version#v}"
     core="${version%%-*}"
     latest_core="${latest_version%%-*}"
@@ -46,4 +46,4 @@ if [ -n "${GH_TOKEN:-}" ] && [ -n "${GITHUB_REPOSITORY:-}" ]; then
   fi
 fi
 
-echo "Tag $tag matches myusicVersionName $name (versionCode $code)."
+echo "Tag $tag matches zmyusicVersionName $name (versionCode $code)."

@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.16)
 
-project(myusic_window LANGUAGES CXX)
+project(zmyusic_window LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -10,25 +10,25 @@ foreach(suffix "" _DEBUG _RELEASE _RELWITHDEBINFO _MINSIZEREL)
     set(CMAKE_RUNTIME_OUTPUT_DIRECTORY${suffix} ${CMAKE_BINARY_DIR})
 endforeach()
 
-add_library(myusic_window SHARED window_jni.cpp)
-set_target_properties(myusic_window PROPERTIES PREFIX "")
+add_library(zmyusic_window SHARED window_jni.cpp)
+set_target_properties(zmyusic_window PROPERTIES PREFIX "")
 
 if(DEFINED ENV{JAVA_HOME})
-    target_include_directories(myusic_window PRIVATE
+    target_include_directories(zmyusic_window PRIVATE
         $ENV{JAVA_HOME}/include
         $ENV{JAVA_HOME}/include/win32
     )
 else()
     find_package(JNI REQUIRED)
-    target_include_directories(myusic_window PRIVATE ${JNI_INCLUDE_DIRS})
+    target_include_directories(zmyusic_window PRIVATE ${JNI_INCLUDE_DIRS})
 endif()
 
-target_link_libraries(myusic_window PRIVATE user32 dwmapi ole32 uuid)
+target_link_libraries(zmyusic_window PRIVATE user32 dwmapi ole32 uuid)
 
 if(MINGW)
     # The desktop app loads this DLL from its private runtime directory. Gradle daemons and
     # installed builds do not inherit the developer toolchain's bin directory, so leaving MinGW's
     # libwinpthread dynamic makes the bridge silently unavailable even though the DLL itself was
     # packaged correctly.
-    target_link_options(myusic_window PRIVATE -static -static-libgcc -static-libstdc++)
+    target_link_options(zmyusic_window PRIVATE -static -static-libgcc -static-libstdc++)
 endif()

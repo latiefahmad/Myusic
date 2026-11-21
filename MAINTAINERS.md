@@ -1,6 +1,6 @@
 # Maintainers
 
-This document lists the maintainers responsible for Myusic.
+This document lists the maintainers responsible for ZMyusic.
 
 | Maintainer | GitHub | Responsibilities |
 |---|---|---|

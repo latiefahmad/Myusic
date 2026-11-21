@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  Status-bar / notification silhouette of the Myusic mark. The system keeps
+  Status-bar / notification silhouette of the ZMyusic mark. The system keeps
     only the alpha channel, so the fill is opaque white and the ink sits inside
     the 22dp content box Android expects on a 24dp canvas.
 -->
