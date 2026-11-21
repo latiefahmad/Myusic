@@ -1,7 +1,6 @@
-import ZMyusicCore
 import SwiftUI
 
-// Ports ui/components/Skeletons.kt and the empty/error states of Common.kt.
+// Ports the loading skeletons of ui/components/Skeletons.kt.
 
 /// A pulsing placeholder shape (Skeletons.kt's shimmer), honouring Reduce Motion.
 ///
@@ -76,76 +75,5 @@ struct ListSkeleton: View {
         VStack(spacing: 0) {
             ForEach(0..<rows, id: \.self) { _ in SongRowSkeleton() }
         }
-    }
-}
-
-/// Nothing here: a symbol, a title, an optional explanation and action.
-struct EmptyStateView: View {
-    var symbol: String = AppSymbol.empty
-    let title: String
-    var message: String?
-    var actionTitle: String?
-    var action: (() -> Void)?
-
-    var body: some View {
-        ContentUnavailableView {
-            Label(title, systemImage: symbol)
-        } description: {
-            if let message { Text(message) }
-        } actions: {
-            if let actionTitle, let action {
-                Button(actionTitle, action: action).buttonStyle(.bordered)
-            }
-        }
-    }
-}
-
-/// Loading failed: the message and a retry.
-struct ErrorStateView: View {
-    var message: String?
-    let retry: () -> Void
-
-    var body: some View {
-        ContentUnavailableView {
-            Label(L10n.somethingWentWrong, systemImage: AppSymbol.error)
-        } description: {
-            if let message, !message.isEmpty { Text(message) }
-        } actions: {
-            Button(L10n.retry, action: retry).buttonStyle(.bordered)
-        }
-        .accessibilityIdentifier("errorState")
-    }
-}
-
-/// Draws a `LoadState`: skeleton while loading, the error with retry, else the content.
-struct LoadStateView<Value, Content: View, Placeholder: View>: View {
-    let state: LoadState<Value>
-    let retry: () -> Void
-    @ViewBuilder var placeholder: () -> Placeholder
-    @ViewBuilder var content: (Value) -> Content
-
-    var body: some View {
-        switch state {
-        case .loading: placeholder()
-        case .error(let message): ErrorStateView(message: message, retry: retry)
-        case .success(let value): content(value)
-        }
-    }
-}
-
-/// A titled placeholder for a screen another part of the port fills in.
-struct FeaturePlaceholder: View {
-    let title: String
-    var symbol: String = AppSymbol.musicNote
-    var detail: String?
-
-    var body: some View {
-        ContentUnavailableView {
-            Label(title, systemImage: symbol)
-        } description: {
-            if let detail { Text(detail) }
-        }
-        .navigationTitle(title)
-        .accessibilityIdentifier("placeholder.\(title)")
     }
 }

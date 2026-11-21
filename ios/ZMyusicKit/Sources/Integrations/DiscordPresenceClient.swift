@@ -1,6 +1,5 @@
 import ZMyusicCore
 import Foundation
-import os
 
 /// Options for one presence push, mirroring the `DiscordRPC.updateSong`
 /// parameters (and the `AppSettings` discord keys that feed them).
@@ -82,7 +81,6 @@ public final class DiscordPresenceClient: Sendable {
     private let socket: DiscordGatewaySocket
     let session: URLSession
     private let artworkCache = DiscordArtworkCache()
-    private let logger = Logger(subsystem: "com.zmyusic.zmyusic", category: "Integrations")
 
     public init(
         token: String,
