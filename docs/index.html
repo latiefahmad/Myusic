@@ -93,6 +93,9 @@
   .btn-primary:hover { background: var(--primary-bg-hover); }
   .btn-ghost { background: var(--card); color: var(--ink); border-color: var(--line); }
   .btn-ghost:hover { border-color: var(--hover-line); }
+  .btn-sm { padding: .5rem .8rem; font-size: .82rem; gap: .4rem; }
+  .btn-sm svg { width: 15px; height: 15px; }
+  .btn-saweria svg { color: var(--blue); }
   .btn-link { padding: .85rem .4rem; color: var(--ink); font-weight: 600; }
   .btn-link:hover { color: var(--blue); }
 
@@ -152,6 +155,8 @@
   .hero-meta { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: .35rem 1rem; margin-top: 2rem; font-size: .9rem; }
   .hero-meta dt { color: var(--muted); font-weight: 600; }
   .hero-meta dd { margin: 0; color: var(--ink); }
+  .price-line { display: flex; flex-wrap: wrap; align-items: center; gap: .4rem .55rem; }
+  .price-support { display: inline-flex; flex-wrap: wrap; align-items: center; gap: .35rem .5rem; color: var(--muted); font-size: .84rem; }
   /* The mock needs its own room: below this width the hero stacks and the mock
      is capped and centred rather than squeezed into a narrow column. */
   @media (max-width: 1000px) {
@@ -224,7 +229,25 @@
   .arch li { margin-bottom: .3rem; }
 
   /* Features */
-  .features { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(260px, 100%), 1fr)); gap: 1rem; }
+  .features { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; }
+  @media (max-width: 900px) {
+    .features { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .features .feature:first-child { grid-column: 1 / -1; }
+  }
+  @media (min-width: 621px) and (max-width: 900px) {
+    .features .feature:first-child {
+      display: grid; grid-template-columns: 46px minmax(0, 1fr);
+      grid-template-rows: auto auto; column-gap: 1rem; align-items: start;
+      padding: 1.4rem 1.5rem;
+    }
+    .features .feature:first-child .fic { grid-row: 1 / span 2; width: 46px; height: 46px; margin-bottom: 0; }
+    .features .feature:first-child h3 { align-self: end; font-size: 1.08rem; }
+    .features .feature:first-child p { grid-column: 2; }
+  }
+  @media (max-width: 620px) {
+    .features { grid-template-columns: minmax(0, 1fr); }
+    .features .feature:first-child { grid-column: auto; }
+  }
   .feature { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 1.3rem; box-shadow: var(--shadow); }
   .feature .fic { width: 38px; height: 38px; border-radius: 11px; background: linear-gradient(135deg, var(--navy), var(--navy-2)); display: grid; place-items: center; margin-bottom: .8rem; }
   .feature .fic svg { width: 20px; height: 20px; stroke: var(--cyan); }
@@ -232,14 +255,15 @@
   .feature p { margin: 0; font-size: .92rem; }
 
   /* Download */
-  .dl-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(360px, 100%), 1fr)); gap: 1rem; align-items: start; }
+  .dl-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; align-items: start; }
+  @media (max-width: 760px) { .dl-grid { grid-template-columns: minmax(0, 1fr); } }
   .dl-card { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 1.3rem; box-shadow: var(--shadow); display: flex; flex-direction: column; min-width: 0; }
   .dl-card .dhead { display: flex; align-items: center; gap: .7rem; margin-bottom: .8rem; }
   .dl-ic { width: 40px; height: 40px; border-radius: 12px; background: var(--bg-soft-2); display: grid; place-items: center; flex: none; }
   .dl-ic svg { width: 22px; height: 22px; }
   .dl-card h3 { font-size: 1.02rem; margin: 0; }
   .dl-card .sub { font-size: .82rem; color: var(--muted); }
-  .dl-opts { display: flex; flex-direction: column; gap: .5rem; margin-top: auto; padding-top: .8rem; }
+  .dl-opts { display: flex; flex-direction: column; gap: .5rem; padding-top: .8rem; }
   .dl-opt { display: flex; align-items: center; gap: .6rem; padding: .6rem .75rem; border: 1px solid var(--line); border-radius: 12px; transition: border-color .12s ease, background .12s ease; }
   .dl-opt:hover { border-color: var(--opt-hover-line); background: var(--bg-soft); text-decoration: none; }
   .dl-opt .name { font-weight: 600; color: var(--ink); font-size: .9rem; flex: 1 1 auto; min-width: 0; }
@@ -419,7 +443,16 @@
           <dt>Version</dt><dd id="metaVersion">1.0.0</dd>
           <dt>Runs on</dt><dd>Android 8+ · Android TV · Wear OS 3+ · Windows · Linux · macOS · iOS 17+</dd>
           <dt>Licence</dt><dd>GPL-3.0, open source</dd>
-          <dt>Price</dt><dd>Free</dd>
+          <dt>Price</dt>
+          <dd class="price-line">
+            <span>Free</span>
+            <span class="price-support">but you can support me on
+              <a class="btn btn-ghost btn-sm btn-saweria" href="https://saweria.co/latiefahmad" target="_blank" rel="noopener" aria-label="Support me on Saweria (opens in a new tab)">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8l1.1 1.1L12 21l7.8-7.5 1.1-1.1a5.5 5.5 0 0 0-.1-7.8Z"/></svg>
+                Saweria
+              </a>
+            </span>
+          </dd>
         </dl>
       </div>
 
