@@ -74,6 +74,7 @@
   h1, h2, h3, h4 { color: var(--ink); line-height: 1.15; margin: 0; letter-spacing: -.02em; }
   a { color: var(--blue); text-decoration: none; }
   a:hover { text-decoration: underline; }
+  p a, li a, .fineprint a { text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 2px; }
   p { margin: 0 0 1rem; }
   img { max-width: 100%; display: block; }
   code { font-family: var(--mono); font-size: .92em; background: var(--bg-soft-2); padding: .12em .42em; border-radius: 6px; color: var(--code-ink); }
@@ -177,7 +178,7 @@
   .mock-rail .ri.active { background: rgba(34, 211, 238, .16); color: #fff; }
   .mock-rail .ic { width: 15px; height: 15px; border-radius: 4px; background: currentColor; opacity: .75; flex: none; }
   .mock-main { padding: 1rem 1.1rem; min-width: 0; }
-  .mock-main h4 { font-size: .95rem; margin-bottom: .8rem; }
+  .mock-main .mock-h { color: var(--ink); font-weight: 700; font-size: .95rem; margin-bottom: .8rem; }
   .shelf { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .7rem; }
   .card { border: 1px solid var(--line); border-radius: 12px; padding: .6rem; }
   .art { aspect-ratio: 1; border-radius: 9px; margin-bottom: .5rem; background: linear-gradient(135deg, #0b2c63, #22d3ee); position: relative; overflow: hidden; }
@@ -213,12 +214,12 @@
   .flow-row { display: grid; grid-template-columns: 46px minmax(0, 1fr); gap: 1rem; align-items: start; }
   .flow-no { width: 46px; height: 46px; border-radius: 14px; background: var(--card); border: 1px solid var(--line); display: grid; place-items: center; font-weight: 800; color: var(--ink); box-shadow: var(--shadow); }
   .flow-card { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 1.1rem 1.3rem; box-shadow: var(--shadow); min-width: 0; }
-  .flow-card h4 { margin-bottom: .3rem; font-size: 1.02rem; }
+  .flow-card h3 { margin-bottom: .3rem; font-size: 1.02rem; }
   .flow-card p { margin: 0; font-size: .95rem; }
   /* auto-fit so the columns self-adjust instead of snapping at fixed widths */
   .arch { margin-top: 2.4rem; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(240px, 100%), 1fr)); gap: 1rem; }
   .arch .col { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 1.2rem; box-shadow: var(--shadow); }
-  .arch .col h5 { color: var(--ink); font-size: .8rem; text-transform: uppercase; letter-spacing: .1em; margin: 0 0 .7rem; }
+  .arch .col h3 { color: var(--ink); font-size: .8rem; text-transform: uppercase; letter-spacing: .1em; margin: 0 0 .7rem; }
   .arch ul { margin: 0; padding-left: 1.1rem; font-size: .92rem; }
   .arch li { margin-bottom: .3rem; }
 
@@ -227,7 +228,7 @@
   .feature { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 1.3rem; box-shadow: var(--shadow); }
   .feature .fic { width: 38px; height: 38px; border-radius: 11px; background: linear-gradient(135deg, var(--navy), var(--navy-2)); display: grid; place-items: center; margin-bottom: .8rem; }
   .feature .fic svg { width: 20px; height: 20px; stroke: var(--cyan); }
-  .feature h4 { font-size: 1rem; margin-bottom: .35rem; }
+  .feature h3 { font-size: 1rem; margin-bottom: .35rem; }
   .feature p { margin: 0; font-size: .92rem; }
 
   /* Download */
@@ -236,7 +237,7 @@
   .dl-card .dhead { display: flex; align-items: center; gap: .7rem; margin-bottom: .8rem; }
   .dl-ic { width: 40px; height: 40px; border-radius: 12px; background: var(--bg-soft-2); display: grid; place-items: center; flex: none; }
   .dl-ic svg { width: 22px; height: 22px; }
-  .dl-card h4 { font-size: 1.02rem; margin: 0; }
+  .dl-card h3 { font-size: 1.02rem; margin: 0; }
   .dl-card .sub { font-size: .82rem; color: var(--muted); }
   .dl-opts { display: flex; flex-direction: column; gap: .5rem; margin-top: auto; padding-top: .8rem; }
   .dl-opt { display: flex; align-items: center; gap: .6rem; padding: .6rem .75rem; border: 1px solid var(--line); border-radius: 12px; transition: border-color .12s ease, background .12s ease; }
@@ -253,12 +254,12 @@
   .step { display: grid; grid-template-columns: 38px minmax(0, 1fr); gap: .9rem; }
   .step .n { counter-increment: s; width: 38px; height: 38px; border-radius: 50%; background: var(--primary-bg); color: var(--primary-fg); display: grid; place-items: center; font-weight: 700; }
   .step .n::before { content: counter(s); }
-  .step h4 { font-size: 1rem; margin-bottom: .3rem; }
+  .step h3 { font-size: 1rem; margin-bottom: .3rem; }
   .step p { margin: 0; font-size: .93rem; }
   pre { background: var(--navy); color: #dbe7ff; border-radius: 14px; padding: 1rem 1.1rem; overflow-x: auto; font-family: var(--mono); font-size: .85rem; line-height: 1.6; }
   pre code { background: none; color: inherit; padding: 0; }
   .need { margin-top: 1.4rem; background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 1.2rem; box-shadow: var(--shadow); }
-  .need h4 { font-size: .95rem; margin-bottom: .6rem; }
+  .need h3 { font-size: .95rem; margin-bottom: .6rem; }
   .need ul { margin: 0; padding-left: 1.1rem; font-size: .92rem; }
   .need li { margin-bottom: .3rem; }
   @media (max-width: 900px) { .steps { grid-template-columns: minmax(0, 1fr); gap: 1.8rem; } }
@@ -436,7 +437,7 @@
             <div class="ri"><span class="ic"></span> Settings</div>
           </div>
           <div class="mock-main">
-            <h4>Made for you</h4>
+            <div class="mock-h">Made for you</div>
             <div class="shelf">
               <div class="card"><div class="art"></div><div class="line"></div><div class="line short"></div></div>
               <div class="card"><div class="art"></div><div class="line"></div><div class="line short"></div></div>
@@ -467,21 +468,21 @@
         <div class="flow-row">
           <div class="flow-no">1</div>
           <div class="flow-card">
-            <h4>Sign in</h4>
+            <h3>Sign in</h3>
             <p>Connect your Google account for personalised home, library and playlists — or use it signed out for a clean, account-free player.</p>
           </div>
         </div>
         <div class="flow-row">
           <div class="flow-no">2</div>
           <div class="flow-card">
-            <h4>Play anything</h4>
+            <h3>Play anything</h3>
             <p>Search, browse and stream from YouTube Music, with Hi-Res lossless from a configured module source when you want it.</p>
           </div>
         </div>
         <div class="flow-row">
           <div class="flow-no">3</div>
           <div class="flow-card">
-            <h4>Make it yours</h4>
+            <h3>Make it yours</h3>
             <p>Animated artwork, synced lyrics, dynamic theming, per-network quality and offline downloads — all kept in sync by the app's own update checker.</p>
           </div>
         </div>
@@ -489,7 +490,7 @@
 
       <div class="arch">
         <div class="col">
-          <h5>Built with</h5>
+          <h3>Built with</h3>
           <ul>
             <li><strong>Kotlin</strong> — Android phone, tablet, TV, Wear OS and the JVM desktop</li>
             <li><strong>Swift</strong> — iPhone and iPad</li>
@@ -497,7 +498,7 @@
           </ul>
         </div>
         <div class="col">
-          <h5>Runs where</h5>
+          <h3>Runs where</h3>
           <ul>
             <li>Android 8.0+ on phones and tablets</li>
             <li>Android TV (Leanback)</li>
@@ -507,7 +508,7 @@
           </ul>
         </div>
         <div class="col">
-          <h5>Bring your own</h5>
+          <h3>Bring your own</h3>
           <ul>
             <li>Spotify playlists and Liked Songs</li>
             <li>Local music library</li>
@@ -566,35 +567,35 @@
           <div class="step">
             <div class="n"></div>
             <div>
-              <h4>Download the build for your device</h4>
+              <h3>Download the build for your device</h3>
               <p>Pick the installer from the section above. Android and Wear OS need “Install unknown apps” enabled for whichever app you download with.</p>
             </div>
           </div>
           <div class="step">
             <div class="n"></div>
             <div>
-              <h4>Install it</h4>
+              <h3>Install it</h3>
               <p>Android and Windows run their own installers. macOS may warn the first time — right-click the app and choose <strong>Open</strong>, or run <code>xattr -cr /Applications/ZMyusic.app</code>.</p>
             </div>
           </div>
           <div class="step">
             <div class="n"></div>
             <div>
-              <h4>Open and sign in</h4>
+              <h3>Open and sign in</h3>
               <p>Use ZMyusic signed out, or sign in with Google for your personalised library. Spotify, Last.fm and Listen Together connect from Settings.</p>
             </div>
           </div>
           <div class="step">
             <div class="n"></div>
             <div>
-              <h4>Keep it updated</h4>
+              <h3>Keep it updated</h3>
               <p>ZMyusic checks GitHub Releases on launch and when it comes back to the foreground, and offers the newer build right inside the app.</p>
             </div>
           </div>
         </div>
         <div>
           <div class="need">
-            <h4>To build from source</h4>
+            <h3>To build from source</h3>
             <p style="font-size:.9rem;margin-bottom:.6rem">You need JDK 21 (Android also builds on 17), Android SDK 37, and the NDK/CMake toolchain for the native audio components.</p>
 <pre><code>./gradlew assembleDevDebug          # Android APK
 ./gradlew :desktopApp:run           # desktop, from the host
@@ -821,7 +822,7 @@ open ZMyusic.xcworkspace</code></pre>
     grid.innerHTML = FEATURES.map((f) => `
       <article class="feature">
         <div class="fic"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="${f.i}"/></svg></div>
-        <h4>${f.t}</h4>
+        <h3>${f.t}</h3>
         <p>${f.d}</p>
       </article>`).join("");
   }
@@ -835,7 +836,7 @@ open ZMyusic.xcworkspace</code></pre>
             <svg viewBox="0 0 24 24" fill="currentColor" style="color:var(--icon-ink)">${p.icon}</svg>
           </div>
           <div>
-            <h4>${p.name}</h4>
+            <h3>${p.name}</h3>
             <div class="sub">${p.sub}</div>
           </div>
         </div>
