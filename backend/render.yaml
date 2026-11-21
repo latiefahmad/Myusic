@@ -1,4 +1,4 @@
-# Render blueprint for Myusic Listen Together (Go backend)
+# Render blueprint for ZMyusic Listen Together (Go backend)
 #
 # Deploy this service manually on Render Dashboard (Recommended):
 # - New -> Web Service, connect repo
@@ -13,7 +13,7 @@
 
 services:
   - type: web
-    name: myusic-listen-together
+    name: zmyusic-listen-together
     runtime: go
     plan: free
     region: singapore

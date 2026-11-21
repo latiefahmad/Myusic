@@ -1,5 +1,5 @@
 {
-  "name": "@myusic/extension",
+  "name": "@zmyusic/extension",
   "private": true,
   "type": "module",
   "scripts": {
@@ -14,7 +14,7 @@
     "icons": "node scripts/gen-icons.mjs"
   },
   "dependencies": {
-    "@myusic/shared": "workspace:*"
+    "@zmyusic/shared": "workspace:*"
   },
   "devDependencies": {
     "@resvg/resvg-js": "^2.6.2",

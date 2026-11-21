@@ -2,11 +2,11 @@
  * Ported from Orchard (https://github.com/SFG5453/Orchard).
  *
  * Copyright (C) 2026 SFG545 (original Orchard implementation)
- * Copyright (C) 2026 Kushagra Singh (Myusic adaptation)
+ * Copyright (C) 2026 Kushagra Singh (ZMyusic adaptation)
  *
  * Orchard's original source is licensed under the GNU Affero General Public
  * License, version 3 or later. Per AGPLv3 section 13, this file is combined
- * here into Myusic -- a work licensed under the GNU General Public
+ * here into ZMyusic -- a work licensed under the GNU General Public
  * License, version 3 or later -- and remains itself governed by the AGPLv3
  * as part of that combination.
  *
@@ -39,7 +39,7 @@ extern "C" {
 // because the caller decodes at whatever rate the container carries and only
 // then knows what conversion is needed.
 JNIEXPORT jfloatArray JNICALL
-Java_com_music_myusic_playback_smart_MelSpectrogram_nativeResample(
+Java_com_zmyusic_zmyusic_playback_smart_MelSpectrogram_nativeResample(
     JNIEnv* env,
     jclass /* clazz */,
     jfloatArray samples,
@@ -52,7 +52,7 @@ Java_com_music_myusic_playback_smart_MelSpectrogram_nativeResample(
   }
 
   const std::vector<float> resampled =
-      myusic::smart::Resample(input, input_rate, output_rate);
+      zmyusic::smart::Resample(input, input_rate, output_rate);
 
   const jsize produced = static_cast<jsize>(resampled.size());
   jfloatArray result = env->NewFloatArray(produced);
@@ -70,7 +70,7 @@ Java_com_music_myusic_playback_smart_MelSpectrogram_nativeResample(
 // than one padded frame). The caller derives the frame count by dividing, so
 // no second return value is needed.
 JNIEXPORT jfloatArray JNICALL
-Java_com_music_myusic_playback_smart_MelSpectrogram_nativeCompute(
+Java_com_zmyusic_zmyusic_playback_smart_MelSpectrogram_nativeCompute(
     JNIEnv* env,
     jclass /* clazz */,
     jfloatArray samples,
@@ -81,8 +81,8 @@ Java_com_music_myusic_playback_smart_MelSpectrogram_nativeCompute(
     env->GetFloatArrayRegion(samples, 0, count, input.data());
   }
 
-  const myusic::smart::BeatSpectrogram spectrogram =
-      myusic::smart::ComputeBeatSpectrogram(input, sample_rate);
+  const zmyusic::smart::BeatSpectrogram spectrogram =
+      zmyusic::smart::ComputeBeatSpectrogram(input, sample_rate);
 
   const jsize produced = static_cast<jsize>(spectrogram.values.size());
   jfloatArray result = env->NewFloatArray(produced);
@@ -98,24 +98,24 @@ Java_com_music_myusic_playback_smart_MelSpectrogram_nativeCompute(
 // The mel band count is part of the model contract rather than a choice, so
 // it is read from the header instead of being duplicated in Kotlin.
 JNIEXPORT jint JNICALL
-Java_com_music_myusic_playback_smart_MelSpectrogram_nativeMelCount(
+Java_com_zmyusic_zmyusic_playback_smart_MelSpectrogram_nativeMelCount(
     JNIEnv* /* env */,
     jclass /* clazz */) {
-  return static_cast<jint>(myusic::smart::kBeatSpectrogramMels);
+  return static_cast<jint>(zmyusic::smart::kBeatSpectrogramMels);
 }
 
 JNIEXPORT jdouble JNICALL
-Java_com_music_myusic_playback_smart_MelSpectrogram_nativeSampleRate(
+Java_com_zmyusic_zmyusic_playback_smart_MelSpectrogram_nativeSampleRate(
     JNIEnv* /* env */,
     jclass /* clazz */) {
-  return myusic::smart::kBeatSpectrogramSampleRate;
+  return zmyusic::smart::kBeatSpectrogramSampleRate;
 }
 
 JNIEXPORT jint JNICALL
-Java_com_music_myusic_playback_smart_MelSpectrogram_nativeHop(
+Java_com_zmyusic_zmyusic_playback_smart_MelSpectrogram_nativeHop(
     JNIEnv* /* env */,
     jclass /* clazz */) {
-  return static_cast<jint>(myusic::smart::kBeatSpectrogramHop);
+  return static_cast<jint>(zmyusic::smart::kBeatSpectrogramHop);
 }
 
 }  // extern "C"

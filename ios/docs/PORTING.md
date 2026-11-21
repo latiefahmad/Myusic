@@ -1,17 +1,17 @@
-# Porting Myusic to iOS
+# Porting ZMyusic to iOS
 
 These are the notes the iOS port was planned and checked against. Code comments cite their sections (for example "PORTING.md §4") and the open questions in section 6 (for example "Q8").
 
 Target: native iOS app in SwiftUI, iOS 17+.
-Source: [Myusic for Android](https://github.com/latiefahmad/Myusic), in Kotlin and Jetpack Compose (`app/`), plus a Go party server (`backend/`). The checklist was written against Android 1.7 of the original BitChord project ([tag v1.7](https://github.com/kushagrasinghx/BitChord/tree/v1.7)); items added from later Android releases say so, for example the app icon picker from 1.8.2.
+Source: [ZMyusic for Android](https://github.com/latiefahmad/ZMyusic), in Kotlin and Jetpack Compose (`app/`), plus a Go party server (`backend/`). The checklist was written against Android 1.7 of the original BitChord project ([tag v1.7](https://github.com/kushagrasinghx/BitChord/tree/v1.7)); items added from later Android releases say so, for example the app icon picker from 1.8.2.
 
-Android paths below are relative to [`app/src/main/java/com/music/myusic/`](https://github.com/latiefahmad/Myusic/tree/main/app/src/main/java/com/music/myusic) in the Android repository, unless they start with `app/`, `backend/`, `native/`, `docs/` or `res/` (short for `app/src/main/res/`), which are relative to the Android repository root. Paths that start with `App/` or name an iOS test (`MyusicTests/…`, `LyricsTests/…`) are in this repository.
+Android paths below are relative to [`app/src/main/java/com/zmyusic/zmyusic/`](https://github.com/latiefahmad/ZMyusic/tree/main/app/src/main/java/com/zmyusic/zmyusic) in the Android repository, unless they start with `app/`, `backend/`, `native/`, `docs/` or `res/` (short for `app/src/main/res/`), which are relative to the Android repository root. Paths that start with `App/` or name an iOS test (`ZMyusicTests/…`, `LyricsTests/…`) are in this repository.
 
 ---
 
 ## 1. App summary
 
-Myusic is an unofficial YouTube Music client for Android.
+ZMyusic is an unofficial YouTube Music client for Android.
 It lets people search, browse and stream the YouTube Music catalogue, with or without a Google sign-in.
 On top of that it adds lossless add-on sources, crossfade and Automix, synced lyrics, animated cover art, downloads and a yearly-recap screen.
 Social extras: Listen Together parties, Discord Rich Presence and scrobbling.
@@ -29,14 +29,14 @@ Core features come first. Each item has: what the user can do, the source files,
   - User can load feeds, search, and resolve playable streams without signing in.
   - Files: `data/innertube/*`, `data/YtMusicRepository.kt`, `data/Http.kt`
   - Done: a signed-out user searches "Daft Punk" and a song plays.
-  - Tests: InnerTubeTests/InnerTubeRequestTests.testSignedOutBrowseIsAPlainWebRemixRequest, InnerTubeTests/YTMusicRepositoryTests.testEachFilterSendsItsParamsAndVideosOnlyAppearUnderVideos, MyusicTests/HomeFeedTests.testSupplementsJoinTheFeedWithoutRepeatingATitle
-  - Note: The live search-and-play run (`MyusicUITests/SearchAndPlayE2ETests.testSearchingDaftPunkAndTappingTheFirstSongPlaysIt`) is in `MyusicE2E.xctestplan`, which the default test plan does not include; the offline tests above carry the coverage.
+  - Tests: InnerTubeTests/InnerTubeRequestTests.testSignedOutBrowseIsAPlainWebRemixRequest, InnerTubeTests/YTMusicRepositoryTests.testEachFilterSendsItsParamsAndVideosOnlyAppearUnderVideos, ZMyusicTests/HomeFeedTests.testSupplementsJoinTheFeedWithoutRepeatingATitle
+  - Note: The live search-and-play run (`ZMyusicUITests/SearchAndPlayE2ETests.testSearchingDaftPunkAndTappingTheFirstSongPlaysIt`) is in `ZMyusicE2E.xctestplan`, which the default test plan does not include; the offline tests above carry the coverage.
 - [x] **Stream resolving (signature, `n` throttling, PoToken)**
   - The app gets a playable audio URL for any track.
   - Files: `data/innertube/StreamResolver.kt`, `PlayerClient.kt`, `InnerTubeXResolver.kt`, `potoken/*`, `app/src/main/assets/po_token.html`
   - Done: 20 random tracks all start playing within 3 s.
   - Tests: StreamResolutionTests/ClientCatalogWalkTests.testVisionOSAnswersFirstWithDirectAAC, StreamResolutionTests/StreamResolverTests.testCipherTierResolvesWhenTheDirectClientsCannot, StreamResolutionTests/ClientCatalogWalkTests.testPoTokensAreAttachedToWebIdentitiesOnly, StreamResolutionTests/StreamCipherSolverTests.testRecordedWebRemixFormatDeciphersToTheGoldenURL
-  - Note: No test asserts "20 tracks start within 3 s": `StreamResolutionLiveTests.testResolvesTenLiveSearchResultsToWholeMP4Streams` resolves 10 tracks, only prints the timing, and runs only with `MYUSIC_LIVE_TESTS=1`.
+  - Note: No test asserts "20 tracks start within 3 s": `StreamResolutionLiveTests.testResolvesTenLiveSearchResultsToWholeMP4Streams` resolves 10 tracks, only prints the timing, and runs only with `ZMYUSIC_LIVE_TESTS=1`.
 - [ ] **Background playback and lock-screen controls**
   - User can lock the phone and keep listening, and control playback from the lock screen, Control Center and headphones.
   - Files: `playback/PlaybackService.kt`, `playback/PlayerConnection.kt`
@@ -47,28 +47,28 @@ Core features come first. Each item has: what the user can do, the source files,
   - User can play next, add to queue, jump to a row, drag to reorder, remove and clear. The queue survives an app restart.
   - Files: `playback/QueueCoordinator.kt`, `QueueBuilder.kt`, `QueueHistory.kt`, `LastPlayed.kt`, `ui/player/PlayerQueue.kt`
   - Done: user adds 3 songs, reorders them, kills the app, reopens it and sees the same queue.
-  - Tests: PlaybackQueueTests/QueueRestartTests.testAQueueBuiltAndReorderedSurvivesARestart, PlaybackQueueTests/QueueCoordinatorTests.testPlayNextInsertsRightAfterTheCurrentEntry, PlaybackQueueTests/PlaybackQueueControllerTests.testDraggingMovesRowsWithinTheirOwnSectionOnly, MyusicTests/QueuePanelTests.testTheUserJumpsReordersRemovesAndClearsTheirQueue
+  - Tests: PlaybackQueueTests/QueueRestartTests.testAQueueBuiltAndReorderedSurvivesARestart, PlaybackQueueTests/QueueCoordinatorTests.testPlayNextInsertsRightAfterTheCurrentEntry, PlaybackQueueTests/PlaybackQueueControllerTests.testDraggingMovesRowsWithinTheirOwnSectionOnly, ZMyusicTests/QueuePanelTests.testTheUserJumpsReordersRemovesAndClearsTheirQueue
 - [x] **Shuffle and repeat**
   - Shuffle reorders the queue and restores the old order when turned off. Repeat is off, all or one.
   - Files: `playback/QueueShuffle.kt`, `ui/player/PlayerControls.kt`
   - Done: turning shuffle on then off puts the queue back in its original order.
-  - Tests: PlaybackQueueTests/QueueShuffleToggleTests.testTurningShuffleOnThenOffPutsTheQueueBackInItsOriginalOrder, PlaybackQueueTests/QueueShuffleTests.testShufflingThenRestoringReturnsTheOriginalRunningOrder, PlaybackQueueTests/PlaybackQueueControllerTests.testRepeatCyclesOffAllOneAndPersists, MyusicTests/QualityUpgradeWiringTests.testARepeatOnePlayKeepsItsResolvedStream
+  - Tests: PlaybackQueueTests/QueueShuffleToggleTests.testTurningShuffleOnThenOffPutsTheQueueBackInItsOriginalOrder, PlaybackQueueTests/QueueShuffleTests.testShufflingThenRestoringReturnsTheOriginalRunningOrder, PlaybackQueueTests/PlaybackQueueControllerTests.testRepeatCyclesOffAllOneAndPersists, ZMyusicTests/QualityUpgradeWiringTests.testARepeatOnePlayKeepsItsResolvedStream
 - [x] **Autoplay and radio**
   - When the queue ends, the app keeps playing related songs. "Start radio" works from any song.
   - Files: `playback/Autoplay.kt`, `playback/PlayerConnection.kt`
   - Done: the last song in a playlist ends and a related song starts on its own.
-  - Tests: PlaybackQueueTests/AutoplayQueueTests.testTheLastSongOfAPlaylistIsFollowedByRelatedSongs, MyusicTests/PlayerControllerWiringTests.testWhenTheLastSongEndsAutoplayFetchesRelatedSongsAndPlaysOn, PlaybackQueueTests/RadioTests.testRadioFromAnotherSongReplacesTheQueueAndNamesTheStation
+  - Tests: PlaybackQueueTests/AutoplayQueueTests.testTheLastSongOfAPlaylistIsFollowedByRelatedSongs, ZMyusicTests/PlayerControllerWiringTests.testWhenTheLastSongEndsAutoplayFetchesRelatedSongsAndPlaysOn, PlaybackQueueTests/RadioTests.testRadioFromAnotherSongReplacesTheQueueAndNamesTheStation
   - Note: No test drives `PlayerController.startRadio` or the song sheet's radio row; the radio queue logic itself is covered by `RadioTests`.
 - [x] **Audio quality per network**
   - User sets separate quality limits for Wi-Fi and mobile data (Low, Medium, High, Lossless).
   - Files: `data/settings/AppSettings.kt`, `data/sources/SourceResolver.kt`, `ui/screens/SettingsSheet.kt`
   - Done: on cellular with "Low" set, stats for nerds shows about 64 kbps.
-  - Tests: PlaybackPolicyTests/QualityCeilingTests.testOnCellularWithLowSetStatsShowAbout64Kbps, MyusicCoreTests/AudioQualityTests.testLowOnCellularAsksYouTubeForAbout64Kbps, MyusicTests/PlayerControllerWiringTests.testTheResolverIsAskedUnderThePerNetworkCeiling
+  - Tests: PlaybackPolicyTests/QualityCeilingTests.testOnCellularWithLowSetStatsShowAbout64Kbps, ZMyusicCoreTests/AudioQualityTests.testLowOnCellularAsksYouTubeForAbout64Kbps, ZMyusicTests/PlayerControllerWiringTests.testTheResolverIsAskedUnderThePerNetworkCeiling
 - [x] **Audio cache**
   - Played audio is cached on disk. The next track is fetched ahead. User sets the cache size (up to 10 GB) and can clear it.
   - Files: `playback/AudioCache.kt`, `DynamicLruCacheEvictor.kt`, `ChunkedDataSource.kt`
   - Done: replaying a cached song in airplane mode works.
-  - Tests: AudioCacheTests/ResourceLoaderPlaybackTests.testFullyCachedTrackDecodesCompletelyInAirplaneMode, AudioCacheTests/ReadAheadTests.testNextTrackIsCachedWholeAndTheOneAfterOnlyWarmed, AudioCacheTests/CacheStorageControlTests.testClearFreesTheSpaceItReports, MyusicTests/SongCacheLimitTests.testTheSliderRunsFrom512MBTo10GBIn512MBNotches
+  - Tests: AudioCacheTests/ResourceLoaderPlaybackTests.testFullyCachedTrackDecodesCompletelyInAirplaneMode, AudioCacheTests/ReadAheadTests.testNextTrackIsCachedWholeAndTheOneAfterOnlyWarmed, AudioCacheTests/CacheStorageControlTests.testClearFreesTheSpaceItReports, ZMyusicTests/SongCacheLimitTests.testTheSliderRunsFrom512MBTo10GBIn512MBNotches
 
 ### 2.2 Navigation and main screens
 
@@ -76,64 +76,64 @@ Core features come first. Each item has: what the user can do, the source files,
   - Four tabs: Home, Explore, Library, Search. A mini player sits above the tabs.
   - Files: `MainActivity.kt`, `ui/MainViewModel.kt`, `ui/components/FloatingBottomBar.kt`, `MiniPlayer.kt`
   - Done: user switches tabs, and tapping the mini player opens Now Playing.
-  - Tests: MyusicTests/TabNavigationTests.testTabsKeepTheirOwnPagesAndReselectingPopsToTheRoot, MyusicTests/MiniPlayerTests.testTappingTheMiniPlayerOpensNowPlaying, MyusicTests/MiniPlayerTests.testTheMiniPlayerSitsAboveTheTabBar
+  - Tests: ZMyusicTests/TabNavigationTests.testTabsKeepTheirOwnPagesAndReselectingPopsToTheRoot, ZMyusicTests/MiniPlayerTests.testTappingTheMiniPlayerOpensNowPlaying, ZMyusicTests/MiniPlayerTests.testTheMiniPlayerSitsAboveTheTabBar
   - Note: a SwiftUI tap gesture can't be sent from a test, so `MiniPlayerTests.testTappingTheMiniPlayerOpensNowPlaying` fires the mini player's "Now playing" accessibility action, which `MiniPlayer` wires to the same request as the tap.
 - [x] **Mini player**
   - User can play/pause, skip, and swipe left or right to change track.
   - Files: `ui/components/MiniPlayer.kt`
   - Done: swiping the mini player left plays the next song.
-  - Tests: MyusicTests/MiniPlayerTests.testSwipingTheMiniPlayerLeftPlaysTheNextSong, MyusicTests/MiniPlayerTests.testTheSwipeDecidesOnReleasePastTheThreshold
+  - Tests: ZMyusicTests/MiniPlayerTests.testSwipingTheMiniPlayerLeftPlaysTheNextSong, ZMyusicTests/MiniPlayerTests.testTheSwipeDecidesOnReleasePastTheThreshold
   - Note: Swipe right and the play/pause button are tested only as the swipe-to-action mapping, not by driving the view.
 - [x] **Home feed**
   - User sees YouTube Music shelves (Quick picks, Listen again, Mixed for you, Charts, New releases and so on). "Recently played" comes first when signed in. Scrolling loads more. Pull to refresh.
   - Files: `ui/screens/HomeScreen.kt`, `ui/MainViewModel.kt`
   - Done: Home loads shelves; tapping a song starts a radio; tapping an album opens it.
-  - Tests: MyusicTests/HomeFeedTests.testHomeRendersItsShelvesFromAStubbedInnerTube, MyusicTests/HomeFeedTests.testRecentsLeadWhenSignedInAndReplaceAStaleCopyFromTheFeed, MyusicTests/HomeFeedTests.testMoreShelvesAreAppendedFromTheContinuation, MyusicTests/HomeFeedTests.testPullToRefreshKeepsTheFeedOnScreenAndSwapsItInPlace
+  - Tests: ZMyusicTests/HomeFeedTests.testHomeRendersItsShelvesFromAStubbedInnerTube, ZMyusicTests/HomeFeedTests.testRecentsLeadWhenSignedInAndReplaceAStaleCopyFromTheFeed, ZMyusicTests/HomeFeedTests.testMoreShelvesAreAppendedFromTheContinuation, ZMyusicTests/HomeFeedTests.testPullToRefreshKeepsTheFeedOnScreenAndSwapsItInPlace
   - Note: Tapping a song card is tested through `player.playSong`, not through the card's tap handler. Album taps: `HomeFeedTests.testTappingAnAlbumCardOpensItAndHoldingItOpensItsMenu`.
 - [x] **Explore**
   - User browses a Moods and Genres grid and opens a category's playlists.
   - Files: `ui/screens/ExploreScreen.kt`, `ui/MainViewModel.kt`
   - Done: tapping "Chill" shows a list of playlists.
-  - Tests: MyusicTests/ExploreTests.testMoodsAndGenresLoadFromAStubbedInnerTubeAndBorrowTheirCovers, MyusicTests/ExploreTests.testACategoryOpensItsPlaylistShelves
+  - Tests: ZMyusicTests/ExploreTests.testMoodsAndGenresLoadFromAStubbedInnerTubeAndBorrowTheirCovers, ZMyusicTests/ExploreTests.testACategoryOpensItsPlaylistShelves
 - [x] **Search**
   - Suggestions while typing; filters for All, Songs, Videos, Albums, Artists and Playlists; a top-result card; paging; up to 20 recent searches that can be removed.
   - Files: `ui/screens/SearchScreen.kt`, `data/settings/SearchHistory.kt`, `data/model/Models.kt`
   - Done: user filters by Albums, opens one, and sees it in recent searches afterwards.
-  - Tests: MyusicTests/SearchTests.testTypingShowsTheTypedTextThenCompletions, MyusicTests/SearchTests.testSubmittingASearchShowsTheTopResultAndGroupedSectionsFromAStubbedInnerTube, MyusicTests/SearchTests.testTheNextPageIsFetchedAtTheEndAndMergedWithoutRepeats, MyusicTests/SearchTests.testFilteringByAlbumsOpeningOneAndFindingItInRecentSearches
+  - Tests: ZMyusicTests/SearchTests.testTypingShowsTheTypedTextThenCompletions, ZMyusicTests/SearchTests.testSubmittingASearchShowsTheTopResultAndGroupedSectionsFromAStubbedInnerTube, ZMyusicTests/SearchTests.testTheNextPageIsFetchedAtTheEndAndMergedWithoutRepeats, ZMyusicTests/SearchTests.testFilteringByAlbumsOpeningOneAndFindingItInRecentSearches
 - [x] **Album and playlist pages**
   - User can play, shuffle, save to library, filter tracks, sort, and expand the description.
   - Files: `ui/screens/DetailScreen.kt`
   - Done: user opens an album, taps Shuffle, and the queue is that album shuffled.
-  - Tests: MyusicTests/AlbumPlaylistPageTests.testOpeningAnAlbumAndTappingShuffleQueuesThatAlbumShuffled, MyusicTests/AlbumPlaylistPageTests.testSavingToTheLibraryIsOptimisticAndRolledBackOnRefusal, MyusicTests/DetailPageLogicTests.testFilteringKeepsTheReleasesOwnTrackNumbers, MyusicTests/SortOptionsTests.testSortingAPlaylistByTitleAToZReordersIt
+  - Tests: ZMyusicTests/AlbumPlaylistPageTests.testOpeningAnAlbumAndTappingShuffleQueuesThatAlbumShuffled, ZMyusicTests/AlbumPlaylistPageTests.testSavingToTheLibraryIsOptimisticAndRolledBackOnRefusal, ZMyusicTests/DetailPageLogicTests.testFilteringKeepsTheReleasesOwnTrackNumbers, ZMyusicTests/SortOptionsTests.testSortingAPlaylistByTitleAToZReordersIt
   - Note: "Expand the description" is a view-local toggle with no test, and the shuffle test calls `player.shufflePlay` rather than tapping the button.
 - [x] **Artist pages**
   - User sees top songs and releases, and can subscribe.
   - Files: `ui/screens/DetailScreen.kt`
   - Done: user opens an artist, sees top songs, and subscribing survives a refresh.
-  - Tests: MyusicTests/ArtistPageTests.testSubscribingToAnArtistSurvivesARefresh, MyusicTests/ArtistPageTests.testTopSongsAndReleaseShelvesAreCapped, InnerTubeTests/YTMusicRepositoryTests.testArtistPageFillsTopSongsAndEveryShelfWithAMoreLink
+  - Tests: ZMyusicTests/ArtistPageTests.testSubscribingToAnArtistSurvivesARefresh, ZMyusicTests/ArtistPageTests.testTopSongsAndReleaseShelvesAreCapped, InnerTubeTests/YTMusicRepositoryTests.testArtistPageFillsTopSongsAndEveryShelfWithAMoreLink
 - [x] **Song actions menu**
   - Like, dislike, add to or remove from playlist, download, start radio, play next, add to queue, open album, open artist, sleep timer, lyrics offset, share.
   - Files: `ui/components/SongActionsSheet.kt`
   - Done: every row works on a song from Search.
-  - Tests: MyusicTests/SongActionsMenuTests.testEveryRowWorksOnASongFromSearch, MyusicTests/SongActionsMenuTests.testTheSleepTimerPickerArmsAndCancels, MyusicTests/SongActionsMenuTests.testRemoveFromPlaylistIsOfferedOnlyOnTheAccountsOwnPlaylist, MyusicTests/LikesAndDislikesTests.testDislikingThePlayingSongFromTheMenuSkipsIt
+  - Tests: ZMyusicTests/SongActionsMenuTests.testEveryRowWorksOnASongFromSearch, ZMyusicTests/SongActionsMenuTests.testTheSleepTimerPickerArmsAndCancels, ZMyusicTests/SongActionsMenuTests.testRemoveFromPlaylistIsOfferedOnlyOnTheAccountsOwnPlaylist, ZMyusicTests/LikesAndDislikesTests.testDislikingThePlayingSongFromTheMenuSkipsIt
   - Note: The tests host the sheet but call the underlying player, store and router actions instead of tapping rows. Radio, add-to-playlist and lyrics offset are covered only at their own level (`RadioTests`, `PlaylistManagementTests`, `LyricsOffsetUITests`).
 - [x] **Album and playlist actions menu**
   - Play, shuffle, play next, add to queue, download all, share, pin, rename, delete.
   - Files: `ui/components/BrowseActionsSheet.kt`
   - Done: "Download all" on an album saves every track.
-  - Tests: MyusicTests/BrowseActionsMenuTests.testDownloadAllOnAnAlbumCardQueuesEveryTrack, MyusicTests/BrowseActionsMenuTests.testQueueRowsFetchTheListingForACard, MyusicTests/PlaylistManagementTests.testPinningIsCappedAtFive, MyusicTests/PlaylistManagementTests.testRemovingASongAndDeletingAPlaylist
+  - Tests: ZMyusicTests/BrowseActionsMenuTests.testDownloadAllOnAnAlbumCardQueuesEveryTrack, ZMyusicTests/BrowseActionsMenuTests.testQueueRowsFetchTheListingForACard, ZMyusicTests/PlaylistManagementTests.testPinningIsCappedAtFive, ZMyusicTests/PlaylistManagementTests.testRemovingASongAndDeletingAPlaylist
   - Note: Rename is covered by `PlaylistManagementTests.testCreatingAddingTwoSongsAndRenamingShowsEverywhere`. The sheet's Play, Shuffle and Share rows are not driven individually; the sheet is only rendered (`BrowseActionsMenuTests.testTheSheetFromThePageUsesThePagesRows`).
 - [x] **Swipe to queue**
   - Swiping a song row runs "play next" or "add to queue", depending on a setting.
   - Files: `ui/screens/SearchScreen.kt`, `MainActivity.kt`
   - Done: swiping a search result adds it to the queue.
-  - Tests: MyusicTests/SearchTests.testSwipingASearchHitQueuesItNextOrLastPerTheSetting
+  - Tests: ZMyusicTests/SearchTests.testSwipingASearchHitQueuesItNextOrLastPerTheSetting
   - Note: The test calls `PlayerController.queueFromSwipe` directly rather than performing the row gesture.
 - [x] **Sort options**
   - Library grids can be sorted by title. Album and playlist pages can be sorted by title or by date added.
   - Files: `data/settings/AppSettings.kt` (`LibrarySort`, `SongSort`), `MainActivity.kt`
   - Done: sorting a playlist by Title A–Z reorders it.
-  - Tests: MyusicTests/SortOptionsTests.testSortingAPlaylistByTitleAToZReordersIt, MyusicTests/SortOptionsTests.testDateAddedUsesTheRunningOrderUnlessRowsAreDated, MyusicTests/SortOptionsTests.testALibraryGridSortsByTitleAndAnExplicitSortOutranksPins, MyusicTests/SortOptionsTests.testTheSortIsRememberedPerPageAndTheDateRowFlips
+  - Tests: ZMyusicTests/SortOptionsTests.testSortingAPlaylistByTitleAToZReordersIt, ZMyusicTests/SortOptionsTests.testDateAddedUsesTheRunningOrderUnlessRowsAreDated, ZMyusicTests/SortOptionsTests.testALibraryGridSortsByTitleAndAnExplicitSortOutranksPins, ZMyusicTests/SortOptionsTests.testTheSortIsRememberedPerPageAndTheDateRowFlips
   - Note: Description corrected: on Android `LibrarySort` is only DEFAULT, TITLE_ASC and TITLE_DESC (`data/settings/AppSettings.kt:161`); date added exists only in `SongSort`, for album and playlist pages. iOS matches.
 
 ### 2.3 Now Playing
@@ -142,29 +142,29 @@ Core features come first. Each item has: what the user can do, the source files,
   - Artwork, seek bar, controls, quality badge, "Playing from", and a drawer that holds the lyrics and queue panels.
   - Files: `ui/player/NowPlayingScreen.kt`, `PlayerControls.kt`, `PlayerDrawer.kt`, `ThinSlider.kt`
   - Done: user can scrub, skip and open the lyrics and queue panels.
-  - Tests: MyusicTests/NowPlayingScreenTests.testTheUserCanScrubSkipAndOpenTheLyricsAndQueuePanels, MyusicTests/NowPlayingScreenTests.testAReleasedScrubHoldsTheDropPointUntilThePlayerCatchesUp, MyusicTests/NowPlayingScreenTests.testThePlayerRendersOnEverySurface, MyusicTests/StatsForNerdsTests.testDolbyAtmosAndLossyTiersGetTheirBadges
+  - Tests: ZMyusicTests/NowPlayingScreenTests.testTheUserCanScrubSkipAndOpenTheLyricsAndQueuePanels, ZMyusicTests/NowPlayingScreenTests.testAReleasedScrubHoldsTheDropPointUntilThePlayerCatchesUp, ZMyusicTests/NowPlayingScreenTests.testThePlayerRendersOnEverySurface, ZMyusicTests/StatsForNerdsTests.testDolbyAtmosAndLossyTiersGetTheirBadges
   - Note: "Playing from" is asserted on `PlayerController.playingFrom`, not on the drawn label.
 - [x] **Artwork-driven background**
   - A colour mesh taken from the album art, which crossfades when the track changes.
   - Files: `ui/player/MeshGradient.kt`, `ArtworkMeshBackdrop.kt`, `ui/theme/ArtworkPalette.kt`
   - Done: the background colours change with each new song.
-  - Tests: MyusicTests/ArtworkBackgroundTests.testTheBackgroundColoursChangeWithEachNewSong, MyusicTests/CanvasBackdropTests.testTheCrossfadeKeepsTheOldMeshOpaqueUnderTheNewOne, MyusicTests/CanvasBackdropTests.testAChangeMidFadeStartsFromWhatIsOnScreen, ThemingTests/ArtworkMeshCrossfadeTests.testNewMeshFadesInOverTheOldOne
+  - Tests: ZMyusicTests/ArtworkBackgroundTests.testTheBackgroundColoursChangeWithEachNewSong, ZMyusicTests/CanvasBackdropTests.testTheCrossfadeKeepsTheOldMeshOpaqueUnderTheNewOne, ZMyusicTests/CanvasBackdropTests.testAChangeMidFadeStartsFromWhatIsOnScreen, ThemingTests/ArtworkMeshCrossfadeTests.testNewMeshFadesInOverTheOldOne
 - [x] **Landscape layout**
   - Artwork and lyrics side by side.
   - Files: `ui/player/LandscapePlayer.kt`
   - Done: rotating the iPhone shows artwork and lyrics side by side.
-  - Tests: MyusicTests/LandscapeLayoutTests.testRotatingShowsTheArtworkBesideTheLyrics, MyusicTests/LandscapeLayoutTests.testASidewaysPhoneGetsTheTwoColumnPlayerAndAnUprightTabletDoesNot
+  - Tests: ZMyusicTests/LandscapeLayoutTests.testRotatingShowsTheArtworkBesideTheLyrics, ZMyusicTests/LandscapeLayoutTests.testASidewaysPhoneGetsTheTwoColumnPlayerAndAnUprightTabletDoesNot
   - Note: The rotation test checks that the two-column view lays out, not where artwork and lyrics sit; the portrait/landscape choice is asserted in the second test.
 - [x] **Stats for nerds**
   - Shows codec, bitrate, sample rate and bit depth, plus Lossless and Hi-Res badges.
   - Files: `data/NerdStats.kt`, `ui/player/PlayerControls.kt`
   - Done: turning on the toggle shows real stream stats.
-  - Tests: MyusicTests/StatsForNerdsTests.testTurningOnTheToggleShowsRealStreamStatsOnTheSleeve, MyusicTests/StatsForNerdsTests.testAHiResFlacReadsAsHiResLosslessWithItsFigures, PlaybackPolicyTests/NerdStatsTests.testALosslessMeasurementReportsItsPCMRate
+  - Tests: ZMyusicTests/StatsForNerdsTests.testTurningOnTheToggleShowsRealStreamStatsOnTheSleeve, ZMyusicTests/StatsForNerdsTests.testAHiResFlacReadsAsHiResLosslessWithItsFigures, PlaybackPolicyTests/NerdStatsTests.testALosslessMeasurementReportsItsPCMRate
 - [x] **Animated cover art (Canvas)**
   - A looping video over the cover, from Spotify, Apple Music, Tidal or a community index. It can be turned off, or allowed on Wi-Fi only.
   - Files: `data/canvas/*`, `ui/player/CanvasArtworkPlayer.kt`, `ui/screens/SpotifyCanvasAuthScreen.kt`
   - Done: a popular track shows motion artwork on Wi-Fi.
-  - Tests: MyusicTests/AnimatedCoverArtTests.testAPopularTrackShowsItsClipOnWiFiAndNothingOnceItIsNotAllowed, MyusicTests/AnimatedCoverArtTests.testTheClipIsOffWhenSwitchedOffAndWiFiOnlyKeepsItOffCellular, CanvasTests/CanvasRepositoryTests.testFirstHitWinsAndHitsAreCached, CanvasTests/CanvasPolicyTests.testCellularNeedsTheOptIn
+  - Tests: ZMyusicTests/AnimatedCoverArtTests.testAPopularTrackShowsItsClipOnWiFiAndNothingOnceItIsNotAllowed, ZMyusicTests/AnimatedCoverArtTests.testTheClipIsOffWhenSwitchedOffAndWiFiOnlyKeepsItOffCellular, CanvasTests/CanvasRepositoryTests.testFirstHitWinsAndHitsAreCached, CanvasTests/CanvasPolicyTests.testCellularNeedsTheOptIn
   - Note: Real clips need the network and the Spotify web login screen has no UI test; the provider logic is tested per provider in `CanvasTests`.
 
 ### 2.4 Lyrics
@@ -173,23 +173,23 @@ Core features come first. Each item has: what the user can do, the source files,
   - Line and word-level highlighting, duet sides, backing vocals, instrumental gaps, and blur on lines that aren't focused.
   - Files: `data/lyrics/*`, `ui/player/PlayerLyrics.kt`, `LyricClock.kt`, `LyricFocus.kt`
   - Done: a known track shows word-by-word highlighting in time with the music.
-  - Tests: MyusicTests/SyncedLyricsPanelTests.testAKnownTrackHighlightsWordByWordInTimeWithTheMusic, MyusicTests/SyncedLyricsPanelTests.testInstrumentalBreaksDuetSidesAndBackingVocals, MyusicTests/SyncedLyricsPanelTests.testUnfocusedLinesFallAwayAndBlurUnlessBrowsingOrSwitchedOff, LyricsTests/WordSyncTests.testLaysADuetOutOnAlternatingSides
+  - Tests: ZMyusicTests/SyncedLyricsPanelTests.testAKnownTrackHighlightsWordByWordInTimeWithTheMusic, ZMyusicTests/SyncedLyricsPanelTests.testInstrumentalBreaksDuetSidesAndBackingVocals, ZMyusicTests/SyncedLyricsPanelTests.testUnfocusedLinesFallAwayAndBlurUnlessBrowsingOrSwitchedOff, LyricsTests/WordSyncTests.testLaysADuetOutOnAlternatingSides
 - [x] **Lyrics providers**
   - 16 providers that the user can turn on or off and reorder, plus a picker to choose a provider for the current track.
   - Files: `data/lyrics/LyricsSource.kt`, `LyricsRepository.kt`, `ui/components/LyricsSourcesDialog.kt`, `ui/player/LyricsProviderSheet.kt`
   - Done: turning off the top provider makes lyrics load from the next one.
-  - Tests: MyusicTests/LyricsProviderUITests.testTurningOffTheTopProviderLoadsFromTheNextOne, MyusicTests/LyricsProviderUITests.testTheLastSourceStandingCantBeUntickedAndOrderIsIndependent, MyusicTests/LyricsProviderUITests.testPickingAFoundProviderSwitchesTheLyrics, LyricsTests/LyricsProviderPriorityTests.testTurningOffTheTopProviderLoadsFromTheNextOne
+  - Tests: ZMyusicTests/LyricsProviderUITests.testTurningOffTheTopProviderLoadsFromTheNextOne, ZMyusicTests/LyricsProviderUITests.testTheLastSourceStandingCantBeUntickedAndOrderIsIndependent, ZMyusicTests/LyricsProviderUITests.testPickingAFoundProviderSwitchesTheLyrics, LyricsTests/LyricsProviderPriorityTests.testTurningOffTheTopProviderLoadsFromTheNextOne
   - Note: Providers are tested with recorded answers; the live provider tests are opt-in.
 - [x] **Lyrics offset**
   - User shifts lyric timing.
   - Files: `ui/player/LyricsOffsetSheet.kt`
   - Done: +500 ms moves the highlight later.
-  - Tests: MyusicTests/LyricsOffsetUITests.testPlusFiveHundredMillisecondsMovesTheHighlightLater, MyusicTests/LyricsOffsetUITests.testTheButtonsClampAndTheSliderSnapsToTheStep, LyricsTests/LyricsOffsetTests.testPlusFiveHundredMillisecondsMovesTheHighlightLater
+  - Tests: ZMyusicTests/LyricsOffsetUITests.testPlusFiveHundredMillisecondsMovesTheHighlightLater, ZMyusicTests/LyricsOffsetUITests.testTheButtonsClampAndTheSliderSnapsToTheStep, LyricsTests/LyricsOffsetTests.testPlusFiveHundredMillisecondsMovesTheHighlightLater
 - [x] **Lyrics translation and romanization**
   - Translate into the app's language, or into a chosen one from about 130 languages.
-  - Files: `data/lyrics/LyricsTranslation.kt`, `TranslationLanguages.kt`, `ui/components/TranslationLanguageDialog.kt`, [`docs/LYRICS_TRANSLATION.md`](https://github.com/latiefahmad/Myusic/blob/main/docs/LYRICS_TRANSLATION.md)
+  - Files: `data/lyrics/LyricsTranslation.kt`, `TranslationLanguages.kt`, `ui/components/TranslationLanguageDialog.kt`, [`docs/LYRICS_TRANSLATION.md`](https://github.com/latiefahmad/ZMyusic/blob/main/docs/LYRICS_TRANSLATION.md)
   - Done: Japanese lyrics become English, and the timing still matches.
-  - Tests: MyusicTests/LyricsTranslationUITests.testJapaneseLyricsBecomeEnglishAndTheTimingStillMatches, MyusicTests/LyricsTranslationUITests.testTheLanguagePickerListsAboutOneHundredThirtyAndFiltersInEitherLanguage, LyricsTests/LyricsTranslationTests.testRomanizationKeepsTheTimingToo
+  - Tests: ZMyusicTests/LyricsTranslationUITests.testJapaneseLyricsBecomeEnglishAndTheTimingStillMatches, ZMyusicTests/LyricsTranslationUITests.testTheLanguagePickerListsAboutOneHundredThirtyAndFiltersInEitherLanguage, LyricsTests/LyricsTranslationTests.testRomanizationKeepsTheTimingToo
   - Note: Translation is tested against recorded answers; a live translation needs the network.
 
 ### 2.5 Account and library
@@ -198,36 +198,36 @@ Core features come first. Each item has: what the user can do, the source files,
   - User signs in on Google's real web page and picks a Personal or Brand profile.
   - Files: `auth/YtMusicLoginScreen.kt`, `auth/WebSession.kt`, `auth/AuthStore.kt`
   - Done: user logs in and sees their own "Recently played" on Home.
-  - Tests: MyusicTests/GoogleSignInTests.testTheSignInPageIsGooglesOwnAndReturnsToYouTubeMusic, MyusicTests/GoogleSignInTests.testAnAcceptedSignInLandsOnLibraryWithTheAccountPagesClosed, InnerTubeTests/YouTubeAccountManagerTests.testAValidatedSignInIsStoredAndActsAsTheCapturedIdentity, MyusicTests/HomeFeedTests.testRecentsLeadWhenSignedInAndReplaceAStaleCopyFromTheFeed
+  - Tests: ZMyusicTests/GoogleSignInTests.testTheSignInPageIsGooglesOwnAndReturnsToYouTubeMusic, ZMyusicTests/GoogleSignInTests.testAnAcceptedSignInLandsOnLibraryWithTheAccountPagesClosed, InnerTubeTests/YouTubeAccountManagerTests.testAValidatedSignInIsStoredAndActsAsTheCapturedIdentity, ZMyusicTests/HomeFeedTests.testRecentsLeadWhenSignedInAndReplaceAStaleCopyFromTheFeed
   - Note: Signing in on Google's real page with a real account can't run in an automated test (network and a real account).
 - [x] **Multiple accounts and profiles**
   - Add accounts, switch profile, remove an account, sign out. Swiping on the avatar changes profile.
   - Files: `auth/AccountSessions.kt`, `ui/components/AccountProfileSelector.kt`, `ui/screens/AccountAndScrobblingScreen.kt`
   - Done: switching profile reloads Home and Library with the other profile's content.
-  - Tests: MyusicTests/ProfileSwitchingTests.testSwitchingProfileChangesTheListenerHomeAndLibraryReloadFor, MyusicTests/ProfileSwitchingTests.testSwipingTheAvatarStepsThroughProfilesAndStopsAtTheEnds, MyusicTests/ProfileSwitchingTests.testRemovingAnAccountFallsBackToTheOtherAndSigningOutTheLastSignsOut, MyusicTests/LibraryTests.testAStaleOrSomeoneElsesLibraryIsFetchedAgain
+  - Tests: ZMyusicTests/ProfileSwitchingTests.testSwitchingProfileChangesTheListenerHomeAndLibraryReloadFor, ZMyusicTests/ProfileSwitchingTests.testSwipingTheAvatarStepsThroughProfilesAndStopsAtTheEnds, ZMyusicTests/ProfileSwitchingTests.testRemovingAnAccountFallsBackToTheOtherAndSigningOutTheLastSignsOut, ZMyusicTests/LibraryTests.testAStaleOrSomeoneElsesLibraryIsFetchedAgain
   - Note: The view-level `.task(id:)` that starts the Home/Library reload is not exercised; tests cover the listener-key change and the reload rules.
-  - Beyond Android: switching back to a listener paints their Home from the shelves they had when we left (Android blanks Home to Loading on every switch); the fresh first page merges into it shelf by shelf, and signing out drops the snapshots. Tests: MyusicTests/HomeFeedTests.testSwitchingBackPaintsTheListenersHomeFromTheirSnapshot, MyusicTests/HomeFeedTests.testOverASnapshotTheShelvesThatLandBeforeTheCoreFeedStay, MyusicTests/HomeFeedTests.testOverASnapshotTheCoreFeedLandingFirstLeavesRoomForTheRest, MyusicTests/HomeFeedTests.testSigningOutDropsTheHomeSnapshots
+  - Beyond Android: switching back to a listener paints their Home from the shelves they had when we left (Android blanks Home to Loading on every switch); the fresh first page merges into it shelf by shelf, and signing out drops the snapshots. Tests: ZMyusicTests/HomeFeedTests.testSwitchingBackPaintsTheListenersHomeFromTheirSnapshot, ZMyusicTests/HomeFeedTests.testOverASnapshotTheShelvesThatLandBeforeTheCoreFeedStay, ZMyusicTests/HomeFeedTests.testOverASnapshotTheCoreFeedLandingFirstLeavesRoomForTheRest, ZMyusicTests/HomeFeedTests.testSigningOutDropsTheHomeSnapshots
 - [x] **Library**
   - Playlists, Albums, Artists and Subscriptions shelves, each with "Show all". Liked Music appears as a playlist. Signed-out users see a sign-in prompt.
   - Files: `ui/screens/LibraryScreen.kt`, `ui/MainViewModel.kt`
   - Done: a signed-in user sees the same playlists as in the official app.
-  - Tests: MyusicTests/LibraryTests.testASignedInListenerSeesTheirShelvesWithLikedMusicAsAPlaylist, MyusicTests/LibraryTests.testSignedOutTheLibraryIsNotFetched, MyusicTests/LibraryTests.testShowAllRendersTheWholeShelf, MyusicTests/LibraryShelfLogicTests.testAShelfRowStopsAtFiveCardsWithShowAllBeyond
+  - Tests: ZMyusicTests/LibraryTests.testASignedInListenerSeesTheirShelvesWithLikedMusicAsAPlaylist, ZMyusicTests/LibraryTests.testSignedOutTheLibraryIsNotFetched, ZMyusicTests/LibraryTests.testShowAllRendersTheWholeShelf, ZMyusicTests/LibraryShelfLogicTests.testAShelfRowStopsAtFiveCardsWithShowAllBeyond
 - [x] **Likes and dislikes**
   - Like and dislike sync with the account. Disliking the song that's playing skips it.
   - Files: `data/LikeState.kt`, `ui/MainViewModel.kt`
   - Done: a song liked in the app shows as liked on music.youtube.com.
-  - Tests: InnerTubeTests/AccountWriteTests.testRatingsUseTheLikeEndpointsWithAVideoTarget, MyusicTests/LikesAndDislikesTests.testDislikingThePlayingSongFromTheMenuSkipsIt, PlaybackQueueTests/DislikeSkipPolicyTests.testDislikingThePlayingSongMovesTheQueueOn, MyusicTests/RatingsReachTheAccountTests.testLikingAndDislikingASongSendsTheRatingToYouTubeMusic
+  - Tests: InnerTubeTests/AccountWriteTests.testRatingsUseTheLikeEndpointsWithAVideoTarget, ZMyusicTests/LikesAndDislikesTests.testDislikingThePlayingSongFromTheMenuSkipsIt, PlaybackQueueTests/DislikeSkipPolicyTests.testDislikingThePlayingSongMovesTheQueueOn, ZMyusicTests/RatingsReachTheAccountTests.testLikingAndDislikingASongSendsTheRatingToYouTubeMusic
 - [x] **Playlist management**
   - Create (Private, Unlisted or Public), rename, delete, pin, add or remove songs, add from the suggested songs.
   - Files: `ui/components/PlaylistPickerSheet.kt`, `BrowseActionsSheet.kt`, `ui/MainViewModel.kt`
   - Done: user creates a playlist, adds 2 songs, renames it, and the changes appear on the web.
-  - Tests: MyusicTests/PlaylistManagementTests.testCreatingAddingTwoSongsAndRenamingShowsEverywhere, MyusicTests/PlaylistManagementTests.testRemovingASongAndDeletingAPlaylist, MyusicTests/PlaylistManagementTests.testAddingASuggestedSongMovesItIntoThePlaylist, InnerTubeTests/AccountWriteTests.testCreatingAPlaylistSendsPrivacyAndSeedsAndReadsTheId
+  - Tests: ZMyusicTests/PlaylistManagementTests.testCreatingAddingTwoSongsAndRenamingShowsEverywhere, ZMyusicTests/PlaylistManagementTests.testRemovingASongAndDeletingAPlaylist, ZMyusicTests/PlaylistManagementTests.testAddingASuggestedSongMovesItIntoThePlaylist, InnerTubeTests/AccountWriteTests.testCreatingAPlaylistSendsPrivacyAndSeedsAndReadsTheId
   - Note: Only an Unlisted create is tested end to end; Private and Public use the same code path. Pinning: `PlaylistManagementTests.testPinningIsCappedAtFive`.
 - [x] **History**
   - The account's listening history. Tapping a row plays from that point.
   - Files: `ui/screens/HistoryScreen.kt`
   - Done: the last song played appears at the top.
-  - Tests: MyusicTests/HistoryTests.testTheHistoryLoadsAndTappingARowPlaysFromThere, MyusicTests/HistoryTests.testSignedOutOrEmptyHistorySaysSo
+  - Tests: ZMyusicTests/HistoryTests.testTheHistoryLoadsAndTappingARowPlaysFromThere, ZMyusicTests/HistoryTests.testSignedOutOrEmptyHistorySaysSo
 
 ### 2.6 Downloads and offline
 
@@ -241,7 +241,7 @@ Core features come first. Each item has: what the user can do, the source files,
   - Songs, Artists and Albums tabs; search; sort; multi-select delete.
   - Files: `ui/screens/LocalMusicScreen.kt`, `download/DownloadStore.kt`
   - Done: user selects 3 downloads, deletes them, and the storage is freed.
-  - Tests: MyusicTests/DownloadsScreenTests.testSelectingThreeDownloadsAndDeletingThemFreesTheirStorage, MyusicTests/DownloadsScreenTests.testTheTabsGroupSortAndFilterTheFolder, DownloadsTests/DownloadLibraryStorageTests.testMultiSelectDeleteFreesTheStorageItReports
+  - Tests: ZMyusicTests/DownloadsScreenTests.testSelectingThreeDownloadsAndDeletingThemFreesTheirStorage, ZMyusicTests/DownloadsScreenTests.testTheTabsGroupSortAndFilterTheFolder, DownloadsTests/DownloadLibraryStorageTests.testMultiSelectDeleteFreesTheStorageItReports
 - [x] **Download settings**
   - Download quality (Standard, High, Lossless) and Wi-Fi only.
   - Files: `ui/screens/SettingsSheet.kt`, `data/settings/AppSettings.kt`
@@ -254,7 +254,7 @@ Core features come first. Each item has: what the user can do, the source files,
   - Two tracks overlap during the transition.
   - Files: `playback/CrossfadeController.kt`
   - Done: with a 6 s crossfade, the songs audibly overlap.
-  - Tests: PlaybackTests/CrossfadePlaybackTests.testBothTracksOverlapWithEqualPowerGains, PlaybackTests/CrossfadeCurveTests.testEqualPowerGainsHoldConstantPowerAcrossTheFade, MyusicCoreTests/AppSettingsTests.testRangesAreClamped
+  - Tests: PlaybackTests/CrossfadePlaybackTests.testBothTracksOverlapWithEqualPowerGains, PlaybackTests/CrossfadeCurveTests.testEqualPowerGainsHoldConstantPowerAcrossTheFade, ZMyusicCoreTests/AppSettingsTests.testRangesAreClamped
   - Note: Overlap is asserted on the gains of two real decks; hearing it is a device check.
 - [x] **Automix (beta)**
   - DJ-style transitions chosen by beat, tempo and vocal analysis.
@@ -266,7 +266,7 @@ Core features come first. Each item has: what the user can do, the source files,
   - Dynamic tone pad, or 7 manual bands with 16 presets; balance; automatic preamp.
   - Files: `playback/EqualizerProcessor.kt`, `EqualizerPreset.kt`, `EqualizerCurve.kt`, `ui/screens/EqualizerScreen.kt`
   - Done: the "Bass Boost" preset audibly boosts the low end.
-  - Tests: AudioDSPTests/EqualizerFrequencyResponseTests.testBassBoostRaisesTheLowEndAgainstA4kHzSine, AudioDSPTests/EqualizerFrequencyResponseTests.testBalanceTrimsOneSideOnly, AudioDSPTests/EqualizerPresetTests.testThereAreSixteenPresetsPlusCustom, MyusicTests/EqualizerScreenTests.testTheAutomaticPreampTakesBackBoost
+  - Tests: AudioDSPTests/EqualizerFrequencyResponseTests.testBassBoostRaisesTheLowEndAgainstA4kHzSine, AudioDSPTests/EqualizerFrequencyResponseTests.testBalanceTrimsOneSideOnly, AudioDSPTests/EqualizerPresetTests.testThereAreSixteenPresetsPlusCustom, ZMyusicTests/EqualizerScreenTests.testTheAutomaticPreampTakesBackBoost
 - [x] **Spatial audio (stereo widen)**
   - The app's own stereo widening, turned on with a toggle.
   - Files: `playback/SpatialAudioProcessor.kt`
@@ -284,22 +284,22 @@ Core features come first. Each item has: what the user can do, the source files,
   - 15, 30, 45 or 60 minutes, or "end of this track".
   - Files: `playback/SleepTimer.kt`, `ui/components/SongActionsSheet.kt`
   - Done: playback pauses when the 15 min timer runs out.
-  - Tests: PlaybackQueueTests/SleepTimerTests.testThePresetsAreTheFourTheMenuOffers, PlaybackTests/SleepTimerEngineTests.testTheTimerPausesAtItsDeadline, PlaybackTests/SleepTimerEngineTests.testEndOfTrackPausesOnTheNextTrackWithoutPlayingIt, MyusicTests/SleepTimerTests.testPlaybackPausesWhenTheTimerRunsOut
+  - Tests: PlaybackQueueTests/SleepTimerTests.testThePresetsAreTheFourTheMenuOffers, PlaybackTests/SleepTimerEngineTests.testTheTimerPausesAtItsDeadline, PlaybackTests/SleepTimerEngineTests.testEndOfTrackPausesOnTheNextTrackWithoutPlayingIt, ZMyusicTests/SleepTimerTests.testPlaybackPausesWhenTheTimerRunsOut
 - [x] **Quality upgrade and revert to original**
   - The app switches to a better copy of the same track while it plays. User can pin a track back to the YouTube original.
   - Files: `playback/QualityUpgrade.kt`, `OriginalVersion.kt`, `StreamChoice.kt`, `PlaybackFallback.kt`
   - Done: "Revert to original" plays YouTube's own upload, and stays that way after a relaunch.
-  - Tests: MyusicTests/QualityUpgradeWiringTests.testABelowRequestStreamIsSwappedForTheBetterCopyOnce, MyusicTests/RevertToOriginalTests.testRevertToOriginalPinsTheTrackAndTheMenuThenOffersTheWayBack, PlaybackPolicyTests/OriginalVersionPinTests.testAPinSurvivesARelaunch
+  - Tests: ZMyusicTests/QualityUpgradeWiringTests.testABelowRequestStreamIsSwappedForTheBetterCopyOnce, ZMyusicTests/RevertToOriginalTests.testRevertToOriginalPinsTheTrackAndTheMenuThenOffersTheWayBack, PlaybackPolicyTests/OriginalVersionPinTests.testAPinSurvivesARelaunch
 - [x] **Switch between song and music video**
   - Changes version and lines up the playback position across the two.
   - Files: `playback/smart/VersionAudioAligner.kt`, `playback/PlayerConnection.kt`
   - Done: switching versions carries on from about the same spot in the song.
-  - Tests: MyusicTests/VersionSwitchWiringTests.testSwitchingVersionsLandsAtTheAlignedPosition, MyusicTests/VersionSwitchTests.testConvertingToVideoCarriesOnFromAboutTheSameSpot, AutomixTests/VersionAudioAlignerTests.testAMusicVideoWithAnIntroSkitLinesUpWithTheSong
+  - Tests: ZMyusicTests/VersionSwitchWiringTests.testSwitchingVersionsLandsAtTheAlignedPosition, ZMyusicTests/VersionSwitchTests.testConvertingToVideoCarriesOnFromAboutTheSameSpot, AutomixTests/VersionAudioAlignerTests.testAMusicVideoWithAnIntroSkitLinesUpWithTheSong
 - [ ] **Audio output picker**
   - Lists outputs with a volume control.
   - Files: `ui/player/AudioOutputSheet.kt`, `ui/player/AudioOutput.kt`, `playback/AudioRouting.kt`
   - Done on iOS: the system route picker opens and switches to AirPods.
-  - Tests (what exists): MyusicTests/AudioOutputPickerTests.testTheSheetCarriesTheSystemRoutePickerAndTheVolume, PlaybackPolicyTests/AudioRoutingTests.testOneRowPerDeviceWithTheMediaProfilePreferred
+  - Tests (what exists): ZMyusicTests/AudioOutputPickerTests.testTheSheetCarriesTheSystemRoutePickerAndTheVolume, PlaybackPolicyTests/AudioRoutingTests.testOneRowPerDeviceWithTheMediaProfilePreferred
   - Gap: device-only: switching to AirPods through the system route picker needs hardware. The sheet with the `AVRoutePickerView` and the volume control, and the output listing, are tested (tests above).
 - [x] **Audio pipeline dialog**
   - Shows the chain from source to output, and whether the audio is changed along the way.
@@ -308,7 +308,7 @@ Core features come first. Each item has: what the user can do, the source files,
     track on a 48 kHz route reads "Passthrough"; the route's own rate and its conversion sit on
     Output Device's "System" row, and the verdict names iOS as the converter. With EQ on, the
     dialog shows the signal as altered. A tap-less item's DSP rows read "Bypassed" / "—".
-  - Tests: PlaybackPolicyTests/AudioPipelineTests.testTheResamplerStageSeparatesTheAppStageFromTheRoute, MyusicTests/AudioPipelineDialogTests.testWithTheEqualizerOnTheSignalReadsAsAltered, MyusicTests/AudioPipelineDialogTests.testTheDialogRendersAndMarksAnAlteredSignal, PlaybackPolicyTests/AudioSignalAlterationTests.testTheEqualizerAltersTheSignal
+  - Tests: PlaybackPolicyTests/AudioPipelineTests.testTheResamplerStageSeparatesTheAppStageFromTheRoute, ZMyusicTests/AudioPipelineDialogTests.testWithTheEqualizerOnTheSignalReadsAsAltered, ZMyusicTests/AudioPipelineDialogTests.testTheDialogRendersAndMarksAnAlteredSignal, PlaybackPolicyTests/AudioSignalAlterationTests.testTheEqualizerAltersTheSignal
 
 ### 2.8 Sources
 
@@ -316,29 +316,29 @@ Core features come first. Each item has: what the user can do, the source files,
   - User adds HTTP add-on URLs, tests them, and drags to reorder.
   - Files: `data/sources/AddonSource.kt`, `data/sources/addon/*`, `ui/screens/SourcesScreen.kt`
   - Done: with a working add-on, stats for nerds shows FLAC.
-  - Tests: MyusicTests/SourcesScreenModelTests.testAddingAnAddonTestsItThenSavesItUnderItsOwnName, SourcesTests/AddonSourceTests.testCheckIdentifiesProbesAndSavesAnAddon, SourcesTests/AddonSourceTests.testTheRoutingFieldsBecomeTheFormatThePlayerIsToldAbout, SourcesTests/AddonOrderTests.testReorderingPutsTheAddonsInTheOrderGiven
+  - Tests: ZMyusicTests/SourcesScreenModelTests.testAddingAnAddonTestsItThenSavesItUnderItsOwnName, SourcesTests/AddonSourceTests.testCheckIdentifiesProbesAndSavesAnAddon, SourcesTests/AddonSourceTests.testTheRoutingFieldsBecomeTheFormatThePlayerIsToldAbout, SourcesTests/AddonOrderTests.testReorderingPutsTheAddonsInTheOrderGiven
 - [x] **JioSaavn source**
   - Optional source for AAC up to 320 kbps.
   - Files: `data/jiosaavn/JioSaavnService.kt`, `data/sources/JioSaavnSource.kt`
   - Done: with the toggle on and quality set to "High", some tracks play at 320 kbps.
-  - Tests: SourcesTests/JioSaavnTests.testStreamDecryptsTheDetailsAnswerIntoA320AacStream, SourcesTests/JioSaavnTests.testDecryptsTheRecordedMediaURLAndPicksThe320Rendition, SourcesTests/SourceRegistryTests.testThePlaybackListFollowsTheConnectionsCeiling, MyusicTests/SourcesScreenModelTests.testTurningJioSaavnOnAsksFirstThenEnablesIt
+  - Tests: SourcesTests/JioSaavnTests.testStreamDecryptsTheDetailsAnswerIntoA320AacStream, SourcesTests/JioSaavnTests.testDecryptsTheRecordedMediaURLAndPicksThe320Rendition, SourcesTests/SourceRegistryTests.testThePlaybackListFollowsTheConnectionsCeiling, ZMyusicTests/SourcesScreenModelTests.testTurningJioSaavnOnAsksFirstThenEnablesIt
 - [x] **Legacy JS module sources**
   - Existing module configs still run, in JavaScriptCore on iOS (QuickJS on Android). New ones can't be added.
   - Files: `data/sources/ModuleSource.kt`, `data/sources/module/*`
   - Done: see open question Q4.
-  - Tests: SourcesTests/ModuleSourceTests.testTheEngineKeepsModuleStateBetweenCallsAndPassesArgumentsAsValues, SourcesTests/ModuleSourceTests.testSearchFansOutToEveryModuleAndInterleavesTheirAnswers, SourcesTests/SourceFormatDetectionTests.testTheRegistryRefusesToAddANewModuleIndexButKeepsEditingAnExistingOne, MyusicTests/SourcesScreenModelTests.testAStoredLegacyModuleIsListedEditableAndRemovable
+  - Tests: SourcesTests/ModuleSourceTests.testTheEngineKeepsModuleStateBetweenCallsAndPassesArgumentsAsValues, SourcesTests/ModuleSourceTests.testSearchFansOutToEveryModuleAndInterleavesTheirAnswers, SourcesTests/SourceFormatDetectionTests.testTheRegistryRefusesToAddANewModuleIndexButKeepsEditingAnExistingOne, ZMyusicTests/SourcesScreenModelTests.testAStoredLegacyModuleIsListedEditableAndRemovable
   - Note: Description corrected: the iOS engine runs module configs in JavaScriptCore (`ModuleScriptEngine.swift`), not QuickJS (see section 4). Q4 recommended dropping them, but they were ported.
 - [x] **SMB network library**
   - Browse and stream from an SMB share.
   - Files: `data/smb/*`, `playback/SmbDataSource.kt`
   - Done: user connects to a NAS and plays a FLAC file.
-  - Tests: NetworkLibraryTests/RemoteAudioSourceTests.testSmbSourceReadsRanges, MyusicTests/NetworkLibraryScreenTests.testAnSmbShareListsItsFlacFilesAsAlbums, AudioCacheTests/ResourceLoaderPlaybackTests.testCustomDataSourcePlugsIn, MyusicTests/NetworkSourceWiringTests.testAnSmbRowGetsASourceOnlyWhileAShareIsSaved
-  - Note: the SMB test stops at the source, because a share can't be stood up in a test; reading from a real server is only in the opt-in `NetworkLibraryLiveTests` (macOS, `MYUSIC_LIVE_TESTS=1`).
+  - Tests: NetworkLibraryTests/RemoteAudioSourceTests.testSmbSourceReadsRanges, ZMyusicTests/NetworkLibraryScreenTests.testAnSmbShareListsItsFlacFilesAsAlbums, AudioCacheTests/ResourceLoaderPlaybackTests.testCustomDataSourcePlugsIn, ZMyusicTests/NetworkSourceWiringTests.testAnSmbRowGetsASourceOnlyWhileAShareIsSaved
+  - Note: the SMB test stops at the source, because a share can't be stood up in a test; reading from a real server is only in the opt-in `NetworkLibraryLiveTests` (macOS, `ZMYUSIC_LIVE_TESTS=1`).
 - [x] **WebDAV network library**
   - Browse and stream from a WebDAV server, and upload local tracks to it.
   - Files: `data/webdav/*`
   - Done: user connects, plays a track, and uploads a download.
-  - Tests: NetworkLibraryTests/RemoteAudioSourceTests.testWebDavSourceReadsRanges, NetworkLibraryTests/WebDavUploadsTests.testBatchUploadsNewFiles, MyusicTests/NetworkLibraryScreenTests.testUploadingADownloadAsksAboutAClashAndReportsTheSummary, MyusicTests/NetworkSourceWiringTests.testAWebDavRowIsReadFromItsServerWithTheSavedLogin
+  - Tests: NetworkLibraryTests/RemoteAudioSourceTests.testWebDavSourceReadsRanges, NetworkLibraryTests/WebDavUploadsTests.testBatchUploadsNewFiles, ZMyusicTests/NetworkLibraryScreenTests.testUploadingADownloadAsksAboutAClashAndReportsTheSummary, ZMyusicTests/NetworkSourceWiringTests.testAWebDavRowIsReadFromItsServerWithTheSavedLogin
 
 ### 2.9 Social and integrations
 
@@ -346,19 +346,19 @@ Core features come first. Each item has: what the user can do, the source files,
   - Create or join a party with a 6-character code, a QR code or a link. Up to 5 devices share playback and queue. The host can lock controls, kick members and set the party size. Custom server supported.
   - Files: `data/listentogether/*`, `playback/PartySync.kt`, `PartyPersonalQueueStash.kt`, `ui/screens/ListenTogetherScreen.kt`, `ListenTogetherSheets.kt`, `PartyServerEditor.kt`, `ui/player/ListenTogetherMembersSheet.kt`, `ui/components/QrCode.kt`, `backend/`
   - Done: an iPhone and an Android phone join the same party, and play, pause and skip stay in sync.
-  - Tests: MyusicTests/ListenTogetherFlowTests.testTheHostSetsTheSizeWithinItsBoundsLocksControlsAndRemovesPeople, MyusicTests/ListenTogetherFlowTests.testATypedCodeIsLettersAndDigitsUpperCasedAndSixLong, ListenTogetherTests/PartySyncCoordinatorTests.testFollowsHostPause, ListenTogetherTests/JamInviteLinkTests.testSchemeRoundTrip
+  - Tests: ZMyusicTests/ListenTogetherFlowTests.testTheHostSetsTheSizeWithinItsBoundsLocksControlsAndRemovesPeople, ZMyusicTests/ListenTogetherFlowTests.testATypedCodeIsLettersAndDigitsUpperCasedAndSixLong, ListenTogetherTests/PartySyncCoordinatorTests.testFollowsHostPause, ListenTogetherTests/JamInviteLinkTests.testSchemeRoundTrip
   - Note: The QR code and custom server are covered by `ListenTogetherFlowTests.testTheInviteQRCodeDrawsOneDotPerDarkModule` and `PartyServerEditorTests.testTestSaysWhetherTheServerAnswersAndSaveStoresIt`. An iPhone and an Android phone in one party is a manual check; the only live end-to-end test (`ListenTogetherTests/PartyLiveE2ETests.testHostAndGuestStayInSync`) is opt-in and macOS-only.
 - [x] **Scrobbling**
   - Last.fm and Libre.fm (username/password or browser login) and ListenBrainz (token), with timing options.
   - Files: `data/scrobbling/*`, `ui/screens/AccountAndScrobblingScreen.kt`
   - Done: a played track appears on the user's Last.fm profile.
-  - Tests: IntegrationsTests/ScrobbleTimingTests.testHalfDurationBelowTheCap, IntegrationsTests/LastFMRequestTests.testScrobbleEncodingUsesIndexedKeys, IntegrationsTests/ListenBrainzPayloadTests.testSubmitSendsTokenHeader, MyusicTests/ScrobblingSettingsTests.testTheTimingOptionsStepLikeAndroid, MyusicTests/ScrobblingWiringTests.testThePasswordLoginSendsASignedMobileSessionRequestAndReturnsTheSession, MyusicTests/ScrobblingWiringTests.testAPlayedTrackIsSentToLastfmAsNowPlayingThenScrobbled, MyusicTests/ScrobblingWiringTests.testPlayingNowAndTheFinishedListenReachListenBrainzWithTheToken
+  - Tests: IntegrationsTests/ScrobbleTimingTests.testHalfDurationBelowTheCap, IntegrationsTests/LastFMRequestTests.testScrobbleEncodingUsesIndexedKeys, IntegrationsTests/ListenBrainzPayloadTests.testSubmitSendsTokenHeader, ZMyusicTests/ScrobblingSettingsTests.testTheTimingOptionsStepLikeAndroid, ZMyusicTests/ScrobblingWiringTests.testThePasswordLoginSendsASignedMobileSessionRequestAndReturnsTheSession, ZMyusicTests/ScrobblingWiringTests.testAPlayedTrackIsSentToLastfmAsNowPlayingThenScrobbled, ZMyusicTests/ScrobblingWiringTests.testPlayingNowAndTheFinishedListenReachListenBrainzWithTheToken
   - Note: "Browser login" is not in the Android UI either (`LastFM.kt` defines `getToken`/`getSession`/`getAuthUrl` but nothing calls them), and Libre.fm works only through the `lastfmEndpoint` setting on both platforms (`LastFMRequestTests.testLibreFmAuthURL`).
 - [ ] **Discord Rich Presence**
   - Shows the current song as a Discord status.
   - Files: `data/discord/*`, `com/my/kizzy/*`, `auth/DiscordLoginScreen.kt`, `ui/screens/DiscordScreen.kt`
   - Done: see open question Q3.
-  - Tests (what exists): IntegrationsTests/DiscordGatewayHandshakeTests.testHelloIdentifyHeartbeatPresence, IntegrationsTests/DiscordGatewayCloseCodeTests.testRejectedTokenStopsTheGatewayForGood, IntegrationsTests/DiscordGatewayCloseCodeTests.testANewSessionPublishesThePresenceOnce, IntegrationsTests/DiscordPresenceBuildingTests.testButtonsResolveVariablesAndCarryURLs, MyusicTests/DiscordPresenceScreenTests.testAPastedTokenIsVerifiedBeforeItIsSaved
+  - Tests (what exists): IntegrationsTests/DiscordGatewayHandshakeTests.testHelloIdentifyHeartbeatPresence, IntegrationsTests/DiscordGatewayCloseCodeTests.testRejectedTokenStopsTheGatewayForGood, IntegrationsTests/DiscordGatewayCloseCodeTests.testANewSessionPublishesThePresenceOnce, IntegrationsTests/DiscordPresenceBuildingTests.testButtonsResolveVariablesAndCarryURLs, ZMyusicTests/DiscordPresenceScreenTests.testAPastedTokenIsVerifiedBeforeItIsSaved
   - Gap: device-only: a real status on a Discord account needs a live account and gateway, and iOS suspends the socket in the background (section 4). The gateway handshake is tested against a local fake server. Nothing tests `DiscordPresenceObserver`. `DiscordGatewayHandshakeTests.testAReadyOverOneMebibyteStillOpensTheSession` used to flake because the fake gateway's 100 ms heartbeat interval raced its 3 MiB READY. Q3 recommends not shipping this in v1, though it is built.
 
 ### 2.10 Replay (listening recap)
@@ -367,22 +367,22 @@ Core features come first. Each item has: what the user can do, the source files,
   - Top songs, artists, albums and genres, plus listening habits, for this month, this year or all time.
   - Files: `ui/replay/ReplayScreen.kt`, `ReplayModel.kt`, `ReplayCard.kt`, `data/stats/*`
   - Done: after an hour of listening, Replay shows the right top artist.
-  - Tests: ReplayTests/ReplayAggregationTests.testPeriodsFilterMonths, ReplayTests/ReplayAggregationTests.testRanksByMinutesThenPlays, ReplayTests/ReplayRecorderThresholdTests.testPlayCountedOnceAtThreshold, MyusicTests/ReplayStatsPageTests.testThePageOpensOnThisYearAndSwitchingPeriodReadsThatPeriod
+  - Tests: ReplayTests/ReplayAggregationTests.testPeriodsFilterMonths, ReplayTests/ReplayAggregationTests.testRanksByMinutesThenPlays, ReplayTests/ReplayRecorderThresholdTests.testPlayCountedOnceAtThreshold, ZMyusicTests/ReplayStatsPageTests.testThePageOpensOnThisYearAndSwitchingPeriodReadsThatPeriod
 - [x] **Replay stories**
   - 8 full-screen cards. Tap to move, hold to pause.
   - Files: `ui/replay/ReplayStories.kt`
   - Done: user taps through all 8 cards.
-  - Tests: MyusicTests/ReplayStoriesTests.testTappingOnTheRightWalksThroughAllEightCardsAndTheLeftGoesBack, MyusicTests/ReplayStoriesTests.testHoldingStopsTheClockAndACardMovesOnAfterFourteenSeconds
+  - Tests: ZMyusicTests/ReplayStoriesTests.testTappingOnTheRightWalksThroughAllEightCardsAndTheLeftGoesBack, ZMyusicTests/ReplayStoriesTests.testHoldingStopsTheClockAndACardMovesOnAfterFourteenSeconds
 - [x] **Share Replay poster**
   - Share the poster as an image, or save it to Photos.
   - Files: `ui/replay/ReplayPoster.kt`, `ReplayShareSheet.kt`
   - Done: the poster opens in the iOS share sheet and saves to Photos.
-  - Tests: MyusicTests/ReplayPosterShareTests.testThePosterIsNineBySixteenAtTenEightyByNineteenTwenty, MyusicTests/ReplayPosterShareTests.testSaveDrawsThePosterAndSavesItOnceToPhotos, MyusicTests/ReplayPosterShareTests.testARefusedSaveCanBeTriedAgain
+  - Tests: ZMyusicTests/ReplayPosterShareTests.testThePosterIsNineBySixteenAtTenEightyByNineteenTwenty, ZMyusicTests/ReplayPosterShareTests.testSaveDrawsThePosterAndSavesItOnceToPhotos, ZMyusicTests/ReplayPosterShareTests.testARefusedSaveCanBeTriedAgain
   - Note: The photo saver is injected and the system share sheet is only render-tested; the real Photos write and share sheet are a device check.
 - [x] **"Play your Replay"**
   - Files: `ui/replay/ReplayScreen.kt`
   - Done: tapping it opens the Replay stories at the first card.
-  - Tests: MyusicTests/PlayYourReplayTests.testPlayYourReplayOpensTheStoriesAtTheIntro, MyusicTests/ReplayStatsPageTests.testAPeriodWithNothingPlayedShowsTheEmptyState
+  - Tests: ZMyusicTests/PlayYourReplayTests.testPlayYourReplayOpensTheStoriesAtTheIntro, ZMyusicTests/ReplayStatsPageTests.testAPeriodWithNothingPlayedShowsTheEmptyState
   - Note: Done line corrected: on Android the button runs `onOpenStory(ReplayStoryPage.INTRO)` (`ui/replay/ReplayScreen.kt:183-185`), so it opens the stories at the first card and queues nothing. iOS matches. `replayQueueSongs` exists and is tested (`ReplayTests/ReplayStoryContentTests.testReplayQueueIsRankedSongs`) but nothing calls it.
 
 ### 2.11 Settings and app-level
@@ -391,47 +391,47 @@ Core features come first. Each item has: what the user can do, the source files,
   - Sections: Audio quality, Downloads, Playback, Appearance, Performance, Local music, Storage, Your data, Miscellaneous, Language, Advanced.
   - Files: `ui/screens/SettingsSheet.kt`, `data/settings/AppSettings.kt`
   - Done: searching "crossfade" finds the setting.
-  - Tests: MyusicTests/SettingsSearchTests.testSearchingCrossfadeFindsTheSetting, MyusicTests/SettingsSearchTests.testABlankQueryShowsEveryGroupInAndroidsOrder, MyusicTests/SettingsSearchTests.testAHiddenRowsKeywordFindsTheSwitchThatShowsIt
+  - Tests: ZMyusicTests/SettingsSearchTests.testSearchingCrossfadeFindsTheSetting, ZMyusicTests/SettingsSearchTests.testABlankQueryShowsEveryGroupInAndroidsOrder, ZMyusicTests/SettingsSearchTests.testAHiddenRowsKeywordFindsTheSwitchThatShowsIt
   - Note: iOS has no Performance or Local music groups, by design (section 3: the system handles ProMotion, and MediaStore scanning is out of scope); `SettingsSearchTests.testAndroidOnlyRowsAreNotListed` pins that.
 - [x] **Theme**
   - System, Light or Dark. Reduce animation, reduce blur, full-screen cover art.
   - Files: `ui/theme/Theme.kt`, `ui/screens/SettingsSheet.kt`
   - Done: switching to Light changes every screen.
-  - Tests: MyusicTests/SettingsThemeTests.testTheThemeRowOffersSystemLightAndDarkAndLightForcesLight, MyusicTests/ThemeModeTests.testThemeModesMapOntoTheColorScheme, MyusicTests/CanvasBackdropTests.testReducedMotionCuts, MyusicTests/ThemeWiringTests.testLightAndDarkAreForcedOnEveryScreenWhateverTheDeviceUses, MyusicTests/ThemeWiringTests.testReduceBlurTakesTheBlurOffTheLyricsLikeSwitchingTheLyricsBlurOff
+  - Tests: ZMyusicTests/SettingsThemeTests.testTheThemeRowOffersSystemLightAndDarkAndLightForcesLight, ZMyusicTests/ThemeModeTests.testThemeModesMapOntoTheColorScheme, ZMyusicTests/CanvasBackdropTests.testReducedMotionCuts, ZMyusicTests/ThemeWiringTests.testLightAndDarkAreForcedOnEveryScreenWhateverTheDeviceUses, ZMyusicTests/ThemeWiringTests.testReduceBlurTakesTheBlurOffTheLyricsLikeSwitchingTheLyricsBlurOff
   - Note: Reduce blur is checked on the lyrics panel. The other places that read the setting (the mini player, the sheet and alert backgrounds, the player backdrop) are not each asserted.
 - [x] **App icon** (Android 1.8.2)
   - Settings → Advanced → App icon: Default, Monochrome, Liquid Glass Dark, Liquid Glass Clear, Liquid Glass Clear Dark.
   - Files: `AppIcon.kt`, `ui/screens/SettingsSheet.kt`, `AndroidManifest.xml` (activity-aliases)
   - Done: picking a tile changes the home-screen icon after the system's confirmation.
-  - Tests: MyusicTests/AppIconPickerTests.testEveryChoiceShipsAsAnAlternateIcon, MyusicTests/AppIconPickerTests.testEveryChoiceHasItsPreviewTileInLightAndDark, MyusicTests/AppIconPickerTests.testTheRowSitsInAdvancedAndAnswersAndroidsKeywords
+  - Tests: ZMyusicTests/AppIconPickerTests.testEveryChoiceShipsAsAnAlternateIcon, ZMyusicTests/AppIconPickerTests.testEveryChoiceHasItsPreviewTileInLightAndDark, ZMyusicTests/AppIconPickerTests.testTheRowSitsInAdvancedAndAnswersAndroidsKeywords
   - Note: Android's Liquid Glass (light) is the iOS default icon, and its light, dark and clear forms are also the home screen's own Dark, Clear and Tinted styles. The Samsung and Pixel variants differ only in their mask, and iOS draws one shape, so they aren't ported, and the three Neon icons are left out on size (each icon is about 6 MB of pre-rendered images in the IPA). Mac Catalyst has no row (`supportsAlternateIcons` is false). Device-only: the icon change itself and the system alert can't be driven from tests.
 - [x] **App language**
   - English plus 15 languages: de, es, fr, he (right-to-left), hi, id, it, ja, pl, pt, ru, th, tr, vi, zh.
   - Files: `res/values-*/strings.xml`, `ui/components/AppLanguageDialog.kt`
   - Done: switching to Hebrew mirrors the layout right to left.
-  - Tests: MyusicTests/AppLanguageTests.testTheSixteenLanguagesInAndroidsOrderAllShip, MyusicTests/AppLanguageTests.testChoosingHebrewMirrorsTheLayoutAndRebuildsTheUI, MyusicTests/LocalizationTests.testEveryShippedLanguageHasALocalizationBundle
+  - Tests: ZMyusicTests/AppLanguageTests.testTheSixteenLanguagesInAndroidsOrderAllShip, ZMyusicTests/AppLanguageTests.testChoosingHebrewMirrorsTheLayoutAndRebuildsTheUI, ZMyusicTests/LocalizationTests.testEveryShippedLanguageHasALocalizationBundle
 - [x] **Backup and restore**
   - Export or import settings and listening stats as JSON. Credentials are not included.
   - Files: `data/stats/Backup.kt`
   - Done: a file exported on one iPhone restores stats on another.
-  - Tests: MyusicTests/SettingsBackupTests.testAFileExportedOnOnePhoneRestoresStatsAndSettingsOnAnother, MyusicCoreTests/SettingsBackupTests.testCredentialsAndDeviceLocalKeysAreNeverExported, MyusicCoreTests/SettingsBackupTests.testRestoresABackupWrittenByAndroid, ReplayTests/ReplayBackupTests.testRoundTrip
+  - Tests: ZMyusicTests/SettingsBackupTests.testAFileExportedOnOnePhoneRestoresStatsAndSettingsOnAnother, ZMyusicCoreTests/SettingsBackupTests.testCredentialsAndDeviceLocalKeysAreNeverExported, ZMyusicCoreTests/SettingsBackupTests.testRestoresABackupWrittenByAndroid, ReplayTests/ReplayBackupTests.testRoundTrip
   - Note: The `.fileExporter`/`.fileImporter` UI is not driven; the export and restore logic is.
 - [x] **Storage controls**
   - Song cache limit, clear song cache, clear image cache.
   - Files: `ui/screens/SettingsSheet.kt`, `playback/AudioCache.kt`
   - Done: "Clear song cache" frees the space it reports.
-  - Tests: MyusicTests/SettingsStorageTests.testClearSongCacheFreesTheSpaceItReports, MyusicTests/SettingsStorageTests.testClearImageCacheEmptiesTheDiskCache, MyusicTests/SongCacheLimitTests.testTheSliderRunsFrom512MBTo10GBIn512MBNotches
+  - Tests: ZMyusicTests/SettingsStorageTests.testClearSongCacheFreesTheSpaceItReports, ZMyusicTests/SettingsStorageTests.testClearImageCacheEmptiesTheDiskCache, ZMyusicTests/SongCacheLimitTests.testTheSliderRunsFrom512MBTo10GBIn512MBNotches
 - [ ] **Deep links and sharing into the app**
   - Opens `music.youtube.com`, `youtube.com` and `youtu.be` links, shared text, and party invites.
   - Files: `playback/MusicLink.kt`, `data/listentogether/JamInviteLink.kt`, `MainActivity.kt`
   - Done: tapping a YouTube Music album link in Messages opens that album in the app.
-  - Tests (what exists): MyusicTests/DeepLinkRoutingTests.testAYouTubeMusicAlbumLinkOpensThatAlbum, MyusicTests/DeepLinkRoutingTests.testAPartyInviteOpensListenTogetherWithTheCodeWaiting, MyusicTests/DeepLinkShareTests.testSharedTextWithALinkInItOpensTheSong, InnerTubeTests/MusicLinkTests.testWatchLinksOnEveryYouTubeHostPlayTheVideo
-  - Gap: Universal Links are not set up: `App/Config/Myusic.entitlements` has no associated-domains entry, so `https://bitchord.kushagrasingh.in/...` party invites can't open the app (Q13: needs the `apple-app-site-association` file hosted). Only the `myusic://` scheme and the share extension work. Tapping a YouTube Music link in Messages can't open the app on iOS (section 4), so the share extension is the equivalent; the extension is tested only at the handoff logic level.
+  - Tests (what exists): ZMyusicTests/DeepLinkRoutingTests.testAYouTubeMusicAlbumLinkOpensThatAlbum, ZMyusicTests/DeepLinkRoutingTests.testAPartyInviteOpensListenTogetherWithTheCodeWaiting, ZMyusicTests/DeepLinkShareTests.testSharedTextWithALinkInItOpensTheSong, InnerTubeTests/MusicLinkTests.testWatchLinksOnEveryYouTubeHostPlayTheVideo
+  - Gap: Universal Links are not set up: `App/Config/ZMyusic.entitlements` has no associated-domains entry, so `https://bitchord.kushagrasingh.in/...` party invites can't open the app (Q13: needs the `apple-app-site-association` file hosted). Only the `zmyusic://` scheme and the share extension work. Tapping a YouTube Music link in Messages can't open the app on iOS (section 4), so the share extension is the equivalent; the extension is tested only at the handoff logic level.
 - [x] **Haptics**
   - Named haptic patterns that respect the system setting.
   - Files: `ui/haptics/Haptics.kt`
   - Done: liking a song gives a light tap.
-  - Tests: MyusicTests/HapticPatternTests.testLikingASongIsALightTap, MyusicTests/HapticNamedPatternTests.testOppositePatternsMirrorEachOther
+  - Tests: ZMyusicTests/HapticPatternTests.testLikingASongIsALightTap, ZMyusicTests/HapticNamedPatternTests.testOppositePatternsMirrorEachOther
   - Note: The like button's call into `Haptics` isn't tested; respecting the system haptics setting is left to the system feedback generators and can't be tested.
 
 ### 2.12 System surfaces
@@ -440,20 +440,20 @@ Core features come first. Each item has: what the user can do, the source files,
   - Android has 3 sizes (2×2, 4×2, 4×1) with play/pause, previous, next, like and shuffle.
   - Files: `widget/*`, `res/xml/widget_media_*.xml`
   - Done: the small and medium widgets show the current song, and play/pause works.
-  - Tests (what exists): MyusicTests/HomeScreenWidgetTests.testTheWidgetsButtonsDriveThePlayer, MyusicTests/HomeScreenWidgetTests.testEachWidgetIntentReachesTheAppsHandler, MyusicTests/HomeScreenWidgetTests.testTheWidgetShowsTheCurrentSongAndTheToggleFollowsPlayWhenReady, MyusicTests/WidgetSnapshotTests.testPlayingWritesWhatTheWidgetShows
+  - Tests (what exists): ZMyusicTests/HomeScreenWidgetTests.testTheWidgetsButtonsDriveThePlayer, ZMyusicTests/HomeScreenWidgetTests.testEachWidgetIntentReachesTheAppsHandler, ZMyusicTests/HomeScreenWidgetTests.testTheWidgetShowsTheCurrentSongAndTheToggleFollowsPlayWhenReady, ZMyusicTests/WidgetSnapshotTests.testPlayingWritesWhatTheWidgetShows
   - Gap: device-only: the widgets' timelines and the extension-to-app intent hop need a device (or a widget-capable simulator session). The app-side logic and a render smoke test are covered (tests above).
 - [ ] **Car integration**
   - Android Auto has a browse tree (Recents, Quick picks, Playlists, Liked, Downloads, Local), search, and Radio and Revert buttons.
   - Files: `playback/PlaybackService.kt`, `res/xml/automotive_app_desc.xml`, `app/src/androidTest/.../AndroidAutoMediaLibraryTest.kt`
   - Done: see open question Q7.
-  - Tests (what exists): MyusicTests/CarIntegrationTests.testTheRootHasTheAndroidAutoFoldersInOrder, MyusicTests/CarIntegrationTests.testSearchListsSongsThenPagesOnceEachAndIsCached, MyusicTests/CarIntegrationTests.testNowPlayingCarriesFavoriteShuffleRadioAndRevert, MyusicTests/CarIntegrationTests.testTheTemplatesAreBuiltForEveryFolder
-  - Gap: device-only: nothing has been run in the CarPlay simulator or a head unit, and `Myusic.entitlements` has no `com.apple.developer.carplay-audio` entitlement (Q7: request it from Apple). The browse tree, search and now-playing templates are built and tested.
+  - Tests (what exists): ZMyusicTests/CarIntegrationTests.testTheRootHasTheAndroidAutoFoldersInOrder, ZMyusicTests/CarIntegrationTests.testSearchListsSongsThenPagesOnceEachAndIsCached, ZMyusicTests/CarIntegrationTests.testNowPlayingCarriesFavoriteShuffleRadioAndRevert, ZMyusicTests/CarIntegrationTests.testTheTemplatesAreBuiltForEveryFolder
+  - Gap: device-only: nothing has been run in the CarPlay simulator or a head unit, and `ZMyusic.entitlements` has no `com.apple.developer.carplay-audio` entitlement (Q7: request it from Apple). The browse tree, search and now-playing templates are built and tested.
 - [ ] **Voice "play X"**
   - A spoken request plays the best match. A bare "play music" resumes.
   - Files: `playback/MusicLink.kt`
-  - Done: "Hey Siri, play Daft Punk in Myusic" plays a Daft Punk song.
-  - Tests (what exists): MyusicTests/VoicePlayTests.testPlayDaftPunkPlaysTheBestMatch, MyusicTests/VoicePlayTests.testABarePlayMusicResumesWhatWasPlaying, MyusicTests/VoicePlayTests.testSirisMediaSearchBecomesTheQuery, InnerTubeTests/MusicLinkTests.testAVoiceRequestPlaysItsBestMatchAndAnEmptyOneResumes
-  - Gap: the free-text path ("play Daft Punk in Myusic") goes through `INPlayMediaIntent`, but neither `Myusic.entitlements` nor the project has the Siri capability (`com.apple.developer.siri`), so Siri probably won't hand the app a spoken request; add the capability. The real Siri round trip is also device-only. The query parsing, best-match playing and bare "play music" resume are tested.
+  - Done: "Hey Siri, play Daft Punk in ZMyusic" plays a Daft Punk song.
+  - Tests (what exists): ZMyusicTests/VoicePlayTests.testPlayDaftPunkPlaysTheBestMatch, ZMyusicTests/VoicePlayTests.testABarePlayMusicResumesWhatWasPlaying, ZMyusicTests/VoicePlayTests.testSirisMediaSearchBecomesTheQuery, InnerTubeTests/MusicLinkTests.testAVoiceRequestPlaysItsBestMatchAndAnEmptyOneResumes
+  - Gap: the free-text path ("play Daft Punk in ZMyusic") goes through `INPlayMediaIntent`, but neither `ZMyusic.entitlements` nor the project has the Siri capability (`com.apple.developer.siri`), so Siri probably won't hand the app a spoken request; add the capability. The real Siri round trip is also device-only. The query parsing, best-match playing and bare "play music" resume are tested.
 
 ---
 
@@ -465,7 +465,7 @@ Core features come first. Each item has: what the user can do, the source files,
 - **16-bit vs float output precision and "Prefer USB DAC"** (`AudioOutputPolicy.kt`, `OutputNegotiator.kt`): these are Android output rules. iOS doesn't expose this choice.
 - **AAudio evaluation** (`playback/audio/AAudioEvaluation.kt`): design note only, not wired up.
 - **Device music scanning via MediaStore** (`data/LocalMediaRepository.kt`): iOS has no open file system. See Platform gaps for the replacement.
-- **Export downloads to `Music/Myusic`**: iOS has no shared Music folder.
+- **Export downloads to `Music/ZMyusic`**: iOS has no shared Music folder.
 - **High performance mode and refresh-rate setting** (`ui/performance/DisplayRefreshRates.kt`): ProMotion is handled by the system.
 - **Samsung Now Bar metadata** and **`APP_MUSIC` / `MUSIC_PLAYER` intents**: Android launcher and OEM hooks.
 - **Liquid Glass custom bar, and the Haze blur backdrop** (`ui/components/backdrop/*`, `LiquidGlass.kt`, `GlassNavBar.kt`): rebuild with SwiftUI materials instead of porting the shaders.
@@ -502,7 +502,7 @@ Core features come first. Each item has: what the user can do, the source files,
 | FileProvider share of the Replay poster | Not available | `ShareLink` or `UIActivityViewController` with an image; `PHPhotoLibrary` to save (needs `NSPhotoLibraryAddUsageDescription`) |
 | RemoteViews widgets | Not available | WidgetKit with App Intents buttons (iOS 17 interactive widgets) |
 | Android Auto | Not available | CarPlay audio app (needs an Apple CarPlay entitlement) |
-| Intent filters for links | Not available | Universal Links (`apple-app-site-association` on `bitchord.kushagrasingh.in`) and a `myusic://` URL scheme |
+| Intent filters for links | Not available | Universal Links (`apple-app-site-association` on `bitchord.kushagrasingh.in`) and a `zmyusic://` URL scheme |
 | YouTube link "Open with" | iOS doesn't let apps claim someone else's domain | Share Extension that accepts URLs and text |
 | `MEDIA_PLAY_FROM_SEARCH` voice intent | Not available | App Intents / SiriKit `INPlayMediaIntent` |
 | Audio output picker (`setPreferredAudioDevice`) | Apps can't list or pick outputs directly | `AVRoutePickerView` |
@@ -617,7 +617,7 @@ Each question has a recommendation and a short reason. Several depend on Q1, so 
     - Why: v1 then needs only `AVPlayer`, not a custom audio engine. EQ, spatial and Automix all need `AVAudioEngine`, so they can move together.
 
 13. **Can you host `apple-app-site-association` on `bitchord.kushagrasingh.in`?**
-    - Recommendation: ask the maintainer who owns the domain to host it. Also support `myusic://party/...` as a fallback.
+    - Recommendation: ask the maintainer who owns the domain to host it. Also support `zmyusic://party/...` as a fallback.
     - Why: it's one static JSON file. The custom scheme works even without it, and already exists for custom servers (`JamInviteLink.kt`).
 
 14. **Last.fm keys for iOS?**

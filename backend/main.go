@@ -18,13 +18,13 @@ import (
 
 	"github.com/gorilla/websocket"
 
-	"github.com/latiefahmad/Myusic/backend/clock"
-	"github.com/latiefahmad/Myusic/backend/codes"
-	"github.com/latiefahmad/Myusic/backend/config"
-	"github.com/latiefahmad/Myusic/backend/hub"
-	"github.com/latiefahmad/Myusic/backend/party"
-	"github.com/latiefahmad/Myusic/backend/presence"
-	"github.com/latiefahmad/Myusic/backend/protocol"
+	"github.com/latiefahmad/ZMyusic/backend/clock"
+	"github.com/latiefahmad/ZMyusic/backend/codes"
+	"github.com/latiefahmad/ZMyusic/backend/config"
+	"github.com/latiefahmad/ZMyusic/backend/hub"
+	"github.com/latiefahmad/ZMyusic/backend/party"
+	"github.com/latiefahmad/ZMyusic/backend/presence"
+	"github.com/latiefahmad/ZMyusic/backend/protocol"
 )
 
 var (
@@ -77,7 +77,7 @@ func main() {
 	handler := corsMiddleware(mux)
 
 	addr := fmt.Sprintf("0.0.0.0:%d", config.Port)
-	log.Printf("Myusic Listen Together (Go) starting on %s...", addr)
+	log.Printf("ZMyusic Listen Together (Go) starting on %s...", addr)
 	server := &http.Server{
 		Addr:              addr,
 		Handler:           handler,
@@ -219,13 +219,13 @@ func parseBearerToken(r *http.Request) string {
 }
 
 // Browsers cannot set headers on a WebSocket handshake, so the web player
-// offers its token as a subprotocol instead: "myusic.v1, myusic.token.<hex>".
+// offers its token as a subprotocol instead: "zmyusic.v1, zmyusic.token.<hex>".
 // It still stays out of the URL, and so out of access logs, which is the reason
-// the header was chosen; the server answers with "myusic.v1" alone and never
+// the header was chosen; the server answers with "zmyusic.v1" alone and never
 // echoes the token.
 const (
-	socketProtocol    = "myusic.v1"
-	socketTokenPrefix = "myusic.token."
+	socketProtocol    = "zmyusic.v1"
+	socketTokenPrefix = "zmyusic.token."
 )
 
 // parseSocketToken reads the party token from the Authorization header (the
@@ -250,7 +250,7 @@ func handleRoot(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	jsonResponse(w, http.StatusOK, map[string]interface{}{
-		"service":    "myusic-listen-together",
+		"service":    "zmyusic-listen-together",
 		"members":    store.MemberCount(),
 		"parties":    store.Len(),
 		"serverMs":   clock.NowMs(),
@@ -605,7 +605,7 @@ var inviteTemplate = template.Must(template.New("invite").Parse(`<!DOCTYPE html>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Myusic Listen Together - Party {{.Code}}</title>
+    <title>ZMyusic Listen Together - Party {{.Code}}</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
@@ -740,7 +740,7 @@ var inviteTemplate = template.Must(template.New("invite").Parse(`<!DOCTYPE html>
                 <span>Listen Together • {{.MemberCount}} in party</span>
             </div>
             <h1>Join the Music Party</h1>
-            <p class="subtitle">Opening Myusic to sync playback in real time.</p>
+            <p class="subtitle">Opening ZMyusic to sync playback in real time.</p>
             <div class="code-box">
                 <div class="code-label">Party Code</div>
                 <div class="code-val">{{.Code}}</div>
@@ -748,10 +748,10 @@ var inviteTemplate = template.Must(template.New("invite").Parse(`<!DOCTYPE html>
                     <div class="now-playing">🎵 {{.CurrentSongTitle}} - {{.CurrentSongArtist}}</div>
                 {{end}}
             </div>
-            <a id="joinBtn" href="{{.IntentURI}}" class="btn">Join Party in Myusic</a>
+            <a id="joinBtn" href="{{.IntentURI}}" class="btn">Join Party in ZMyusic</a>
             <p class="footer-note">
                 Didn’t open automatically? Tap the button above.<br>
-                Don't have Myusic yet? <a href="https://github.com/latiefahmad/Myusic/releases" target="_blank" rel="noopener">Download it here</a>.
+                Don't have ZMyusic yet? <a href="https://github.com/latiefahmad/ZMyusic/releases" target="_blank" rel="noopener">Download it here</a>.
             </p>
             <script>
                 var intentUri = {{.IntentURI}};
@@ -828,8 +828,8 @@ func handleInviteLanding(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	deepLink := fmt.Sprintf("myusic://party/%s?server=%s", url.PathEscape(code), url.QueryEscape(origin))
-	intentURI := fmt.Sprintf("intent://party/%s?server=%s#Intent;scheme=myusic;end", url.PathEscape(code), url.QueryEscape(origin))
+	deepLink := fmt.Sprintf("zmyusic://party/%s?server=%s", url.PathEscape(code), url.QueryEscape(origin))
+	intentURI := fmt.Sprintf("intent://party/%s?server=%s#Intent;scheme=zmyusic;end", url.PathEscape(code), url.QueryEscape(origin))
 
 	currentSongTitle := ""
 	currentSongArtist := ""

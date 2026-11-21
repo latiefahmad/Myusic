@@ -11,70 +11,70 @@
 # to that same tree without duplicating this module.
 
 cmake_minimum_required(VERSION 3.22.1)
-project(myusic_analysis LANGUAGES C CXX)
+project(zmyusic_analysis LANGUAGES C CXX)
 
-get_filename_component(MYUSIC_NATIVE_DIR
+get_filename_component(ZMYUSIC_NATIVE_DIR
     "${CMAKE_CURRENT_SOURCE_DIR}/../../../../native"
     ABSOLUTE)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-add_library(myusic_analysis SHARED
-    ${MYUSIC_NATIVE_DIR}/analyzer/audio_analysis.cpp
-    ${MYUSIC_NATIVE_DIR}/analyzer/tempo_analysis.cpp
-    ${MYUSIC_NATIVE_DIR}/analyzer/resampler.cpp
-    ${MYUSIC_NATIVE_DIR}/analyzer/mel_spectrogram.cpp
-    ${MYUSIC_NATIVE_DIR}/analyzer/vocal_spectrogram.cpp
+add_library(zmyusic_analysis SHARED
+    ${ZMYUSIC_NATIVE_DIR}/analyzer/audio_analysis.cpp
+    ${ZMYUSIC_NATIVE_DIR}/analyzer/tempo_analysis.cpp
+    ${ZMYUSIC_NATIVE_DIR}/analyzer/resampler.cpp
+    ${ZMYUSIC_NATIVE_DIR}/analyzer/mel_spectrogram.cpp
+    ${ZMYUSIC_NATIVE_DIR}/analyzer/vocal_spectrogram.cpp
     jni/analysis_jni.cpp
     jni/mel_jni.cpp
     jni/vocal_jni.cpp
 )
 
-target_include_directories(myusic_analysis PRIVATE
+target_include_directories(zmyusic_analysis PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}
-    ${MYUSIC_NATIVE_DIR}
+    ${ZMYUSIC_NATIVE_DIR}
 )
 
 # -ffast-math is deliberately NOT enabled: the analyzer's log/mel-adjacent
 # arithmetic (see audio_analysis.cpp) is tuned against exact IEEE behaviour.
-target_compile_options(myusic_analysis PRIVATE -O3 -fvisibility=hidden)
+target_compile_options(zmyusic_analysis PRIVATE -O3 -fvisibility=hidden)
 
 find_library(log-lib log)
-target_link_libraries(myusic_analysis ${log-lib})
+target_link_libraries(zmyusic_analysis ${log-lib})
 
 # 16KB page-size support (Android 15+ 16KB kernels, Play requirement): align
 # LOAD segments to 16KB. A superset of 4KB alignment, so 4KB devices are
 # unaffected. APK-side alignment of uncompressed .so files is handled by AGP.
-target_link_options(myusic_analysis PRIVATE "-Wl,-z,max-page-size=16384")
+target_link_options(zmyusic_analysis PRIVATE "-Wl,-z,max-page-size=16384")
 
 # Automix's loop mix: two Signalsmith Stretch decks looping whole bars on a
 # ramping tempo, rendered inside the outgoing player's audio sink. Signalsmith
 # Stretch and its FFT (signalsmith-linear) are MIT and header-only, vendored
 # under native/third_party. Fast-math is safe here (nothing in it depends on
 # exact IEEE behaviour) and lets the STFT's complex arithmetic vectorise.
-add_library(myusic_loopmix SHARED
-    ${MYUSIC_NATIVE_DIR}/loopmix/loop_mix_renderer.cpp
+add_library(zmyusic_loopmix SHARED
+    ${ZMYUSIC_NATIVE_DIR}/loopmix/loop_mix_renderer.cpp
     jni/loopmix_jni.cpp
 )
-target_include_directories(myusic_loopmix PRIVATE
-    ${MYUSIC_NATIVE_DIR}
-    ${MYUSIC_NATIVE_DIR}/third_party
+target_include_directories(zmyusic_loopmix PRIVATE
+    ${ZMYUSIC_NATIVE_DIR}
+    ${ZMYUSIC_NATIVE_DIR}/third_party
 )
-target_compile_options(myusic_loopmix PRIVATE -O3 -ffast-math -fvisibility=hidden -Wno-unused-parameter)
-target_link_options(myusic_loopmix PRIVATE "-Wl,-z,max-page-size=16384")
+target_compile_options(zmyusic_loopmix PRIVATE -O3 -ffast-math -fvisibility=hidden -Wno-unused-parameter)
+target_link_options(zmyusic_loopmix PRIVATE "-Wl,-z,max-page-size=16384")
 
 # DSD playback (DSF/DFF). The decimator turns 1-bit DSD into float PCM for
 # DsdExtractor; DST is the lossless compression SACD rips use inside DFF.
 # DST is LGPL (see dsd/dst/NOTICE.md), so it is a library of its own that can
 # be rebuilt or swapped without touching the rest.
-add_library(myusic_dsd SHARED dsd/dsd_decimator.cpp)
-target_compile_options(myusic_dsd PRIVATE -O3 -fno-fast-math -ffp-contract=off -fvisibility=hidden)
-target_link_options(myusic_dsd PRIVATE "-Wl,-z,max-page-size=16384")
+add_library(zmyusic_dsd SHARED dsd/dsd_decimator.cpp)
+target_compile_options(zmyusic_dsd PRIVATE -O3 -fno-fast-math -ffp-contract=off -fvisibility=hidden)
+target_link_options(zmyusic_dsd PRIVATE "-Wl,-z,max-page-size=16384")
 
-add_library(myusic_dst SHARED dsd/dst/decoder.c dsd/dst/jni.cpp)
-target_compile_options(myusic_dst PRIVATE -O3 -fno-strict-aliasing -fvisibility=hidden)
-target_link_options(myusic_dst PRIVATE "-Wl,-z,max-page-size=16384")
+add_library(zmyusic_dst SHARED dsd/dst/decoder.c dsd/dst/jni.cpp)
+target_compile_options(zmyusic_dst PRIVATE -O3 -fno-strict-aliasing -fvisibility=hidden)
+target_link_options(zmyusic_dst PRIVATE "-Wl,-z,max-page-size=16384")
 
 # Bit-perfect output (see playback/audio/bitperfect). AAudio exclusive streams
 # through Oboe, built from a pinned release with its format/rate conversion
@@ -87,16 +87,16 @@ FetchContent_Declare(oboe
     URL_HASH SHA256=0ccf2110640a2b4489f1c93a404f2978656b434d8c5dc9cb6258f9cc95c79b15)
 FetchContent_MakeAvailable(oboe)
 
-add_library(myusic_exclusive SHARED bitperfect/exclusive_output.cpp)
-target_compile_options(myusic_exclusive PRIVATE -O2 -Wall -Wextra -fvisibility=hidden)
-target_link_libraries(myusic_exclusive PRIVATE oboe ${log-lib})
+add_library(zmyusic_exclusive SHARED bitperfect/exclusive_output.cpp)
+target_compile_options(zmyusic_exclusive PRIVATE -O2 -Wall -Wextra -fvisibility=hidden)
+target_link_libraries(zmyusic_exclusive PRIVATE oboe ${log-lib})
 # Only JNI is public: Oboe is static, and its symbols must not keep otherwise
 # unused code alive or be exported from this library.
-target_link_options(myusic_exclusive PRIVATE
+target_link_options(zmyusic_exclusive PRIVATE
     "-Wl,-z,max-page-size=16384"
     "-Wl,--gc-sections"
     "-Wl,--version-script,${CMAKE_CURRENT_SOURCE_DIR}/bitperfect/exports.map")
-set_property(TARGET myusic_exclusive APPEND PROPERTY LINK_DEPENDS
+set_property(TARGET zmyusic_exclusive APPEND PROPERTY LINK_DEPENDS
     "${CMAKE_CURRENT_SOURCE_DIR}/bitperfect/exports.map")
 
 # Direct USB output: a userspace USB Audio Class driver on libusb, so a DAC
@@ -108,7 +108,7 @@ FetchContent_Declare(libusb
     URL https://github.com/libusb/libusb/releases/download/v1.0.27/libusb-1.0.27.tar.bz2
     URL_HASH SHA256=ffaa41d741a8a3bee244ac8e54a72ea05bf2879663c098c82fc5757853441575)
 FetchContent_MakeAvailable(libusb)
-add_library(myusic_libusb STATIC
+add_library(zmyusic_libusb STATIC
     ${libusb_SOURCE_DIR}/libusb/core.c
     ${libusb_SOURCE_DIR}/libusb/descriptor.c
     ${libusb_SOURCE_DIR}/libusb/hotplug.c
@@ -119,18 +119,18 @@ add_library(myusic_libusb STATIC
     ${libusb_SOURCE_DIR}/libusb/os/events_posix.c
     ${libusb_SOURCE_DIR}/libusb/os/threads_posix.c
     ${libusb_SOURCE_DIR}/libusb/os/linux_netlink.c)
-target_include_directories(myusic_libusb
+target_include_directories(zmyusic_libusb
     PRIVATE ${libusb_SOURCE_DIR}/android ${libusb_SOURCE_DIR}/libusb/os
     PUBLIC ${libusb_SOURCE_DIR}/libusb)
-target_compile_options(myusic_libusb PRIVATE -O2 -fvisibility=hidden -pthread -w)
-set_target_properties(myusic_libusb PROPERTIES POSITION_INDEPENDENT_CODE ON)
+target_compile_options(zmyusic_libusb PRIVATE -O2 -fvisibility=hidden -pthread -w)
+set_target_properties(zmyusic_libusb PROPERTIES POSITION_INDEPENDENT_CODE ON)
 
-add_library(myusic_usb SHARED bitperfect/usb_transport.cpp)
-target_compile_options(myusic_usb PRIVATE -O2 -Wall -Wextra -fvisibility=hidden)
-target_link_libraries(myusic_usb PRIVATE myusic_libusb ${log-lib})
-target_link_options(myusic_usb PRIVATE
+add_library(zmyusic_usb SHARED bitperfect/usb_transport.cpp)
+target_compile_options(zmyusic_usb PRIVATE -O2 -Wall -Wextra -fvisibility=hidden)
+target_link_libraries(zmyusic_usb PRIVATE zmyusic_libusb ${log-lib})
+target_link_options(zmyusic_usb PRIVATE
     "-Wl,-z,max-page-size=16384"
     "-Wl,--gc-sections"
     "-Wl,--version-script,${CMAKE_CURRENT_SOURCE_DIR}/bitperfect/exports.map")
-set_property(TARGET myusic_usb APPEND PROPERTY LINK_DEPENDS
+set_property(TARGET zmyusic_usb APPEND PROPERTY LINK_DEPENDS
     "${CMAKE_CURRENT_SOURCE_DIR}/bitperfect/exports.map")

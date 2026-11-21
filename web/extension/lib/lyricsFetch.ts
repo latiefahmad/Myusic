@@ -1,4 +1,4 @@
-import type { HttpRequest, HttpResponse } from '@myusic/shared/bridge';
+import type { HttpRequest, HttpResponse } from '@zmyusic/shared/bridge';
 
 import { LYRIC_ORIGINS, patternOf } from './lyricHosts';
 
@@ -73,7 +73,7 @@ export async function lyricsFetch(request: HttpRequest): Promise<HttpResponse> {
     throw Object.assign(new Error(`lyrics.fetch doesn't serve ${url.origin}`), { code: 'forbidden' });
   }
   if (!(await browser.permissions.contains({ origins: [patternOf(url.origin)] }))) {
-    throw new LyricsPermissionError(`Myusic needs permission to reach ${url.host} for lyrics.`);
+    throw new LyricsPermissionError(`ZMyusic needs permission to reach ${url.host} for lyrics.`);
   }
   await installRules();
   const response = await fetch(url, {

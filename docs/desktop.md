@@ -33,8 +33,8 @@ actually inside the archive.
 
 | Variable / property | Effect |
 |---|---|
-| `-Pmyusic.version=1.0.0` | Public version, overriding the root `myusicVersionName` |
-| `-Pmyusic.target=windows\|linux\|macos` | Cross-configure the build for another OS |
+| `-Pzmyusic.version=1.0.0` | Public version, overriding the root `zmyusicVersionName` |
+| `-Pzmyusic.target=windows\|linux\|macos` | Cross-configure the build for another OS |
 | `local.properties`: `LASTFM_API_KEY`, `LASTFM_SECRET` | Scrobbling and Last.fm sign-in |
 | `local.properties`: `LISTEN_TOGETHER_SERVER` | Party server, when not using the default |
 | `local.properties`: `MODULE_INDEX_URL` | Addon index override |
@@ -43,7 +43,7 @@ actually inside the archive.
 
 - **Automix** - `desktopApp/native/CMakeLists.txt` compiles the same C++ the
   Android app uses. The library is packaged under `native/` and unpacked to
-  `~/.local/share/myusic/analysis` on first use. Without a compiler the app
+  `~/.local/share/zmyusic/analysis` on first use. Without a compiler the app
   still runs and Automix is simply absent.
 - **Windows media controls and frame** - `native/smtc` (WinRT SMTC) and
   `native/window` (DWM frame), both built with MinGW. Without them the app uses
@@ -58,10 +58,10 @@ actually inside the archive.
 ## macOS
 
 - `TargetFormat.Dmg` produces a `.app` inside a DMG. `bundleID` is
-  `com.music.myusic`, the icon is `packaging/icons/AppIcon.icns`.
+  `com.zmyusic.zmyusic`, the icon is `packaging/icons/AppIcon.icns`.
 - Compose desktop uses the system window frame on macOS, so the Windows frame
   bridge is not built.
-- Unsigned builds need `xattr -cr /Applications/Myusic.app` or a right-click
+- Unsigned builds need `xattr -cr /Applications/ZMyusic.app` or a right-click
   Open on first launch. `MACOS_CERTIFICATE`, `MACOS_CERTIFICATE_PASSWORD` and
   `MACOS_SIGNING_IDENTITY` in the release workflow sign the bundle; without
   them the DMG ships unsigned.
@@ -79,10 +79,10 @@ actually inside the archive.
 
 ## Settings
 
-`java.util.prefs` under the node `com.music.myusic.desktop`: the registry on
+`java.util.prefs` under the node `com.zmyusic.zmyusic.desktop`: the registry on
 Windows, `~/.java/.userPrefs` on Linux, `~/Library/Preferences` on macOS.
 Unpacked natives and Automix results live in
-`$XDG_DATA_HOME/myusic` (default `~/.local/share/myusic`) on every platform.
+`$XDG_DATA_HOME/zmyusic` (default `~/.local/share/zmyusic`) on every platform.
 Browser profiles and downloaded tracks are stored outside the JDK preferences,
 beside the user's music folder.
 

@@ -4,7 +4,7 @@ about: Suggest a change or a feature for the iOS app
 labels: enhancement
 ---
 
-<!-- New features usually land in the Android app first: https://github.com/latiefahmad/Myusic -->
+<!-- New features usually land in the Android app first: https://github.com/latiefahmad/ZMyusic -->
 
 **What you want to do**
 Describe the problem or the use case, not only the solution.

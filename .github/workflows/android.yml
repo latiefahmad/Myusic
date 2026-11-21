@@ -3,7 +3,7 @@ name: Android Release APK
 on:
   push:
     branches: [main]
-    tags: ["Myusic-v*.*.*"]
+    tags: ["ZMyusic-v*.*.*"]
   workflow_dispatch:
 
 permissions:
@@ -92,14 +92,14 @@ jobs:
           exit 0
         fi
         old="$("$aapt" dump badging "$RUNNER_TEMP/latest.apk" 2>/dev/null | sed -n "s/.*versionCode='\([0-9]*\)'.*/\1/p" | head -n1)"
-        new="$(sed -n 's/^extra\["myusicVersionCode"\] = \([0-9]*\)/\1/p' build.gradle.kts | tr -d '\r')"
+        new="$(sed -n 's/^extra\["zmyusicVersionCode"\] = \([0-9]*\)/\1/p' build.gradle.kts | tr -d '\r')"
         echo "Last release $latest has versionCode $old; this release has $new."
         if [ -z "$old" ] || [ -z "$new" ]; then
           echo "::warning::Could not read a versionCode; skipping the check."
           exit 0
         fi
         if [ "$new" -le "$old" ]; then
-          echo "::error::myusicVersionCode must increase: $new is not greater than $old from $latest."
+          echo "::error::zmyusicVersionCode must increase: $new is not greater than $old from $latest."
           exit 1
         fi
 
@@ -109,9 +109,9 @@ jobs:
         echo "LASTFM_SECRET=${{ secrets.LASTFM_SECRET }}" >> local.properties
         echo "LISTEN_TOGETHER_SERVER=${{ secrets.LISTEN_TOGETHER_SERVER }}" >> local.properties
 
-        echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > myusic-release.jks
+        echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > zmyusic-release.jks
         {
-          echo "storeFile=myusic-release.jks"
+          echo "storeFile=zmyusic-release.jks"
           echo "storePassword=${{ secrets.KEYSTORE_PASSWORD }}"
           echo "keyAlias=${{ secrets.KEY_ALIAS }}"
           echo "keyPassword=${{ secrets.KEY_PASSWORD }}"
@@ -126,7 +126,7 @@ jobs:
     - name: Upload APK Artifact
       uses: actions/upload-artifact@v4
       with:
-        name: myusic-prod-release-signed
+        name: zmyusic-prod-release-signed
         path: app/build/outputs/apk/prod/release/*.apk
 
     # Built by the same assembleProdRelease, with the same key. The watch app
@@ -135,7 +135,7 @@ jobs:
     - name: Upload Wear OS APK Artifact
       uses: actions/upload-artifact@v4
       with:
-        name: myusic-wear-prod-release-signed
+        name: zmyusic-wear-prod-release-signed
         path: wearos/build/outputs/apk/prod/release/*.apk
 
     # Android TV is its own module with its own applicationId; the phone
@@ -143,7 +143,7 @@ jobs:
     - name: Upload Android TV APK Artifact
       uses: actions/upload-artifact@v4
       with:
-        name: myusic-tv-prod-release-signed
+        name: zmyusic-tv-prod-release-signed
         path: tv/build/outputs/apk/prod/release/*.apk
 
     # A tag is a release: the phone, TV and watch APKs belong on it next to the
@@ -151,17 +151,17 @@ jobs:
     - name: Name the APKs for the release
       if: github.ref_type == 'tag'
       run: |
-        v="${GITHUB_REF_NAME#Myusic-v}"
+        v="${GITHUB_REF_NAME#ZMyusic-v}"
         mkdir -p dist
         for f in app/build/outputs/apk/prod/release/*.apk; do
           abi=$(basename "$f" | sed -E 's/^app-prod-(.*)-release\.apk$/\1/')
-          cp "$f" "dist/Myusic-$v-android-phone-$abi.apk"
+          cp "$f" "dist/ZMyusic-$v-android-phone-$abi.apk"
         done
         for f in tv/build/outputs/apk/prod/release/*.apk; do
           abi=$(basename "$f" | sed -E 's/^tv-prod-(.*)-release\.apk$/\1/')
-          cp "$f" "dist/Myusic-$v-android-tv-$abi.apk"
+          cp "$f" "dist/ZMyusic-$v-android-tv-$abi.apk"
         done
-        cp wearos/build/outputs/apk/prod/release/*.apk "dist/Myusic-$v-android-wear.apk"
+        cp wearos/build/outputs/apk/prod/release/*.apk "dist/ZMyusic-$v-android-wear.apk"
         ls -lh dist
 
     - name: Attach the APKs to the draft release

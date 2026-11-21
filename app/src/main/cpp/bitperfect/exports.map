@@ -1,5 +1,5 @@
 {
     global:
-        Java_com_music_myusic_playback_audio_bitperfect_*;
+        Java_com_zmyusic_zmyusic_playback_audio_bitperfect_*;
     local: *;
 };

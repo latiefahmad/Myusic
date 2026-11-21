@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2026 Myusic Project
+ * Copyright (C) 2026 ZMyusic Project
  *
  * Adapted from Mornye (https://github.com/mornyeapp/Mornye),
  * rust_backend/crates/mobile/src/usb_audio/{descriptors.rs (PacketClock), framing.rs},

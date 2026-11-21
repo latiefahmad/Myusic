@@ -6,11 +6,11 @@
  * distribution it has never seen.
  *
  * Copyright (C) 2026 SFG545 (original Orchard implementation)
- * Copyright (C) 2026 Kushagra Singh (Myusic adaptation)
+ * Copyright (C) 2026 Kushagra Singh (ZMyusic adaptation)
  *
  * Orchard's original source is licensed under the GNU Affero General Public
  * License, version 3 or later. Per AGPLv3 section 13, this file is combined
- * here into Myusic -- a work licensed under the GNU General Public
+ * here into ZMyusic -- a work licensed under the GNU General Public
  * License, version 3 or later -- and remains itself governed by the AGPLv3
  * as part of that combination.
  *
@@ -44,7 +44,7 @@
 #include <cstddef>
 #include <vector>
 
-namespace myusic::smart {
+namespace zmyusic::smart {
 
 inline constexpr double kVocalSpectrogramSampleRate = 44100;
 inline constexpr size_t kVocalSpectrogramChannels = 2;
@@ -76,4 +76,4 @@ VocalSpectrogram ComputeVocalSpectrogram(
   double sample_rate
 );
 
-}  // namespace myusic::smart
+}  // namespace zmyusic::smart

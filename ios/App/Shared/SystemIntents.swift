@@ -19,7 +19,7 @@ enum WidgetTransportAction: String, CaseIterable, Sendable {
     case shuffle
 }
 
-/// Implemented by the app (App/Myusic/Intents) under ``SharedConstants/intentHandlerClassName``.
+/// Implemented by the app (App/ZMyusic/Intents) under ``SharedConstants/intentHandlerClassName``.
 protocol SystemIntentHandling: AnyObject {
     /// Runs a widget button's command against the app's player.
     @MainActor static func perform(_ action: WidgetTransportAction) async

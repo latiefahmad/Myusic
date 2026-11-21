@@ -4,7 +4,7 @@
 Keys stay the Android resource names so the two apps can be kept in step. Pass the Android app's
 resource directory (the one holding values/, values-de/, ...), from a checkout of the Android repo:
     python3 scripts/convert-strings.py <android-checkout>/app/src/main/res
-Writes App/Myusic/Resources/Localizable.xcstrings and App/Myusic/Support/L10n.swift, found
+Writes App/ZMyusic/Resources/Localizable.xcstrings and App/ZMyusic/Support/L10n.swift, found
 relative to this script.
 """
 import json, re, sys, xml.etree.ElementTree as ET
@@ -12,11 +12,11 @@ from pathlib import Path
 
 if len(sys.argv) != 2:
     sys.exit("usage: convert-strings.py <android-res-dir>\n"
-             "  e.g. python3 scripts/convert-strings.py ../Myusic/app/src/main/res")
+             "  e.g. python3 scripts/convert-strings.py ../ZMyusic/app/src/main/res")
 ROOT = Path(__file__).resolve().parents[1]
 RES = Path(sys.argv[1])
-OUT_CATALOG = ROOT / "App/Myusic/Resources/Localizable.xcstrings"
-OUT_SWIFT = ROOT / "App/Myusic/Support/L10n.swift"
+OUT_CATALOG = ROOT / "App/ZMyusic/Resources/Localizable.xcstrings"
+OUT_SWIFT = ROOT / "App/ZMyusic/Support/L10n.swift"
 # Android resource qualifier -> iOS localization identifier.
 LOCALES = {"values": "en", "values-de": "de", "values-es": "es", "values-fr": "fr", "values-he": "he",
            "values-hi": "hi", "values-id": "id", "values-it": "it", "values-ja": "ja", "values-pl": "pl",

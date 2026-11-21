@@ -4,10 +4,10 @@ import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 /** What the packages, the launcher and the settings footer all say. */
-val appVersion: String = providers.gradleProperty("myusic.version").orNull
+val appVersion: String = providers.gradleProperty("zmyusic.version").orNull
     ?.removePrefix("v")
     ?.takeIf { it.isNotBlank() }
-    ?: (rootProject.extra["myusicVersionName"] as? String ?: "1.0.0")
+    ?: (rootProject.extra["zmyusicVersionName"] as? String ?: "1.0.0")
 
 /** Which platform this build is *for*, which is the host unless told otherwise. */
 val hostOsName = System.getProperty("os.name").orEmpty()
@@ -16,17 +16,17 @@ val hostIsLinux = hostOsName.contains("Linux", ignoreCase = true)
 val hostIsMac = hostOsName.contains("Mac", ignoreCase = true)
 val hostIsArm64 = System.getProperty("os.arch").orEmpty()
     .lowercase() in setOf("aarch64", "arm64")
-val targetOs: String = (providers.gradleProperty("myusic.target").orNull ?: when {
+val targetOs: String = (providers.gradleProperty("zmyusic.target").orNull ?: when {
     hostIsWindows -> "windows"
     hostIsLinux -> "linux"
     hostIsMac -> "macos"
-    else -> error("Myusic desktop supports Windows, Linux and macOS only")
+    else -> error("ZMyusic desktop supports Windows, Linux and macOS only")
 }).lowercase()
 
 // Windows installer metadata requires MAJOR.MINOR.BUILD even though the app's public version is
 // intentionally displayed without a patch number (1.7 rather than 1.7.0).
 // The build number is the desktop version code; it also keeps "-beta1" out of the numeric installer version.
-val desktopVersionCode = (rootProject.extra["myusicVersionCode"] as? Int) ?: 39
+val desktopVersionCode = (rootProject.extra["zmyusicVersionCode"] as? Int) ?: 39
 val nativePackageVersion = appVersion.substringBefore('-').split('.').take(2).joinToString(".") + ".$desktopVersionCode"
 
 // FFmpeg decodes audio; see DesktopAudioDecoder.
@@ -37,7 +37,7 @@ val nativeClassifier = when (targetOs) {
     "linux" -> "linux-x86_64"
     // JavaCPP names the Apple artifacts by architecture rather than by OS alone.
     "macos" -> if (hostIsArm64) "macosx-arm64" else "macosx-x86_64"
-    else -> error("Myusic desktop supports Windows, Linux and macOS only")
+    else -> error("ZMyusic desktop supports Windows, Linux and macOS only")
 }
 private fun localProperty(name: String): String = rootProject.file("local.properties")
     .takeIf { it.isFile }
@@ -388,7 +388,7 @@ val windowsPortableAssemble by tasks.registering {
     group = "distribution"
     description = "Lays out a Windows-runnable folder: application jars, Windows natives, launcher."
     dependsOn(tasks.named("jar"))
-    val stage = windowsPortableDir.map { it.dir("Myusic") }
+    val stage = windowsPortableDir.map { it.dir("ZMyusic") }
     val appJar = tasks.named<Jar>("jar").flatMap { it.archiveFile }
     val runtime = configurations.named("runtimeClasspath")
     val version = appVersion
@@ -417,22 +417,22 @@ val windowsPortableAssemble by tasks.registering {
             val name = if (group.isNullOrBlank()) artifact.file.name else "$group.${artifact.file.name}"
             artifact.file.copyTo(File(lib, name), overwrite = true)
         }
-        appJar.get().asFile.copyTo(File(lib, "myusic-app.jar"), overwrite = true)
+        appJar.get().asFile.copyTo(File(lib, "zmyusic-app.jar"), overwrite = true)
 
         // `lib\*` rather than a spelled-out classpath: the wildcard is what keeps this working when
         // a dependency is added, and the JVM is what expands it.
-        File(target, "Myusic.bat").writeText(
+        File(target, "ZMyusic.bat").writeText(
             buildString {
                 appendLine("@echo off")
                 appendLine("setlocal")
-                appendLine("rem Myusic, portable. Needs a Java 21+ runtime on PATH or in JAVA_HOME.")
+                appendLine("rem ZMyusic, portable. Needs a Java 21+ runtime on PATH or in JAVA_HOME.")
                 appendLine("set \"HERE=%~dp0\"")
                 appendLine("set \"RUNNER=java\"")
                 appendLine("if defined JAVA_HOME set \"RUNNER=%JAVA_HOME%\\bin\\java\"")
-                append("\"%RUNNER%\" -Dmyusic.version=$version")
-                if (moduleIndex.isNotBlank()) append(" -Dmyusic.module.index=$moduleIndex")
+                append("\"%RUNNER%\" -Dzmyusic.version=$version")
+                if (moduleIndex.isNotBlank()) append(" -Dzmyusic.module.index=$moduleIndex")
                 if (lastfmKey.isNotBlank() && lastfmSharedSecret.isNotBlank()) {
-                    append(" -Dmyusic.lastfm.key=$lastfmKey -Dmyusic.lastfm.secret=$lastfmSharedSecret")
+                    append(" -Dzmyusic.lastfm.key=$lastfmKey -Dzmyusic.lastfm.secret=$lastfmSharedSecret")
                 }
                 appendLine(" -cp \"%HERE%lib\\*\" $mainClass %*")
                 appendLine("endlocal")
@@ -446,8 +446,8 @@ val windowsPortableAssemble by tasks.registering {
             ZipFile(jar).use { zip -> zip.getEntry(entry) != null }
         }
         val problems = buildList {
-            if (!holds("com/music/myusic/desktop/MainKt.class")) {
-                add("the Myusic desktop entry point is missing")
+            if (!holds("com/zmyusic/zmyusic/desktop/MainKt.class")) {
+                add("the ZMyusic desktop entry point is missing")
             }
             if (!holds("androidx/compose/runtime/Composer.class")) {
                 add("the Compose runtime is missing")
@@ -466,12 +466,12 @@ val windowsPortableAssemble by tasks.registering {
         }
         check(problems.isEmpty()) { "windowsPortable: " + problems.joinToString("; ") }
 
-        val analyser = File(analysisNativeDir.get().asFile, "myusic_analysis.dll").isFile
+        val analyser = File(analysisNativeDir.get().asFile, "zmyusic_analysis.dll").isFile
         logger.lifecycle(
             if (analyser) {
                 "windowsPortable: verified — Compose runtime, Windows renderer, Windows FFmpeg, Automix analyser."
             } else {
-                "windowsPortable: verified, but no myusic_analysis.dll — Automix will not run in this archive. " +
+                "windowsPortable: verified, but no zmyusic_analysis.dll — Automix will not run in this archive. " +
                     "Rebuild with: nix-shell -p cmake pkgsCross.mingwW64.buildPackages.gcc"
             },
         )
@@ -483,27 +483,27 @@ val windowsPortable by tasks.registering(Zip::class) {
     description = "Zips the portable Windows folder for copying to a Windows machine."
     dependsOn(windowsPortableAssemble)
     from(windowsPortableDir)
-    archiveFileName.set("Myusic-$appVersion-windows-portable.zip")
+    archiveFileName.set("ZMyusic-$appVersion-windows-portable.zip")
     destinationDirectory.set(layout.buildDirectory.dir("distributions"))
     doLast { logger.lifecycle("windowsPortable: ${archiveFile.get().asFile.absolutePath}") }
 }
 
-val composeMainClass = "com.music.myusic.desktop.MainKt"
+val composeMainClass = "com.zmyusic.zmyusic.desktop.MainKt"
 
 compose.desktop {
     application {
         mainClass = composeMainClass
         jvmArgs("-Xmx512m")
         jvmArgs("-XX:+UseG1GC", "-XX:G1PeriodicGCInterval=20000", "-XX:G1PeriodicGCSystemLoadThreshold=0")
-        jvmArgs("-Dmyusic.version=$appVersion")
+        jvmArgs("-Dzmyusic.version=$appVersion")
         if (desktopModuleIndexUrl.isNotBlank()) {
-            jvmArgs("-Dmyusic.module.index=$desktopModuleIndexUrl")
+            jvmArgs("-Dzmyusic.module.index=$desktopModuleIndexUrl")
         }
         if (lastfmApiKey.isNotBlank() && lastfmSecret.isNotBlank()) {
-            jvmArgs("-Dmyusic.lastfm.key=$lastfmApiKey", "-Dmyusic.lastfm.secret=$lastfmSecret")
+            jvmArgs("-Dzmyusic.lastfm.key=$lastfmApiKey", "-Dzmyusic.lastfm.secret=$lastfmSecret")
         }
         if (listenTogetherServer.isNotBlank()) {
-            jvmArgs("-Dmyusic.listentogether.server=$listenTogetherServer")
+            jvmArgs("-Dzmyusic.listentogether.server=$listenTogetherServer")
         }
 
         buildTypes.release.proguard {
@@ -523,9 +523,9 @@ compose.desktop {
                 TargetFormat.Deb,
                 TargetFormat.Rpm,
             )
-            packageName = "Myusic"
+            packageName = "ZMyusic"
             packageVersion = nativePackageVersion
-            description = if (targetOs == "windows") "Myusic" else "Myusic - a YouTube Music client"
+            description = if (targetOs == "windows") "ZMyusic" else "ZMyusic - a YouTube Music client"
             vendor = "latiefahmad"
             copyright = "Copyright © 2026 latiefahmad"
 
@@ -563,8 +563,8 @@ compose.desktop {
 
             windows {
                 iconFile.set(project.file("packaging/icons/AppIcon.ico"))
-                upgradeUuid = "8f3c1d24-6a2b-4f5e-9c17-2b8d54e0a913"
-                menuGroup = "Myusic"
+                upgradeUuid = "606cf3b0-9e95-4081-95dc-61eacc21b9a6"
+                menuGroup = "ZMyusic"
                 shortcut = true
                 dirChooser = false
                 perUserInstall = true
@@ -572,8 +572,8 @@ compose.desktop {
 
             macOS {
                 iconFile.set(project.file("packaging/icons/AppIcon.icns"))
-                bundleID = "com.music.myusic"
-                dockName = "Myusic"
+                bundleID = "com.zmyusic.zmyusic"
+                dockName = "ZMyusic"
             }
         }
     }

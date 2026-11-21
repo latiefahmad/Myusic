@@ -103,7 +103,7 @@ kotlin {
 }
 
 android {
-    namespace = "com.music.myusic.sharedui"
+    namespace = "com.zmyusic.zmyusic.sharedui"
     compileSdk = 36
     defaultConfig {
         minSdk = 26
@@ -112,6 +112,6 @@ android {
 
 compose.resources {
     publicResClass = true
-    packageOfResClass = "com.music.myusic.sharedui.resources"
+    packageOfResClass = "com.zmyusic.zmyusic.sharedui.resources"
     generateResClass = always
 }

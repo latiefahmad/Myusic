@@ -1,4 +1,4 @@
-module github.com/latiefahmad/Myusic/backend
+module github.com/latiefahmad/ZMyusic/backend
 
 go 1.27.0
 

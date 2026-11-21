@@ -9,16 +9,16 @@ acknowledgement within a few days.
 ## Secrets in this repository
 
 GitHub's secret scanning flags four `AIza…` values under
-`ios/MyusicKit`. They are **not** credentials of this project and there is
+`ios/ZMyusicKit`. They are **not** credentials of this project and there is
 nothing to rotate:
 
-- `ios/MyusicKit/Tests/**/Fixtures/*` are recorded YouTube and Musixmatch
+- `ios/ZMyusicKit/Tests/**/Fixtures/*` are recorded YouTube and Musixmatch
   responses. The `AIza…` strings in them are the public client keys those web
   pages ship with — `INNERTUBE_API_KEY` in a saved `music.youtube.com` page, and
   the key in Musixmatch's own app config. The Musixmatch `user_token` in the
   same fixture is literally `REDACTED` upstream.
-- `ios/MyusicKit/Sources/StreamResolution/PoToken/PoTokenChallenge.swift` and
-  `app/src/main/java/com/music/myusic/data/innertube/potoken/PoTokenWebView.kt`
+- `ios/ZMyusicKit/Sources/StreamResolution/PoToken/PoTokenChallenge.swift` and
+  `app/src/main/java/com/zmyusic/zmyusic/data/innertube/potoken/PoTokenWebView.kt`
   hold YouTube's public BotGuard key, the one every third-party YouTube client
   uses to mint po-tokens. It has to be in the source to speak to YouTube's
   `api/jnn` endpoints.

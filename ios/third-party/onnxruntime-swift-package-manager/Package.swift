@@ -92,23 +92,27 @@ if let pod_archive_path = ProcessInfo.processInfo.environment["ORT_POD_LOCAL_PAT
     package.targets.append(Target.binaryTarget(name: "onnxruntime", path: pod_archive_path))
 
 } else {
-    // ORT release
+    // Microsoft's download.onnxruntime.ai endpoint stopped serving a valid
+    // certificate for its hostname in November 2026, and the upstream GitHub
+    // repositories are unavailable. This target uses the ZMyusic mirror in the
+    // deps-onnxruntime-1.24.2 release, repacked from the official NuGet
+    // package. The mirror keeps the iOS device and simulator slices.
     package.targets.append(
        Target.binaryTarget(name: "onnxruntime",
-                           url: "https://download.onnxruntime.ai/pod-archive-onnxruntime-c-1.24.2.zip",
+                           url: "https://github.com/latiefahmad/ZMyusic/releases/download/deps-onnxruntime-1.24.2/onnxruntime-1.24.2-ios.zip",
                            // SHA256 checksum
-                           checksum: "f7100a992d2a8135168c8afd831e6a58b465349101982aa58b3e11d36e600b54")
+                           checksum: "8f68f0a81dfb10cdf44c8e9a8bfaf391771e2cfb882602b7e734fe021c0015c6")
     )
 }
 
 if let ext_pod_archive_path = ProcessInfo.processInfo.environment["ORT_EXTENSIONS_POD_LOCAL_PATH"] {
     package.targets.append(Target.binaryTarget(name: "onnxruntime_extensions", path: ext_pod_archive_path))
 } else {
-    // ORT Extensions release
+    // ORT Extensions release, from the same ZMyusic mirror.
     package.targets.append(
         Target.binaryTarget(name: "onnxruntime_extensions",
-                            url: "https://download.onnxruntime.ai/pod-archive-onnxruntime-extensions-c-0.13.0.zip",
+                            url: "https://github.com/latiefahmad/ZMyusic/releases/download/deps-onnxruntime-1.24.2/onnxruntime-extensions-0.13.0-ios.zip",
                             // SHA256 checksum
-                            checksum: "346522d1171d4c99cb0908fa8e4e9330a4a6aad39cd83ce36eb654437b33e6b5")
+                            checksum: "8b352e3e45b831d679552991e072cf47cc98d1a1fa5d43051ee8c9eb777e732a")
     )
 }

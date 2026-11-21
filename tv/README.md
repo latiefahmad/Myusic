@@ -1,6 +1,6 @@
-# Myusic TV
+# ZMyusic TV
 
-Android TV / Google TV build of Myusic: a remote-first Compose-for-TV interface
+Android TV / Google TV build of ZMyusic: a remote-first Compose-for-TV interface
 (home, library, search, settings, a full-screen now-playing view with synced
 lyrics, display refresh-rate switching, spatial audio, and QR-code sign-in).
 
