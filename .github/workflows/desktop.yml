@@ -2,11 +2,11 @@ name: Desktop Release
 
 on:
   push:
-    tags: ["Myusic-v*.*.*"]
+    tags: ["ZMyusic-v*.*.*"]
   workflow_dispatch:
     inputs:
       version:
-        description: "Version to stamp into the packages, without the leading Myusic-v"
+        description: "Version to stamp into the packages, without the leading ZMyusic-v"
         required: true
 
 permissions:
@@ -42,7 +42,7 @@ jobs:
         id: version
         run: |
           version="${{ inputs.version }}"
-          [ -n "$version" ] || version="${GITHUB_REF_NAME#Myusic-v}"
+          [ -n "$version" ] || version="${GITHUB_REF_NAME#ZMyusic-v}"
           echo "value=$version" >> "$GITHUB_OUTPUT"
           echo "Building $version"
 
@@ -65,34 +65,34 @@ jobs:
       - run: chmod +x gradlew
 
       - name: Tests
-        run: ./gradlew :shared:jvmTest :desktopApp:test -Pmyusic.version=${{ steps.version.outputs.value }}
+        run: ./gradlew :shared:jvmTest :desktopApp:test -Pzmyusic.version=${{ steps.version.outputs.value }}
 
       - name: Build deb, rpm and the app image
         run: |
           ./gradlew :desktopApp:packageDeb :desktopApp:packageRpm :desktopApp:createDistributable \
-            -Pmyusic.version=${{ steps.version.outputs.value }}
+            -Pzmyusic.version=${{ steps.version.outputs.value }}
 
       # A jar without the analyser or the models still starts, and quietly
       # loses Automix: exactly the failure this check exists to catch.
       - name: The analyser and models are in the jar
         run: |
-          jar=$(ls desktopApp/build/compose/binaries/main/app/Myusic/lib/app/desktopApp*.jar)
-          jar tf "$jar" | grep -q 'native/libmyusic_analysis.so'
+          jar=$(ls desktopApp/build/compose/binaries/main/app/ZMyusic/lib/app/desktopApp*.jar)
+          jar tf "$jar" | grep -q 'native/libzmyusic_analysis.so'
           jar tf "$jar" | grep -q 'models/.*\.onnx'
 
       - name: Build the AppImage
         run: |
           desktopApp/packaging/appimage.sh \
-            desktopApp/build/compose/binaries/main/app/Myusic \
-            dist/Myusic-${{ steps.version.outputs.value }}-linux-x86_64.AppImage \
+            desktopApp/build/compose/binaries/main/app/ZMyusic \
+            dist/ZMyusic-${{ steps.version.outputs.value }}-linux-x86_64.AppImage \
             "$PWD/appimagetool.AppImage"
 
       - name: Collect
         run: |
           v=${{ steps.version.outputs.value }}
           mkdir -p dist
-          cp desktopApp/build/compose/binaries/main/deb/*.deb "dist/Myusic-$v-linux-amd64.deb"
-          cp desktopApp/build/compose/binaries/main/rpm/*.rpm "dist/Myusic-$v-linux-x86_64.rpm"
+          cp desktopApp/build/compose/binaries/main/deb/*.deb "dist/ZMyusic-$v-linux-amd64.deb"
+          cp desktopApp/build/compose/binaries/main/rpm/*.rpm "dist/ZMyusic-$v-linux-x86_64.rpm"
           ls -lh dist
 
       - uses: actions/upload-artifact@v4
@@ -162,7 +162,7 @@ jobs:
         shell: bash
         run: |
           version="${{ inputs.version }}"
-          [ -n "$version" ] || version="${GITHUB_REF_NAME#Myusic-v}"
+          [ -n "$version" ] || version="${GITHUB_REF_NAME#ZMyusic-v}"
           echo "value=$version" >> "$GITHUB_OUTPUT"
           echo "Building $version"
 
@@ -176,29 +176,29 @@ jobs:
           exit 0
 
       - name: Tests
-        run: .\gradlew.bat :shared:jvmTest :desktopApp:test "-Pmyusic.version=${{ steps.version.outputs.value }}"
+        run: .\gradlew.bat :shared:jvmTest :desktopApp:test "-Pzmyusic.version=${{ steps.version.outputs.value }}"
 
       - name: Build msi, exe and the app image
         run: |
-          .\gradlew.bat :desktopApp:packageMsi :desktopApp:packageExe :desktopApp:createDistributable "-Pmyusic.version=${{ steps.version.outputs.value }}"
+          .\gradlew.bat :desktopApp:packageMsi :desktopApp:packageExe :desktopApp:createDistributable "-Pzmyusic.version=${{ steps.version.outputs.value }}"
 
       - name: The analyser and models are in the jar
         shell: bash
         run: |
-          jar=$(ls desktopApp/build/compose/binaries/main/app/Myusic/app/desktopApp*.jar)
-          jar tf "$jar" | grep -q 'native/myusic_analysis.dll'
+          jar=$(ls desktopApp/build/compose/binaries/main/app/ZMyusic/app/desktopApp*.jar)
+          jar tf "$jar" | grep -q 'native/zmyusic_analysis.dll'
           jar tf "$jar" | grep -q 'models/.*\.onnx'
-          jar tf "$jar" | grep -q 'native/myusic_smtc.dll'
+          jar tf "$jar" | grep -q 'native/zmyusic_smtc.dll'
 
       - name: Collect
         shell: pwsh
         run: |
           $v = "${{ steps.version.outputs.value }}"
           New-Item -ItemType Directory -Force dist | Out-Null
-          Copy-Item desktopApp/build/compose/binaries/main/msi/*.msi "dist/Myusic-$v-windows-x64.msi"
-          Copy-Item desktopApp/build/compose/binaries/main/exe/*.exe "dist/Myusic-$v-windows-x64-setup.exe"
-          7z a -tzip -mx=5 "dist/Myusic-$v-windows-x64-portable.zip" `
-            "desktopApp/build/compose/binaries/main/app/Myusic/*" | Out-Null
+          Copy-Item desktopApp/build/compose/binaries/main/msi/*.msi "dist/ZMyusic-$v-windows-x64.msi"
+          Copy-Item desktopApp/build/compose/binaries/main/exe/*.exe "dist/ZMyusic-$v-windows-x64-setup.exe"
+          7z a -tzip -mx=5 "dist/ZMyusic-$v-windows-x64-portable.zip" `
+            "desktopApp/build/compose/binaries/main/app/ZMyusic/*" | Out-Null
           Get-ChildItem dist | Format-Table Name, Length
 
       - uses: actions/upload-artifact@v4
@@ -239,7 +239,7 @@ jobs:
         id: version
         run: |
           version="${{ inputs.version }}"
-          [ -n "$version" ] || version="${GITHUB_REF_NAME#Myusic-v}"
+          [ -n "$version" ] || version="${GITHUB_REF_NAME#ZMyusic-v}"
           echo "value=$version" >> "$GITHUB_OUTPUT"
           echo "Building $version"
 
@@ -252,14 +252,14 @@ jobs:
           exit 0
 
       - name: Tests
-        run: ./gradlew :shared:jvmTest :desktopApp:test -Pmyusic.version=${{ steps.version.outputs.value }}
+        run: ./gradlew :shared:jvmTest :desktopApp:test -Pzmyusic.version=${{ steps.version.outputs.value }}
 
       # createDistributable, not packageDmg: the bundle is signed before the
       # DMG is built, so the signature is the one inside the disk image.
       - name: Build the app
         run: |
           ./gradlew :desktopApp:createDistributable \
-            -Pmyusic.version=${{ steps.version.outputs.value }}
+            -Pzmyusic.version=${{ steps.version.outputs.value }}
 
       - name: Sign the app
         env:
@@ -267,7 +267,7 @@ jobs:
           MACOS_CERTIFICATE_PASSWORD: ${{ secrets.MACOS_CERTIFICATE_PASSWORD }}
           MACOS_SIGNING_IDENTITY: ${{ secrets.MACOS_SIGNING_IDENTITY }}
         run: |
-          APP="desktopApp/build/compose/binaries/main/app/Myusic.app"
+          APP="desktopApp/build/compose/binaries/main/app/ZMyusic.app"
           if [ -n "$MACOS_CERTIFICATE" ]; then
             KEYCHAIN="$RUNNER_TEMP/music.keychain-db"
             echo "$MACOS_CERTIFICATE" | base64 --decode > "$RUNNER_TEMP/music.p12"
@@ -294,10 +294,10 @@ jobs:
           stage="$RUNNER_TEMP/dmg"
           rm -rf "$stage"
           mkdir -p "$stage"
-          cp -R desktopApp/build/compose/binaries/main/app/Myusic.app "$stage/"
+          cp -R desktopApp/build/compose/binaries/main/app/ZMyusic.app "$stage/"
           ln -sfn /Applications "$stage/Applications"
-          dmg="Myusic-$v-macos-${{ matrix.arch }}.dmg"
-          hdiutil create -volname "Myusic" -srcfolder "$stage" -ov -format UDZO "$dmg"
+          dmg="ZMyusic-$v-macos-${{ matrix.arch }}.dmg"
+          hdiutil create -volname "ZMyusic" -srcfolder "$stage" -ov -format UDZO "$dmg"
           # A DMG that missed the app is a few kilobytes: fail instead of publishing it.
           test "$(stat -f%z "$dmg")" -gt 1000000
           mkdir -p dist
@@ -325,14 +325,14 @@ jobs:
       - name: Work out the version
         id: release-version
         if: github.ref_type == 'tag'
-        run: echo "value=${GITHUB_REF_NAME#Myusic-v}" >> "$GITHUB_OUTPUT"
+        run: echo "value=${GITHUB_REF_NAME#ZMyusic-v}" >> "$GITHUB_OUTPUT"
 
       - name: Draft the release
         if: github.ref_type == 'tag'
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ github.ref_name }}
-          name: Myusic ${{ steps.release-version.outputs.value }}
+          name: ZMyusic ${{ steps.release-version.outputs.value }}
           draft: true
           # The body lives in one file so the iOS build, which usually creates the
           # draft first, writes the same one.

@@ -13,13 +13,13 @@ const DEV_ORIGIN = 'http://localhost:5173';
  * content-script matches (Firefox) and the DNR rules' initiatorDomains.
  *
  * bitchord.in and its pages.dev address always, and the dev server too except in a store build
- * (MYUSIC_STORE_BUILD=1), so a published extension never answers a page on
- * localhost. MYUSIC_SITE_ORIGINS (comma-separated) replaces the list. The
+ * (ZMYUSIC_STORE_BUILD=1), so a published extension never answers a page on
+ * localhost. ZMYUSIC_SITE_ORIGINS (comma-separated) replaces the list. The
  * first origin is the one the popup and homepage_url link to.
  */
 export const SITE_ORIGINS: string[] = (
-  process.env.MYUSIC_SITE_ORIGINS ??
-  [PRODUCTION_ORIGIN, PAGES_ORIGIN, ...(process.env.MYUSIC_STORE_BUILD === '1' ? [] : [DEV_ORIGIN])].join(',')
+  process.env.ZMYUSIC_SITE_ORIGINS ??
+  [PRODUCTION_ORIGIN, PAGES_ORIGIN, ...(process.env.ZMYUSIC_STORE_BUILD === '1' ? [] : [DEV_ORIGIN])].join(',')
 )
   .split(',')
   .map((o) => o.trim().replace(/\/+$/, ''))

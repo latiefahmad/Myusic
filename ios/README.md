@@ -2,16 +2,16 @@
 
 <br/>
 
-<img src=".github/assets/icon.png" alt="Myusic app icon" width="160" />
+<img src=".github/assets/icon.png" alt="ZMyusic app icon" width="160" />
 
-# Myusic for iOS
+# ZMyusic for iOS
 
-### A YouTube Music client for iPhone and iPad, the iOS app of the Myusic family
+### A YouTube Music client for iPhone and iPad, the iOS app of the ZMyusic family
 
 <br/>
 
-[![Release](https://img.shields.io/github/v/release/latiefahmad/Myusic?style=for-the-badge&labelColor=0d1117&color=2563eb)](https://github.com/latiefahmad/Myusic/releases)
-[![License](https://img.shields.io/github/license/latiefahmad/Myusic?style=for-the-badge&labelColor=0d1117)](LICENSE)
+[![Release](https://img.shields.io/github/v/release/latiefahmad/ZMyusic?style=for-the-badge&labelColor=0d1117&color=2563eb)](https://github.com/latiefahmad/ZMyusic/releases)
+[![License](https://img.shields.io/github/license/latiefahmad/ZMyusic?style=for-the-badge&labelColor=0d1117)](LICENSE)
 [![Platform](https://img.shields.io/badge/iOS-17%2B-0d1117?style=for-the-badge)](#requirements)
 
 <br/>
@@ -21,15 +21,15 @@
 </div>
 
 > [!IMPORTANT]
-> Myusic is not affiliated with, endorsed by, or connected to YouTube, Google or Apple in any way. Use it at your own discretion.
+> ZMyusic is not affiliated with, endorsed by, or connected to YouTube, Google or Apple in any way. Use it at your own discretion.
 
 ---
 
 ## What this is
 
-This is the iPhone and iPad app of [Myusic](https://github.com/latiefahmad/Myusic), a YouTube Music client for Android, the desktop and iOS. It is a native SwiftUI app that follows the Android app screen for screen, currently tracking Myusic for Android 1.0.0.
+This is the iPhone and iPad app of [ZMyusic](https://github.com/latiefahmad/ZMyusic), a YouTube Music client for Android, the desktop and iOS. It is a native SwiftUI app that follows the Android app screen for screen, currently tracking ZMyusic for Android 1.0.0.
 
-Myusic for iOS began as [BitChord for iOS](https://github.com/maanya145/BitChord-iOS), the SwiftUI port of [BitChord for Android](https://github.com/kushagrasinghx/BitChord) by [Kushagra Singh](https://github.com/kushagrasinghx). The original copyright notices and the GPLv3 licence stay in place; the Android app in this repository is now the reference for every module here.
+ZMyusic for iOS began as [BitChord for iOS](https://github.com/maanya145/BitChord-iOS), the SwiftUI port of [BitChord for Android](https://github.com/kushagrasinghx/BitChord) by [Kushagra Singh](https://github.com/kushagrasinghx). The original copyright notices and the GPLv3 licence stay in place; the Android app in this repository is now the reference for every module here.
 
 Where iOS cannot do what Android does, the port uses the closest iOS equivalent or leaves the feature out. The [porting notes](docs/PORTING.md) list each feature, the Android source it comes from, and the tests that cover it.
 
@@ -82,24 +82,24 @@ Where iOS cannot do what Android does, the port uses the closest iOS equivalent 
 
 - Lock screen and Control Center controls.
 - Three Home Screen widgets, in small and medium sizes.
-- A Share extension that opens YouTube and YouTube Music links in Myusic.
+- A Share extension that opens YouTube and YouTube Music links in ZMyusic.
 - App Intents for playback.
 - A CarPlay interface. It needs Apple's CarPlay audio entitlement, which the project does not carry.
 
 ## Requirements
 
 - iPhone or iPad running iOS 17 or later.
-- A sideloading tool such as AltStore or SideStore. Myusic is not on the App Store.
+- A sideloading tool such as AltStore or SideStore. ZMyusic is not on the App Store.
 
 ## Install
 
-Myusic is not on the App Store: Apple rejects third-party YouTube clients under
+ZMyusic is not on the App Store: Apple rejects third-party YouTube clients under
 Guideline 5.2.3, and the app is GPLv3. Install it with AltStore, SideStore or
 any tool that signs an IPA with your own Apple ID.
 
-1. Download the `Myusic-<version>-ios-unsigned.ipa` artifact from a successful
+1. Download the `ZMyusic-<version>-ios-unsigned.ipa` artifact from a successful
    run of the **iOS** workflow (Actions → iOS → Unsigned IPA), or from
-   [Releases](https://github.com/latiefahmad/Myusic/releases) when it is attached
+   [Releases](https://github.com/latiefahmad/ZMyusic/releases) when it is attached
    there.
 2. Open it in AltStore or SideStore and sign it with your Apple ID.
 3. Install it, then trust the developer certificate under Settings → General → VPN & Device Management.
@@ -120,20 +120,20 @@ To update, install the new version over the old one. Downloads, library and sett
 ### Open the project
 
 ```sh
-git clone https://github.com/latiefahmad/Myusic.git
-cd Myusic/ios
-open Myusic.xcworkspace
+git clone https://github.com/latiefahmad/ZMyusic.git
+cd ZMyusic/ios
+open ZMyusic.xcworkspace
 ```
 
-Open the workspace, not the `.xcodeproj`. It contains the app project and the `MyusicKit` package. Pick the `Myusic` scheme. Xcode resolves the two Swift package dependencies on first open.
+Open the workspace, not the `.xcodeproj`. It contains the app project and the `ZMyusicKit` package. Pick the `ZMyusic` scheme. Xcode resolves the two Swift package dependencies on first open.
 
 ### Signing for a device
 
 The project uses automatic signing with no team set, and the maintainer's identifiers. To run on your own device:
 
-1. Select your team under Signing & Capabilities for the `Myusic`, `MyusicWidgetExtension` and `MyusicShareExtension` targets.
-2. Change the bundle identifiers to a prefix you own. The app is `com.music.myusic`, the widget is `com.music.myusic.widget` and the Share extension is `com.music.myusic.share`. The extensions must keep the app's identifier as their prefix.
-3. Change the app group `group.com.music.myusic` in the three files under `App/Config/*.entitlements` and in `App/Shared/SharedConstants.swift`. The widget and the Share extension read the app's data through this group.
+1. Select your team under Signing & Capabilities for the `ZMyusic`, `ZMyusicWidgetExtension` and `ZMyusicShareExtension` targets.
+2. Change the bundle identifiers to a prefix you own. The app is `com.zmyusic.zmyusic`, the widget is `com.zmyusic.zmyusic.widget` and the Share extension is `com.zmyusic.zmyusic.share`. The extensions must keep the app's identifier as their prefix.
+3. Change the app group `group.com.zmyusic.zmyusic` in the three files under `App/Config/*.entitlements` and in `App/Shared/SharedConstants.swift`. The widget and the Share extension read the app's data through this group.
 
 Do not commit these changes in a pull request.
 
@@ -142,12 +142,12 @@ Do not commit these changes in a pull request.
 The app reads two optional build settings, `LASTFM_API_KEY` and `LASTFM_API_SECRET`, into its `Info.plist`. Without them the app builds and runs, but Last.fm sign-in and scrobbling and the genre chart in Replay stay unavailable. To use them, get a key from [Last.fm](https://www.last.fm/api/account/create) and pass both on the command line:
 
 ```sh
-xcodebuild -workspace Myusic.xcworkspace -scheme Myusic \
+xcodebuild -workspace ZMyusic.xcworkspace -scheme ZMyusic \
   -destination 'generic/platform=iOS Simulator' \
   LASTFM_API_KEY=your_key LASTFM_API_SECRET=your_secret build
 ```
 
-In Xcode, add them as user-defined build settings on the `Myusic` target, and keep them out of commits. No `.xcconfig` file is attached to the project.
+In Xcode, add them as user-defined build settings on the `ZMyusic` target, and keep them out of commits. No `.xcconfig` file is attached to the project.
 
 The PaxSenix lyrics key is entered in the app under the lyrics sources, not at build time.
 
@@ -156,37 +156,37 @@ The PaxSenix lyrics key is entered in the app under the lyrics sources, not at b
 The scripts in `scripts/` wrap the common builds. They can be run from any directory.
 
 ```sh
-scripts/kit-test.sh                      # MyusicKit tests on the Mac, no simulator
+scripts/kit-test.sh                      # ZMyusicKit tests on the Mac, no simulator
 scripts/kit-test.sh --filter LyricsTests # one module's tests
-scripts/kit-build-ios.sh                 # compile MyusicKit for the iOS Simulator
+scripts/kit-build-ios.sh                 # compile ZMyusicKit for the iOS Simulator
 scripts/app-build.sh                     # compile the app, extensions and test bundles
-scripts/sim-test.sh                      # run the Myusic test plan on the "iPhone 16" simulator
+scripts/sim-test.sh                      # run the ZMyusic test plan on the "iPhone 16" simulator
 scripts/make-ipa.sh                      # build an unsigned Release IPA in build/
 scripts/verify-ipa.sh build/<file>.ipa   # check an IPA's signature and app-group entitlements
 ```
 
-The scripts use `/Applications/Xcode.app` unless `DEVELOPER_DIR` is set. `JOBS=n` sets the number of parallel compile jobs. `MYUSIC_SIM_NAME` picks a different simulator for `sim-test.sh`, and extra arguments go to `xcodebuild`, for example `scripts/sim-test.sh -only-testing:MyusicTests`.
+The scripts use `/Applications/Xcode.app` unless `DEVELOPER_DIR` is set. `JOBS=n` sets the number of parallel compile jobs. `ZMYUSIC_SIM_NAME` picks a different simulator for `sim-test.sh`, and extra arguments go to `xcodebuild`, for example `scripts/sim-test.sh -only-testing:ZMyusicTests`.
 
-Tests that call real services are skipped unless `MYUSIC_LIVE_TESTS=1` is set, so the default run works offline.
+Tests that call real services are skipped unless `ZMYUSIC_LIVE_TESTS=1` is set, so the default run works offline.
 
 ## Project layout
 
 ```
-Myusic.xcworkspace      open this
+ZMyusic.xcworkspace      open this
 App/
-  Myusic.xcodeproj      app, widget, Share extension and app-hosted test targets
-  Myusic/               the SwiftUI app: screens, navigation, CarPlay, App Intents
-  MyusicWidget/         Home Screen widgets
-  MyusicShare/          Share extension
+  ZMyusic.xcodeproj      app, widget, Share extension and app-hosted test targets
+  ZMyusic/               the SwiftUI app: screens, navigation, CarPlay, App Intents
+  ZMyusicWidget/         Home Screen widgets
+  ZMyusicShare/          Share extension
   Shared/                 code compiled into the app and both extensions
-  MyusicTests/          app-hosted unit and view model tests
-  MyusicUITests/        UI and end-to-end tests
+  ZMyusicTests/          app-hosted unit and view model tests
+  ZMyusicUITests/        UI and end-to-end tests
   Config/                 Info.plists and entitlements
-  Myusic.xctestplan     the scheme's test plan: MyusicTests and every MyusicKit test target
-  MyusicE2E.xctestplan  the UI tests, some of which need the network
-MyusicKit/              Swift package with all non-UI logic, one module per subsystem
+  ZMyusic.xctestplan     the scheme's test plan: ZMyusicTests and every ZMyusicKit test target
+  ZMyusicE2E.xctestplan  the UI tests, some of which need the network
+ZMyusicKit/              Swift package with all non-UI logic, one module per subsystem
   Sources/
-    MyusicCore          shared models, settings, HTTP and logging
+    ZMyusicCore          shared models, settings, HTTP and logging
     InnerTube             YouTube Music API client, parser and Google sign-in
     StreamResolution      turns a video id into a playable audio stream
     Sources               add-on and JioSaavn sources, matching and fallback to YouTube
@@ -205,13 +205,13 @@ MyusicKit/              Swift package with all non-UI logic, one module per subs
     Replay                listening statistics and backup
     Canvas                animated cover art lookups
     Theming               colours taken from artwork
-    MyusicTestSupport     test helpers, never shipped
+    ZMyusicTestSupport     test helpers, never shipped
   Tests/                  one test target per module
 scripts/                  build, test and packaging scripts
 docs/PORTING.md           feature checklist and porting decisions
 ```
 
-The top of `MyusicKit/Package.swift` lists the Android source each module ports. Android paths in code comments are relative to [`app/src/main/java/com/music/myusic/`](https://github.com/latiefahmad/Myusic/tree/main/app/src/main/java/com/music/myusic) in this repository.
+The top of `ZMyusicKit/Package.swift` lists the Android source each module ports. Android paths in code comments are relative to [`app/src/main/java/com/zmyusic/zmyusic/`](https://github.com/latiefahmad/ZMyusic/tree/main/app/src/main/java/com/zmyusic/zmyusic) in this repository.
 
 ## Contributing
 
@@ -219,9 +219,9 @@ Contributions are welcome. Read the [contributing guide](CONTRIBUTING.md) and th
 
 ## Credits
 
-### Myusic for Android
+### ZMyusic for Android
 
-Myusic is a rebrand of [BitChord](https://github.com/kushagrasinghx/BitChord) by [Kushagra Singh](https://github.com/kushagrasinghx), licensed under GPL-3.0. The design, the features and most of the behaviour come from that project, and the Android app in [this repository](https://github.com/latiefahmad/Myusic) is the reference for every module here. If you like the app, support the [original project](https://github.com/kushagrasinghx/BitChord).
+ZMyusic is a rebrand of [BitChord](https://github.com/kushagrasinghx/BitChord) by [Kushagra Singh](https://github.com/kushagrasinghx), licensed under GPL-3.0. The design, the features and most of the behaviour come from that project, and the Android app in [this repository](https://github.com/latiefahmad/ZMyusic) is the reference for every module here. If you like the app, support the [original project](https://github.com/kushagrasinghx/BitChord).
 
 Thanks also to the [contributors to BitChord](https://github.com/kushagrasinghx/BitChord/graphs/contributors).
 
@@ -235,23 +235,23 @@ Thanks also to the [contributors to BitChord](https://github.com/kushagrasinghx/
 
 - [AMSMB2](https://github.com/amosavian/AMSMB2), which wraps libsmb2 (LGPL-2.1), for SMB shares.
 - [ONNX Runtime](https://github.com/microsoft/onnxruntime-swift-package-manager) (MIT) to run the Automix models.
-- [Orchard](https://github.com/SFG5453/Orchard) by SFG545. The Automix analyzer and several Automix files are ported from Orchard through Myusic for Android and stay under AGPL-3.0.
+- [Orchard](https://github.com/SFG5453/Orchard) by SFG545. The Automix analyzer and several Automix files are ported from Orchard through ZMyusic for Android and stay under AGPL-3.0.
 - The Beat This! beat model by CPJKU and the Open-Unmix vocals model by Inria and SigSep.
 - Stream resolution follows NewPipe Extractor, InnerTubeX and zemer-cipher; the Discord integration ports Kizzy; the artwork colours port AndroidX Palette and ColorUtils.
 
 ### Services
 
-Lyrics come from LRCLIB, Musixmatch, Genius, KuGou, PaxSenix, BetterLyrics, BiniLyrics, LyricsPlus, SimpMusic, Unison, Megalobiz and YouTube Music. Animated covers come from Apple Music, Tidal, Spotify and a community canvas index. Listen Together uses the Myusic Listen Together backend from the Android project. Thanks to the people who run these services.
+Lyrics come from LRCLIB, Musixmatch, Genius, KuGou, PaxSenix, BetterLyrics, BiniLyrics, LyricsPlus, SimpMusic, Unison, Megalobiz and YouTube Music. Animated covers come from Apple Music, Tidal, Spotify and a community canvas index. Listen Together uses the ZMyusic Listen Together backend from the Android project. Thanks to the people who run these services.
 
 ## Disclaimer and legal notice
 
-Myusic for iOS is an independent, community-driven third-party audio player and client. It is not associated with Google LLC, YouTube, YouTube Music, Apple Inc. or any of their parent companies.
+ZMyusic for iOS is an independent, community-driven third-party audio player and client. It is not associated with Google LLC, YouTube, YouTube Music, Apple Inc. or any of their parent companies.
 
-- **No media hosting.** Myusic does not host, upload or store copyrighted music. It plays files you import, files on your own network shares, and streams from public or user-authenticated APIs.
+- **No media hosting.** ZMyusic does not host, upload or store copyrighted music. It plays files you import, files on your own network shares, and streams from public or user-authenticated APIs.
 - **Fair use and API usage.** This software is made for personal research, education and fair use. You are responsible for making sure your use complies with your local copyright laws and the YouTube Terms of Service.
-- **No guarantee of service.** Myusic does not guarantee that any third-party platform will keep working with it.
-- **Copyleft.** Myusic is free software under GPL-3.0. Anyone may sell or redistribute copies, but every distribution must come with the corresponding source under the same license.
+- **No guarantee of service.** ZMyusic does not guarantee that any third-party platform will keep working with it.
+- **Copyleft.** ZMyusic is free software under GPL-3.0. Anyone may sell or redistribute copies, but every distribution must come with the corresponding source under the same license.
 
 ## License
 
-Myusic for iOS is licensed under the [GNU General Public License v3.0](LICENSE). It is a port of Myusic for Android, which is GPL-3.0, so the port carries the same license. The files ported from Orchard remain under the [GNU Affero General Public License v3.0](LICENSES/AGPL-3.0.txt), as their headers state. See [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md) for the full list.
+ZMyusic for iOS is licensed under the [GNU General Public License v3.0](LICENSE). It is a port of ZMyusic for Android, which is GPL-3.0, so the port carries the same license. The files ported from Orchard remain under the [GNU Affero General Public License v3.0](LICENSES/AGPL-3.0.txt), as their headers state. See [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md) for the full list.

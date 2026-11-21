@@ -1,23 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  The Myusic mark. The 108dp canvas keeps the ink inside the 66dp
-    safe zone every launcher mask crops to.
+  The ZMyusic mark for Wear OS.
 -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="108dp"
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
-  <path
-      android:fillColor="#FFFFFFFF"
-      android:pathData="M39.89,36.5L39.73,35.07L39.25,33.7L38.48,32.48L37.46,31.46L36.24,30.69L34.88,30.22L33.44,30.06L32.01,30.22L30.65,30.69L29.43,31.46L28.41,32.48L27.64,33.7L27.16,35.07L27,36.5L27,71.5L27.16,72.93L27.64,74.3L28.41,75.52L29.43,76.54L30.65,77.31L32.01,77.78L33.44,77.94L34.88,77.78L36.24,77.31L37.46,76.54L38.48,75.52L39.25,74.3L39.73,72.93L39.89,71.5Z"/>
-  <path
-      android:fillColor="#FFFFFFFF"
-      android:pathData="M48.86,67.61L49.85,68.65L51.05,69.45L52.4,69.96L53.83,70.16L55.27,70.04L56.64,69.6L57.88,68.87L58.93,67.87L59.73,66.67L60.24,65.32L60.44,63.89L60.32,62.45L59.88,61.08L59.14,59.84L38.59,32.62L37.59,31.57L36.39,30.77L35.04,30.26L33.61,30.06L32.18,30.18L30.8,30.62L29.56,31.36L28.51,32.35L27.71,33.55L27.2,34.9L27,36.33L27.13,37.77L27.57,39.14L28.3,40.38Z"/>
-  <path
-      android:fillColor="#FFFFFFFF"
-      android:pathData="M79.7,40.38L80.43,39.14L80.87,37.77L81,36.33L80.8,34.9L80.29,33.55L79.49,32.35L78.44,31.36L77.2,30.62L75.82,30.18L74.39,30.06L72.96,30.26L71.61,30.77L70.41,31.57L69.41,32.62L48.86,59.84L48.12,61.08L47.68,62.45L47.56,63.89L47.76,65.32L48.27,66.67L49.07,67.87L50.12,68.87L51.36,69.6L52.73,70.04L54.17,70.16L55.6,69.96L56.95,69.45L58.15,68.65L59.14,67.61Z"/>
-  <path
-      android:fillColor="#FFFFFFFF"
-      android:pathData="M68.11,71.5L68.27,72.93L68.75,74.3L69.52,75.52L70.54,76.54L71.76,77.31L73.12,77.78L74.56,77.94L75.99,77.78L77.35,77.31L78.57,76.54L79.59,75.52L80.36,74.3L80.84,72.93L81,71.5L81,36.5L80.84,35.07L80.36,33.7L79.59,32.48L78.57,31.46L77.35,30.69L75.99,30.22L74.56,30.06L73.12,30.22L71.76,30.69L70.54,31.46L69.52,32.48L68.75,33.7L68.27,35.07L68.11,36.5Z"/>
+  <path android:pathData="M26.74,29.82 L51.01,29.82" android:strokeColor="#FFFFFFFF" android:strokeWidth="8.86" android:strokeLineCap="round" android:strokeLineJoin="round"/>
+  <path android:pathData="M51.01,29.82 L26.74,70.67" android:strokeColor="#FFFFFFFF" android:strokeWidth="8.86" android:strokeLineCap="round" android:strokeLineJoin="round"/>
+  <path android:pathData="M26.74,70.67 L51.01,70.67" android:strokeColor="#FFFFFFFF" android:strokeWidth="8.86" android:strokeLineCap="round" android:strokeLineJoin="round"/>
+  <path android:pathData="M54.48,70.67 L54.48,29.82" android:strokeColor="#FFFFFFFF" android:strokeWidth="8.86" android:strokeLineCap="round" android:strokeLineJoin="round"/>
+  <path android:pathData="M54.48,29.82 L68.35,54.87" android:strokeColor="#FFFFFFFF" android:strokeWidth="8.86" android:strokeLineCap="round" android:strokeLineJoin="round"/>
+  <path android:pathData="M68.35,54.87 L82.23,29.82" android:strokeColor="#FFFFFFFF" android:strokeWidth="8.86" android:strokeLineCap="round" android:strokeLineJoin="round"/>
+  <path android:pathData="M82.23,29.82 L82.23,70.67" android:strokeColor="#FFFFFFFF" android:strokeWidth="8.86" android:strokeLineCap="round" android:strokeLineJoin="round"/>
 </vector>

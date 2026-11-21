@@ -24,7 +24,7 @@ export const useAppleSettings = create<{
       setArtistArt: (artistArt) => set({ artistArt }),
       setMotion: (motion) => set({ motion }),
     }),
-    { name: 'myusic:apple', version: 1 },
+    { name: 'zmyusic:apple', version: 1 },
   ),
 );
 

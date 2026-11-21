@@ -3,7 +3,7 @@ import Foundation
 /// The app's strings, for code that also runs in the extensions.
 ///
 /// The string catalog (`Localizable.xcstrings`, keyed by the Android resource names) is compiled
-/// into the app bundle only. An extension lives inside the app bundle (`Myusic.app/PlugIns/…`),
+/// into the app bundle only. An extension lives inside the app bundle (`ZMyusic.app/PlugIns/…`),
 /// and may read its container's resources, so lookups go to the app bundle from wherever they run
 /// rather than shipping a second copy of every translation. In the app this is what `L10n` does.
 enum SharedStrings {
@@ -49,7 +49,7 @@ enum SharedStrings {
     static var widgetNext: String { tr("widget_next", "Next") }
     static var widgetPrevious: String { tr("widget_previous", "Previous") }
     static var widgetArtwork: String { tr("widget_artwork", "Album art") }
-    static var widgetOpenMyusic: String { tr("widget_open_myusic", "Open Myusic") }
+    static var widgetOpenZMyusic: String { tr("widget_open_zmyusic", "Open ZMyusic") }
     static var widgetSquareLabel: String { tr("widget_square_label", "Now playing 2×2") }
     static var widgetWideLabel: String { tr("widget_wide_label", "Now playing 4×2") }
     static var widgetPillLabel: String { tr("widget_pill_label", "Now playing 4×1") }
@@ -62,5 +62,5 @@ enum SharedStrings {
     static var removeFromLiked: String { tr("remove_from_liked", "Remove from liked") }
     static var shuffleOn: String { tr("shuffle_on", "Shuffle on") }
     static var shuffleOff: String { tr("shuffle_off", "Shuffle off") }
-    static var appName: String { tr("app_name", "Myusic") }
+    static var appName: String { tr("app_name", "ZMyusic") }
 }

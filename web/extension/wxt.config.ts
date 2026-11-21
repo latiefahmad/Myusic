@@ -3,8 +3,8 @@ import { defineConfig } from 'wxt';
 import { LYRIC_ORIGINS, patternOf } from './lib/lyricHosts';
 import { matchPatternsFor, SITE_ORIGINS } from './site.config';
 
-/** MYUSIC_STORE_BUILD=1 for a Chrome Web Store upload. */
-const STORE_BUILD = process.env.MYUSIC_STORE_BUILD === '1';
+/** ZMYUSIC_STORE_BUILD=1 for a Chrome Web Store upload. */
+const STORE_BUILD = process.env.ZMYUSIC_STORE_BUILD === '1';
 
 /**
  * Discord presence is user-token automation (prompt §7.3), so it is a build
@@ -26,8 +26,8 @@ export default defineConfig({
     },
   }),
   manifest: ({ browser }) => ({
-    name: 'Myusic',
-    description: 'Connects the Myusic web player to YouTube Music, Spotify and Discord.',
+    name: 'ZMyusic',
+    description: 'Connects the ZMyusic web player to YouTube Music, Spotify and Discord.',
     homepage_url: SITE_ORIGINS[0],
     // `cookies` reads the YouTube session for signed-in requests (phase 5);
     // the cookies themselves never leave the extension (lib/ytAuth.ts).

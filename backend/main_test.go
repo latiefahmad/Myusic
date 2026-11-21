@@ -13,10 +13,10 @@ import (
 
 	"github.com/gorilla/websocket"
 
-	"github.com/latiefahmad/Myusic/backend/clock"
-	"github.com/latiefahmad/Myusic/backend/config"
-	"github.com/latiefahmad/Myusic/backend/presence"
-	"github.com/latiefahmad/Myusic/backend/protocol"
+	"github.com/latiefahmad/ZMyusic/backend/clock"
+	"github.com/latiefahmad/ZMyusic/backend/config"
+	"github.com/latiefahmad/ZMyusic/backend/presence"
+	"github.com/latiefahmad/ZMyusic/backend/protocol"
 )
 
 func setupTestServer() *httptest.Server {
@@ -504,7 +504,7 @@ func TestInviteLanding(t *testing.T) {
 	_, _ = buf.ReadFrom(resActive.Body)
 	content := buf.String()
 
-	expectedDeepLinkPrefix := "myusic://party/" + code
+	expectedDeepLinkPrefix := "zmyusic://party/" + code
 	if !strings.Contains(content, expectedDeepLinkPrefix) {
 		t.Errorf("Expected HTML content to contain deep link %s", expectedDeepLinkPrefix)
 	}

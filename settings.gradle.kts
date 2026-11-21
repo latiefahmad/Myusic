@@ -15,7 +15,7 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "Myusic"
+rootProject.name = "ZMyusic"
 include(":shared")
 include(":sharedUi")
 // The JVM desktop app: Windows, Linux and (from here on) macOS. It needs a

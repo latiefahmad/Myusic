@@ -1,0 +1,33 @@
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" fill="none" xmlns="http://www.w3.org/2000/svg">
+<!--
+  ZMyusic monogram: an interlocked Z + M drawn as one continuous rounded
+  stroke on the brand squircle. Navy field, cyan->blue gradient ink, same
+  visual language as the rest of the ZMyusic brand.
+-->
+<defs>
+<linearGradient id="bg" x1="512" y1="0" x2="512" y2="1024" gradientUnits="userSpaceOnUse">
+<stop stop-color="#071A3C"/>
+<stop offset="1" stop-color="#0B2C63"/>
+</linearGradient>
+<radialGradient id="glow" cx="0" cy="0" r="1" gradientTransform="translate(512 450) rotate(90) scale(470)" gradientUnits="userSpaceOnUse">
+<stop stop-color="#22D3EE" stop-opacity="0.28"/>
+<stop offset="1" stop-color="#22D3EE" stop-opacity="0"/>
+</radialGradient>
+<linearGradient id="mark" x1="260" y1="250" x2="780" y2="800" gradientUnits="userSpaceOnUse">
+<stop stop-color="#67E8F9"/>
+<stop offset="0.45" stop-color="#22D3EE"/>
+<stop offset="1" stop-color="#2563EB"/>
+</linearGradient>
+<clipPath id="squircle"><rect width="1024" height="1024" rx="230"/></clipPath>
+</defs>
+<g clip-path="url(#squircle)">
+<rect width="1024" height="1024" fill="url(#bg)"/>
+<rect width="1024" height="1024" fill="url(#glow)"/>
+</g>
+<g stroke="url(#mark)" stroke-width="92" stroke-linecap="round" stroke-linejoin="round" fill="none">
+<!-- Z: top bar, diagonal down-left, bottom bar -->
+<path d="M268 300 H520 L268 724 H520"/>
+<!-- M: rises off the Z's bottom bar, peaks, returns; shares the left stem with the Z corner -->
+<path d="M556 724 V300 L700 560 L844 300 V724"/>
+</g>
+</svg>

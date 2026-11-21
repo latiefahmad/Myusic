@@ -18,7 +18,7 @@ interface UiState {
   dismissInstallBanner: () => void;
 }
 
-const BANNER_KEY = 'myusic:install-banner-dismissed';
+const BANNER_KEY = 'zmyusic:install-banner-dismissed';
 
 export const useUi = create<UiState>()((set) => ({
   sidePanel: null,

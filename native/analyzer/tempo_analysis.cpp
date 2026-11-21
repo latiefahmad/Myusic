@@ -2,11 +2,11 @@
  * Ported from Orchard (https://github.com/SFG5453/Orchard).
  *
  * Copyright (C) 2026 SFG545 (original Orchard implementation)
- * Copyright (C) 2026 Kushagra Singh (Myusic adaptation)
+ * Copyright (C) 2026 Kushagra Singh (ZMyusic adaptation)
  *
  * Orchard's original source is licensed under the GNU Affero General Public
  * License, version 3 or later. Per AGPLv3 section 13, this file is combined
- * here into Myusic -- a work licensed under the GNU General Public
+ * here into ZMyusic -- a work licensed under the GNU General Public
  * License, version 3 or later -- and remains itself governed by the AGPLv3
  * as part of that combination.
  *
@@ -39,7 +39,7 @@
 #include <numeric>
 #include <vector>
 
-namespace myusic::smart {
+namespace zmyusic::smart {
 namespace {
 
 constexpr double kPi = 3.14159265358979323846;
@@ -550,4 +550,4 @@ TempoResult AnalyzeTempo(
   return result;
 }
 
-}  // namespace myusic::smart
+}  // namespace zmyusic::smart

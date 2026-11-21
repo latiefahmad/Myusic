@@ -1,7 +1,7 @@
 # Code of conduct
 
 ## Expected behavior
-Contributors and maintainers participating in Myusic discussions, issues, and pull requests are expected to:
+Contributors and maintainers participating in ZMyusic discussions, issues, and pull requests are expected to:
 - Communicate constructively and professionally.
 - Treat fellow contributors, maintainers, and users with respect.
 - Focus on technical merits and what is best for the project.

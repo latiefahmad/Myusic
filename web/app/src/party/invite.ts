@@ -1,6 +1,6 @@
 /**
  * Party invites (JamInviteLink.kt): `https://bitchord.kushagrasingh.in/invite/<CODE>`,
- * optionally `?server=<custom server>`, and `myusic://party/<CODE>`. On the
+ * optionally `?server=<custom server>`, and `zmyusic://party/<CODE>`. On the
  * web the first is a route of this app (`/invite/:code`).
  */
 
@@ -32,7 +32,7 @@ export function parseInvite(value: string): { code: string; serverUrl: string | 
     return null;
   }
   const server = sanitizeServerUrl(url.searchParams.get('server'));
-  if (url.protocol === 'myusic:' && url.host.toLowerCase() === 'party') {
+  if (url.protocol === 'zmyusic:' && url.host.toLowerCase() === 'party') {
     const code = cleanCode(url.pathname.replace(/^\/+|\/+$/g, '') || url.searchParams.get('code') || '');
     return code ? { code, serverUrl: server } : null;
   }

@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { useSyncExternalStore } from 'react';
-import type { SpotifyTrack } from '@myusic/shared/bridge';
+import type { SpotifyTrack } from '@zmyusic/shared/bridge';
 import type { Track } from '@/data/music/types';
 import { useSpotifyAuth, useSpotifySignedIn } from '@/extension/useSpotifyAuth';
 import { fetchSpotifyPlaylistInfo, fetchSpotifyPlaylists, fetchSpotifyTracks, matchToYouTube, pendingTrack } from './api';
