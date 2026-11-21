@@ -619,9 +619,6 @@ object ListenTogether {
         return ProbeResult(isOnline = isOnline, latencyMs = if (isOnline) elapsed.coerceAtLeast(0L) else 0L)
     }
 
-    private suspend fun probeHealth(baseUrl: String): Boolean =
-        probeHealthWithLatency(baseUrl, HEALTH_TIMEOUT_MS).isOnline
-
     data class HealthResolution(
         val resolvedServer: String,
         val health: Health,
@@ -1719,5 +1716,4 @@ object ListenTogether {
     // below the poll interval, or the debounce silently stretches the poll.
     private const val HEALTH_MIN_GAP_MS = 5_000L
     private const val REPORT_INTERVAL_MS = 10_000L
-    private const val HEALTH_TIMEOUT_MS = 45_000L
 }

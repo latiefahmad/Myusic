@@ -200,11 +200,6 @@ private val BOUNDED_CONTINUATION_RETRIES_MS = longArrayOf(2_000L, 5_000L, 15_000
 const val ACTION_START_BOUNDED_CONTEXT = "com.zmyusic.zmyusic.action.START_BOUNDED_CONTEXT"
 const val ACTION_CLEAR_BOUNDED_CONTEXT = "com.zmyusic.zmyusic.action.CLEAR_BOUNDED_CONTEXT"
 const val EXTRA_BOUNDED_CONTEXT_SONGS = "zmyusic.boundedContext.songs"
-const val EXTRA_BOUNDED_CONTEXT_START_INDEX = "zmyusic.boundedContext.startIndex"
-const val EXTRA_BOUNDED_CONTEXT_SOURCE_TITLE = "zmyusic.boundedContext.sourceTitle"
-const val EXTRA_BOUNDED_CONTEXT_SOURCE_TYPE = "zmyusic.boundedContext.sourceType"
-const val EXTRA_BOUNDED_CONTEXT_SOURCE_ID = "zmyusic.boundedContext.sourceId"
-const val EXTRA_BOUNDED_CONTEXT_CONTINUATION = "zmyusic.boundedContext.continuation"
 
 /** Session command used to smoothly swap the current track's version (film vs release). */
 const val ACTION_SWAP_VERSION = "com.zmyusic.zmyusic.action.SWAP_VERSION"
