@@ -2,7 +2,6 @@ package com.zmyusic.zmyusic.ui.tv.personalization
 
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.graphics.Color
-import java.text.BreakIterator
 
 enum class AppThemeOption(
     val id: String,
@@ -93,76 +92,4 @@ fun AppThemeOption.getPalette(): TvThemePalette = when (this) {
         accentGlow = Color(0x66FFFFFF),
         borderFocused = Color(0xFFFFFFFF),
     )
-}
-
-sealed class NicknameValidationResult {
-    data object Valid : NicknameValidationResult()
-    data class Invalid(val reason: String) : NicknameValidationResult()
-}
-
-object NicknamePolicy {
-    const val MIN_GRAPHEMES = 1
-    const val MAX_GRAPHEMES = 24
-    const val DEFAULT_NICKNAME = "Listener"
-
-    fun validate(raw: String): NicknameValidationResult {
-        val trimmed = raw.trim()
-        if (trimmed.isEmpty()) {
-            return NicknameValidationResult.Invalid("Nickname cannot be empty")
-        }
-        if (trimmed.contains('\n') || trimmed.contains('\r') || trimmed.contains('\t')) {
-            return NicknameValidationResult.Invalid("No line breaks allowed")
-        }
-        val count = getGraphemeCount(trimmed)
-        if (count > MAX_GRAPHEMES) {
-            return NicknameValidationResult.Invalid("Must be 24 characters or less ($count/$MAX_GRAPHEMES)")
-        }
-        return NicknameValidationResult.Valid
-    }
-
-    fun getGraphemeCount(text: String): Int {
-        if (text.isEmpty()) return 0
-        val it = BreakIterator.getCharacterInstance()
-        it.setText(text)
-        var count = 0
-        while (it.next() != BreakIterator.DONE) {
-            count++
-        }
-        return count
-    }
-
-    /**
-     * Unicode-safe backspace that deletes exactly one grapheme cluster before cursor without splitting emoji.
-     */
-    fun deletePreviousGrapheme(text: String, cursorIndex: Int): Pair<String, Int> {
-        if (text.isEmpty() || cursorIndex <= 0) return Pair(text, cursorIndex)
-        val it = BreakIterator.getCharacterInstance()
-        it.setText(text)
-        val prevBoundary = it.preceding(cursorIndex)
-        if (prevBoundary == BreakIterator.DONE) return Pair(text, cursorIndex)
-        val newText = text.substring(0, prevBoundary) + text.substring(cursorIndex)
-        return Pair(newText, prevBoundary)
-    }
-
-    /**
-     * Unicode-safe cursor movement to the left by one grapheme cluster.
-     */
-    fun moveCursorLeft(text: String, cursorIndex: Int): Int {
-        if (text.isEmpty() || cursorIndex <= 0) return 0
-        val it = BreakIterator.getCharacterInstance()
-        it.setText(text)
-        val prev = it.preceding(cursorIndex)
-        return if (prev != BreakIterator.DONE) prev else 0
-    }
-
-    /**
-     * Unicode-safe cursor movement to the right by one grapheme cluster.
-     */
-    fun moveCursorRight(text: String, cursorIndex: Int): Int {
-        if (text.isEmpty() || cursorIndex >= text.length) return text.length
-        val it = BreakIterator.getCharacterInstance()
-        it.setText(text)
-        val next = it.following(cursorIndex)
-        return if (next != BreakIterator.DONE) next else text.length
-    }
 }

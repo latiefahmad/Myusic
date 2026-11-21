@@ -461,17 +461,3 @@ fun TvDialogButton(
             .tvInitialFocus(initialFocus),
     )
 }
-
-/** A rounded group of list rows inside an alert — menus, pickers, settings sheets. */
-@Composable
-fun TvDialogList(
-    modifier: Modifier = Modifier,
-    shape: Shape = RoundedCornerShape(13.dp),
-    content: @Composable ColumnScope.() -> Unit,
-) {
-    Column(
-        modifier = modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(5.dp),
-        content = content,
-    )
-}
