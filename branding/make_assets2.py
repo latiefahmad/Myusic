@@ -11,7 +11,7 @@ import shutil
 import struct
 import sys
 
-from PIL import Image, ImageDraw
+from PIL import Image, ImageDraw, ImageEnhance
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
@@ -297,21 +297,31 @@ def write_icns(path, master=1024):
     print("wrote", os.path.relpath(path, ROOT), "ICNS")
 
 
-def _ios_preview(size, dark=False):
-    """The launcher icon as the iOS preview picker shows it."""
+def _ios_preview(size, dark=False, appearance_dark=False):
+    """The launcher icon as the iOS preview picker shows it.
+
+    The asset catalog declares these 3x, so `size` is the pixel size of a
+    68 pt tile (204). Dark-mode tiles are dimmed a little even for the
+    always-dark choices, so every imageset has a distinct dark image rather
+    than falling back to its light one.
+    """
     if not dark:
-        return A.icon(size)
-    S = size * A.SS
-    plate = A._bg_gradient(S, S, A.NAVY_TOP, (4, 16, 40)).convert("RGB")
-    img = Image.new("RGBA", (S, S), (0, 0, 0, 0))
-    img.paste(plate, (0, 0), A._squircle_mask(S))
-    glow = Image.new("L", (S, S), 0)
-    ImageDraw.Draw(glow).ellipse([S * 0.04, -S * 0.02, S * 0.96, S * 0.9], fill=52)
-    gl = Image.new("RGBA", (S, S), A.CYAN + (0,))
-    gl.putalpha(glow)
-    img.alpha_composite(gl)
-    img.alpha_composite(A._ink_layer(S))
-    return img.resize((size, size), Image.LANCZOS)
+        img = A.icon(size)
+    else:
+        S = size * A.SS
+        plate = A._bg_gradient(S, S, A.NAVY_TOP, (4, 16, 40)).convert("RGB")
+        img = Image.new("RGBA", (S, S), (0, 0, 0, 0))
+        img.paste(plate, (0, 0), A._squircle_mask(S))
+        glow = Image.new("L", (S, S), 0)
+        ImageDraw.Draw(glow).ellipse([S * 0.04, -S * 0.02, S * 0.96, S * 0.9], fill=52)
+        gl = Image.new("RGBA", (S, S), A.CYAN + (0,))
+        gl.putalpha(glow)
+        img.alpha_composite(gl)
+        img.alpha_composite(A._ink_layer(S))
+        img = img.resize((size, size), Image.LANCZOS)
+    if appearance_dark:
+        img = ImageEnhance.Brightness(img).enhance(0.88)
+    return img
 
 
 def main():
@@ -378,7 +388,7 @@ def main():
     for name, dark in previews.items():
         base = R("ios", "App", "ZMyusic", "Assets.xcassets", "AppIconPreviews", f"{name}.imageset")
         for variant in ("light", "dark"):
-            img = _ios_preview(1024, dark=(dark or variant == "dark"))
+            img = _ios_preview(204, dark=(dark or variant == "dark"), appearance_dark=(variant == "dark"))
             save(img, os.path.join(base, f"{variant}.png"))
 
     print("done")

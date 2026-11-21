@@ -273,9 +273,6 @@ object QueueShuffle {
         return shuffled.drop(1) + shuffled.first()
     }
 
-    private fun shuffledSection(indices: List<Int>): List<Int> =
-        avoidIdentityShuffle(indices, indices.shuffled())
-
     internal fun avoidIdentityShuffle(original: List<Int>, shuffled: List<Int>): List<Int> {
         if (original.size <= 1 || shuffled != original) return shuffled
         return shuffled.drop(1) + shuffled.first()

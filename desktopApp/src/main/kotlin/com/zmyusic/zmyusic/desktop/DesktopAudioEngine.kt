@@ -67,20 +67,20 @@ class DesktopPlaybackEngine(
     private val commands = ConcurrentLinkedQueue<Command>()
     private val running = AtomicBoolean(true)
 
-    // The output sheet changes the persisted mixer directly. Observe that single source of truth
-    // here so both the shared main-player sheet and the desktop settings dialog move the live
-    // stream, on Windows and Linux alike.
     private var observedOutputDevice = DesktopAudioDevices.selected.value
-    private val outputDeviceJob = scope.launch {
-        DesktopAudioDevices.selected.collect { selected ->
-            if (selected != observedOutputDevice) {
-                observedOutputDevice = selected
-                commands += Command.Reconfigure
-            }
-        }
-    }
 
     init {
+        // The output sheet changes the persisted mixer directly. Observe that single source of truth
+        // here so both the shared main-player sheet and the desktop settings dialog move the live
+        // stream, on Windows and Linux alike.
+        scope.launch {
+            DesktopAudioDevices.selected.collect { selected ->
+                if (selected != observedOutputDevice) {
+                    observedOutputDevice = selected
+                    commands += Command.Reconfigure
+                }
+            }
+        }
         // Windows' endpoint watcher bumps the same signal from the OS's own push; Linux asks the
         // kernel on a poll — see [DesktopLinuxAudioWatcher]. A device change reconfigures a
         // playing line only when the line was opened on a per-device mixer that is no longer

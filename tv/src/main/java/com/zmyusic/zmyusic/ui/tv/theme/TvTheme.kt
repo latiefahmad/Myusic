@@ -211,113 +211,6 @@ val TvMidnightPalette = TvColorPalette(
 
 val LocalTvColors = compositionLocalOf { TvDarkPalette }
 
-object TvColors {
-    val AccentRed: Color
-        @Composable
-        @ReadOnlyComposable
-        get() = LocalTvColors.current.accentRed
-
-    val AccentRedGlow: Color
-        @Composable
-        @ReadOnlyComposable
-        get() = LocalTvColors.current.accentRedGlow
-
-    val AccentPink: Color
-        @Composable
-        @ReadOnlyComposable
-        get() = LocalTvColors.current.accentPink
-
-    val AccentPurple: Color
-        @Composable
-        @ReadOnlyComposable
-        get() = LocalTvColors.current.accentPurple
-
-    val AccentBlue: Color
-        @Composable
-        @ReadOnlyComposable
-        get() = LocalTvColors.current.accentBlue
-
-    val Background: Color
-        @Composable
-        @ReadOnlyComposable
-        get() = LocalTvColors.current.background
-
-    val BackgroundElevated: Color
-        @Composable
-        @ReadOnlyComposable
-        get() = LocalTvColors.current.backgroundElevated
-
-    val Surface: Color
-        @Composable
-        @ReadOnlyComposable
-        get() = LocalTvColors.current.surface
-
-    val SurfaceVariant: Color
-        @Composable
-        @ReadOnlyComposable
-        get() = LocalTvColors.current.surfaceVariant
-
-    val SurfaceFocused: Color
-        @Composable
-        @ReadOnlyComposable
-        get() = LocalTvColors.current.surfaceFocused
-
-    val SurfaceSelected: Color
-        @Composable
-        @ReadOnlyComposable
-        get() = LocalTvColors.current.surfaceSelected
-
-    val TextPrimary: Color
-        @Composable
-        @ReadOnlyComposable
-        get() = LocalTvColors.current.textPrimary
-
-    val TextSecondary: Color
-        @Composable
-        @ReadOnlyComposable
-        get() = LocalTvColors.current.textSecondary
-
-    val TextMuted: Color
-        @Composable
-        @ReadOnlyComposable
-        get() = LocalTvColors.current.textMuted
-
-    val BorderSubtle: Color
-        @Composable
-        @ReadOnlyComposable
-        get() = LocalTvColors.current.borderSubtle
-
-    val BorderFocused: Color
-        @Composable
-        @ReadOnlyComposable
-        get() = LocalTvColors.current.borderFocused
-
-    val BorderFocusedWhite: Color
-        @Composable
-        @ReadOnlyComposable
-        get() = LocalTvColors.current.borderFocusedWhite
-
-    val ScrimDark: Color
-        @Composable
-        @ReadOnlyComposable
-        get() = LocalTvColors.current.scrimDark
-
-    val GlassOverlay: Color
-        @Composable
-        @ReadOnlyComposable
-        get() = LocalTvColors.current.glassOverlay
-
-    val GlassOverlayFocused: Color
-        @Composable
-        @ReadOnlyComposable
-        get() = LocalTvColors.current.glassOverlayFocused
-
-    val BackgroundGradient: Brush
-        @Composable
-        @ReadOnlyComposable
-        get() = LocalTvColors.current.backgroundGradient
-}
-
 object TvThemeColors {
     val current: TvColorPalette
         @Composable
@@ -335,17 +228,6 @@ val TvSFProDisplay = FontFamily(
     Font(R.font.sf_pro_display_semibold, FontWeight.W600),
     Font(R.font.sf_pro_display_bold, FontWeight.W700),
     Font(R.font.sf_pro_display_heavy, FontWeight.W800),
-)
-
-val TvGoogleSans = FontFamily(
-    Font(R.font.google_sans_regular, FontWeight.W400),
-    Font(R.font.google_sans_medium, FontWeight.W500),
-    Font(R.font.google_sans_bold, FontWeight.W700),
-)
-
-val TvMinecraft = FontFamily(
-    Font(R.font.minecraft, FontWeight.W400),
-    Font(R.font.minecraft_bold, FontWeight.W700),
 )
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -465,16 +347,11 @@ fun createTvTypography(palette: TvColorPalette): Typography = Typography(
 
 object TvDimensions {
     val SafeMarginHorizontal = 38.dp
-    val SafeMarginVertical = 22.dp
     val CardSpacing = 16.dp
     val ShelfSpacing = 24.dp
-    val TopNavBarHeight = 51.dp
 
     /** Where scrolling content starts so its first row clears the floating tab bar. */
     val ContentTop = 69.dp
-
-    val NavigationRailWidth = 61.dp
-    val NavigationRailExpandedWidth = 176.dp
 }
 
 /**

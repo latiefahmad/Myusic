@@ -336,7 +336,6 @@ private struct LyricsList: View {
     /// page's own move, so the rows around it travel with the page.
     @State private var openGap: Int?
     @State private var scrollTravel: CGFloat = 0
-    @State private var lastDragY: CGFloat?
     /// A lower-half tap that brought the controls back rather than seeking.
     @State private var tapRevealedAt: Date?
 

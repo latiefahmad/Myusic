@@ -1,52 +1,9 @@
 import ZMyusicCore
 import SwiftUI
 
-// Ports the app's chrome: ui/components/{FrostedTopBar, TopFadeBlur, BottomFadeScrim,
+// Ports the app's chrome: ui/components/{FrostedTopBar, TopFadeBlur,
 // SearchField, QueueActionNotice, ArtworkBackdrop}.kt. Android faked Apple's materials with a
 // haze library; SwiftUI's materials are the real thing.
-
-/// A frosted bar background (FrostedTopBar.kt), or a solid one with "Reduce dynamic blur" on.
-struct FrostedBackground: View {
-    var reduceBlur = false
-
-    var body: some View {
-        if reduceBlur {
-            Rectangle().fill(Color(.systemBackground))
-        } else {
-            Rectangle().fill(.bar)
-        }
-    }
-}
-
-/// Fades the page out under the floating bars at the foot of the screen (BottomFadeScrim.kt).
-struct BottomFadeScrim: View {
-    var height: CGFloat = 120
-
-    var body: some View {
-        LinearGradient(
-            colors: [Color(.systemBackground).opacity(0), Color(.systemBackground).opacity(0.85)],
-            startPoint: .top, endPoint: .bottom
-        )
-        .frame(height: height)
-        .allowsHitTesting(false)
-        .accessibilityHidden(true)
-    }
-}
-
-/// Fades content out under the status bar (TopFadeBlur.kt).
-struct TopFadeScrim: View {
-    var height: CGFloat = 60
-
-    var body: some View {
-        LinearGradient(
-            colors: [Color(.systemBackground).opacity(0.9), Color(.systemBackground).opacity(0)],
-            startPoint: .top, endPoint: .bottom
-        )
-        .frame(height: height)
-        .allowsHitTesting(false)
-        .accessibilityHidden(true)
-    }
-}
 
 /// The search field (SearchField.kt): magnifier, text, clear button; submit runs the search.
 struct SearchField: View {

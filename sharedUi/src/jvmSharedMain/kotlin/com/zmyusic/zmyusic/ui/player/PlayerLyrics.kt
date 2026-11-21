@@ -170,12 +170,6 @@ private fun isRtl(text: String): Boolean {
     return rtlCount > ltrCount
 }
 
-/** Returns the text direction for [text]: LTR by default, RTL when detected. */
-private fun textDirectionFor(text: String): androidx.compose.ui.text.style.TextDirection {
-    return if (isRtl(text)) androidx.compose.ui.text.style.TextDirection.Rtl
-    else androidx.compose.ui.text.style.TextDirection.Ltr
-}
-
 /** Whether [text] carries Arabic-script letters (Persian, Arabic, Urdu…). */
 private fun usesArabicScript(text: String): Boolean = text.any { ch ->
     val code = ch.code

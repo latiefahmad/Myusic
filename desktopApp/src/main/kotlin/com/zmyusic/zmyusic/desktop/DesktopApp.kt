@@ -333,7 +333,6 @@ internal val DesktopBackground = Color(0xFF202020)
 internal val DesktopSurface = Color(0xFF0D0D0F)
 private val DesktopSurfaceRaised = Color(0xFF1C1C1E)
 internal val DesktopGlass = Color(0x661C1C1E)
-internal val DesktopGlassStrong = Color(0xCC0D0D0F)
 
 /** The floating bars in the narrow layout. */
 private val DesktopBarGlass = Color(0xB324242A)
@@ -4727,15 +4726,10 @@ private fun DesktopPageBackdrop(artworkUrl: String?, transparentBase: Boolean) {
     }
 }
 
-/** What the mesh is averaged from — coarse by design. */
 /** Whether AutoPlay may offer a song this session has already played or suggested. */
 internal const val KEY_DONT_REPEAT_SUGGESTIONS = "dont_repeat_suggestions"
 
 internal const val KEY_LIBRARY_SORT = "library_sort"
-
-private const val MESH_SOURCE_PX = 120
-
-
 
 /** Enough to scroll through, short of turning the shelf into the history page. */
 /** The Library's "On device" cards — the phone's ids for the two folders, so their cards draw alike. */

@@ -29,16 +29,6 @@ data class SpotifyImportTrack(
     val artist: String,
 )
 
-/** The result of fetching and resolving a Spotify playlist's tracks. */
-data class SpotifyImportResult(
-    val title: String,
-    val description: String,
-    val thumbnailUrl: String?,
-    val totalTracks: Int,
-    val resolvedVideoIds: List<String>,
-    val unmatchedTracks: List<SpotifyImportTrack>,
-)
-
 object SpotifyImporter {
 
     private const val USER_AGENT =

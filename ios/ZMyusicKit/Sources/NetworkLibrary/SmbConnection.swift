@@ -20,7 +20,6 @@ private let smbLog = Logger(subsystem: "com.zmyusic.zmyusic", category: "Network
 /// the same form, so only blank segments and backslashes are normalised.
 final class AmSmbShareSession: SmbShareSession, @unchecked Sendable {
     private let manager: SMB2Manager
-    private let lock = NSLock()
 
     init(manager: SMB2Manager) {
         self.manager = manager
